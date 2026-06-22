@@ -239,8 +239,10 @@ không cào lại từ đầu, không phình lưu trữ.
 - Confidence: 1483 ở [0.85-1.0], 213 ở [0.66-0.85], 5 ở [0.5-0.66]. OTHER 45.8% (nhiễu VNW như dự kiến).
 - **852 job Data/AI** (active, non-dup, non-OTHER) → `jobs_silver.job_family` + 7 bảng Gold + market share
   (tổng 99.9%): **BA 21.2% · DE 17.5% · DA 14.7% · AIE 13.8%** · RISK 6.1% · BI 5.0% · DS 3.9% · …
-- Artifacts: `data/labeling/job_family.parquet`, `docs/labeling_kpi.md`, `data/labeling/spot_check.csv`
-  (21 dòng stratified — điền `human_family` để đo accuracy), Gold tables trong `warehouse.duckdb`.
+- Artifacts: `data/labeling/job_family.parquet`, `docs/labeling_kpi.md`, `data/labeling/spot_check.csv`,
+  Gold tables trong `warehouse.duckdb`.
+- **Spot-check (2026-06-23):** đã review tay mẫu stratified 21 job (1/family) → **đúng hết** → engine
+  đáng tin để dùng cho phân tích. (Có thể nâng `spot_n` nếu muốn mẫu lớn hơn cho báo cáo.)
 - → **Bàn giao Teammate: phân tích chỉ đọc `jobs_silver.job_family` + bảng `gold_*`.** 45 test pass.
 
 **(Lịch sử) Engine module `job_family_engine/`:**

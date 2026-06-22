@@ -63,22 +63,6 @@ def main(argv: list[str] | None = None) -> int:
                             help="Dataset Phase 1: embed + cluster jobs → discovery report")
     p_disc.add_argument("--model", default=None, help="sentence-transformers model name")
 
-    p_ann = sub.add_parser("annotate", help="Phase 4: 3-judge LLM annotation → judge_votes")
-    p_ann.add_argument("--scope", choices=["pilot", "full"], default="pilot")
-    p_ann.add_argument("--n", type=int, default=120, help="pilot size (stratified)")
-    p_ann.add_argument("--seed", type=int, default=42)
-    p_ann.add_argument("--no-tiebreak", action="store_true", help="skip OpenRouter tiebreaker")
-
-    p_con = sub.add_parser("consensus", help="Phase 4: build consensus + routing from judge_votes")
-    p_con.add_argument("--scope", choices=["pilot", "full"], default="pilot")
-
-    p_gold = sub.add_parser("golden", help="Phase 4: silver (consensus) + human review queue")
-    p_gold.add_argument("--scope", choices=["pilot", "full"], default="full")
-    p_gold.add_argument("--n-test", type=int, default=150)
-
-    sub.add_parser("split", help="Phase 4: group-aware train/val/test split")
-    sub.add_parser("train", help="Phase 4: train + evaluate baseline classifier")
-
     sub.add_parser("label", help="Job Family Labeling Engine: label all jobs → job_family.parquet")
     sub.add_parser("label-kpi", help="Engine KPI report + spot-check sample")
     sub.add_parser("integrate", help="Integrate job_family into jobs_silver + build family Gold")
@@ -130,36 +114,6 @@ def main(argv: list[str] | None = None) -> int:
         from .dataset.run import run_discovery_pipeline
 
         run_discovery_pipeline(model_name=args.model or DEFAULT_MODEL)
-        return 0
-
-    if args.command == "annotate":
-        from .dataset.annotate import run_annotate
-
-        run_annotate(scope=args.scope, n=args.n, seed=args.seed, tiebreak=not args.no_tiebreak)
-        return 0
-
-    if args.command == "consensus":
-        from .dataset.agreement import run_consensus
-
-        run_consensus(scope=args.scope)
-        return 0
-
-    if args.command == "golden":
-        from .dataset.golden import run_golden
-
-        run_golden(scope=args.scope, n_test=args.n_test)
-        return 0
-
-    if args.command == "split":
-        from .dataset.splits import run_split
-
-        run_split()
-        return 0
-
-    if args.command == "train":
-        from .dataset.train_eval import run_train
-
-        run_train()
         return 0
 
     if args.command == "label":
