@@ -1,10 +1,13 @@
 # Secrets
 .env
 
-# Data artifacts (raw/bronze/silver/gold) and DBs
-data/
+# Data artifacts (raw/bronze/labeling/dataset) and DBs — EXCEPT the shipped warehouse below
+/data/*
 *.duckdb
 *.duckdb.wal
+# Ship the warehouse (jobs_silver + job_family + gold_* + raw jobs) so the analysis teammate (Luồng B)
+# can work straight from the DB without rebuilding the whole pipeline.
+!/data/warehouse.duckdb
 
 # Recon scratch
 _recon/

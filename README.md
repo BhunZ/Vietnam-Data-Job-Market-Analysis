@@ -73,7 +73,7 @@ dashboard/          Streamlit app (P7)
 ref/                reference dictionaries (skills, seniority, company type) + taxonomy/
 docs/               DATA_DICTIONARY.md · quality_report.md · TAXONOMY.md · labeling_kpi.md
 tests/              pytest (45 tests)
-data/               gitignored: warehouse.duckdb, raw/, bronze/, labeling outputs (NOT in repo — see below)
+data/               warehouse.duckdb IS shipped (13 MB, the data layer); raw/bronze/labeling/dataset gitignored
 ```
 
 ## Quick start
@@ -92,12 +92,20 @@ python -m pytest -q                        # 45 tests
 ```
 
 ## For the analysis teammate (Luồng B — P3+)
-Your work keys off **`jobs_silver.job_family`** (+ `jf_domain`, `jf_subdomain`, `jf_confidence`) and the
-**`gold_*`** tables in `data/warehouse.duckdb` — you do **not** need the engine internals. Read
-[`WORK_DIVISION.md`](WORK_DIVISION.md) for the split and [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md)
-for every column. The `data/` folder is **gitignored** (raw JD = ToS + size), so after cloning you get the
-code but not the warehouse — see [`PROJECT_STATUS.md §13`](PROJECT_STATUS.md) for how the data layer is shared
-(the data engineer provides the clean serving tables; raw scraped JD is kept local).
+The repo **ships `data/warehouse.duckdb`** (13 MB) — already containing the labeled **`jobs_silver`**
+(with `job_family`, `jf_domain`, `jf_subdomain`, `jf_confidence`) + all **7 `gold_*`** tables — so you can
+start analysing right after cloning, no rebuild needed:
+```python
+import duckdb
+con = duckdb.connect("data/warehouse.duckdb", read_only=True)
+con.sql("SELECT job_family, n, pct FROM gold_market_share ORDER BY n DESC").show()
+con.sql("SELECT * FROM jobs_silver WHERE job_family <> 'OTHER' LIMIT 5").show()
+```
+Your work keys off `jobs_silver.job_family` + the `gold_*` tables — you do **not** need the engine
+internals. Read [`WORK_DIVISION.md`](WORK_DIVISION.md) for the split and
+[`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) for every column. (Other `data/` artifacts —
+raw/bronze/embeddings/labeling cache — stay local and are gitignored; the warehouse is all you need.
+Note: the warehouse also contains raw scraped JD in the `jobs` table — keep the repo access controlled.)
 
 ## Constraints
 🚫 No salary (not in data) · 🚫 No LinkedIn · 🚫 No forecasting yet (1 snapshot) · VN + Data only ·
