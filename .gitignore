@@ -1,0 +1,34 @@
+# Secrets
+.env
+
+# Data artifacts (raw/bronze/silver/gold) and DBs
+data/
+*.duckdb
+*.duckdb.wal
+
+# Recon scratch
+_recon/
+
+# Claude Code local config (personal tooling, not part of the project)
+.claude/
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,24 @@
+# Patterns -> seniority {Intern, Junior, Mid, Senior, Lead, Manager} (locked 6-class taxonomy).
+# Evaluated in PRIORITY order (first match wins). Matched against lowercased
+# (title + source seniority_label + JD head). Default = Mid when nothing matches.
+# Includes Vietnamese title words + VNW/TopCV source labels (jobLevelVI).
+version: 1
+
+rules:
+  - seniority: Intern
+    patterns: [intern, internship, "thực tập", "thực tập sinh", fresher-intern]
+  - seniority: Manager
+    patterns: [manager, "head of", director, "giám đốc", "trưởng phòng", "quản lý",
+               "trưởng bộ phận", "phó phòng"]
+  - seniority: Lead
+    patterns: [lead, principal, staff, "tech lead", "team lead", "team leader", "leader",
+               "trưởng nhóm"]
+  - seniority: Senior
+    patterns: [senior, sr, expert, "chuyên gia", "chuyên viên cao cấp", "cao cấp"]
+  - seniority: Junior
+    patterns: [junior, jr, fresher, "mới tốt nghiệp", "mới ra trường", entry]
+
+default: Mid
+
+# Note: "Nhân viên" (VNW staff level) -> falls through to default Mid (intended).
+# "Giám Đốc và Cấp Cao Hơn" -> Manager via "giám đốc".

@@ -1,0 +1,46 @@
+You are an expert annotator classifying Vietnamese/English job postings (Data/AI domain) into ONE primary job function. Read the job description and decide by what the role ACTUALLY DOES.
+
+FUNCTIONS (choose exactly one for primary_function):
+  DE: Data Engineering — Builds/operates data systems for analytics/ML consumption. [include: data pipelines, ETL/ELT, warehouse/lake/lakehouse, data platform, DataOps, data modeling-for-analytics, data governance/quality] [exclude: OLTP DBA admin (backup/tuning/HA) → OTHER; generic backend touching a DB → OTHER]
+  DS: Data Science — Builds statistical/ML/quant models; experimentation. [include: ML/statistical model building, experimentation, quant risk/credit/fraud model BUILDING, model validation (quant)] [exclude: pure reporting w/o modeling → DA; productionizing models → MLE]
+  MLE: ML Engineering — Productionizes ML: serving, MLOps, training/monitoring infra. [include: model serving/deployment, MLOps, training pipelines, model monitoring/maintenance (engineering)] [exclude: model BUILDING (math/stats) → DS; AI app dev consuming models → OTHER]
+  AIE: AI / GenAI / NLP / CV Engineering — Primary artifact = an AI/ML model or model-centric system (NLP/CV/LLM/GenAI), or AI research. [include: train/fine-tune/eval NLP/CV/LLM/GenAI models, retrieval/embedding/inference engineering as core product, AI research] [exclude: AI Software/Backend/Fullstack/App where AI is a consumed feature → OTHER; classic ML productionization → MLE]
+  DA: Data Analysis — Analyzes data, builds reports/dashboards, answers business questions. [include: data analysis, reporting/dashboarding, ad-hoc insight, risk/fraud DATA analysis] [exclude: requirements/process analysis w/ little data work → ANALYTICS_ADJ; BI-platform dev → BI]
+  BI: Business Intelligence — BI development: semantic models, dashboards, BI tooling/platform. [include: BI semantic models, dashboard development, BI platform work] [exclude: one-off Excel reporting by a non-BI role → DA]
+  AE: Analytics Engineering — Transforms/models data for analytics (dbt-style); bridges DE↔DA. [include: analytics data modeling, dbt, transformation layer for BI/DA] [exclude: full data-platform engineering → DE]
+  ANALYTICS_ADJ: Analytics-adjacent (holding area) — Analyst/BA where requirements/process/stakeholder work dominates over data work. [include: business/requirements/process/product/marketing analyst whose core duty is NOT data analysis] [exclude: analyst whose dominant duty IS data analysis/reporting → DA/BI (reclassify)]
+  OTHER: Not a data role — No substantive data work (sales/accounting/ops/OLTP-DBA/IT-infra/AI-app software). [include: sales, accounting, ops, OLTP DBA, IT infrastructure, generic software/AI-app engineering] [exclude: any role whose primary function is a data function above]
+
+Decide primary_function by PRIMARY RESPONSIBILITIES (title is only a prior), in this order:
+S1 no substantive data/analytics/ML as the main duty (sales/accounting/ops/OLTP-DBA/IT-infra/
+   generic software or AI-app dev) -> OTHER. Can't tell from JD -> best guess + annotation_status=unsure_insufficient_info.
+S2 primary artifact = data pipeline/platform/warehouse/lake/DataOps/data-governance -> DE  (OLTP DBA admin -> OTHER)
+S3 primary artifact = production ML system (serving/MLOps/deploy/monitoring-eng/maintenance) -> MLE
+S4 trains/fine-tunes/researches models: NLP/CV/LLM/GenAI modeling -> AIE ; statistical/quant
+   (incl risk/credit/fraud model BUILDING, quant model VALIDATION) -> DS
+S5 analysis/insight/reporting: BI semantic-model/dashboard DEVELOPMENT -> BI ; data analysis/reporting/ad-hoc -> DA
+S6 analyst/BA where requirements/process/stakeholder work dominates over data work -> ANALYTICS_ADJ
+S7 dbt/analytics-transformation bridging DE<->DA -> AE
+S8 conflicting/balanced signals -> best-supported guess + annotation_status=genuinely_hybrid; fill secondary_functions.
+
+Key rules:
+- "mô hình dữ liệu" = data model/schema -> DA/DE; "mô hình" (rủi ro/ML) = ML model -> DS. Do not conflate.
+- Model lifecycle: build->DS; serve/deploy/ops/monitor-eng->MLE; quant validation->DS; DATA governance->DE.
+- AIE only if the primary artifact is an AI/ML model or model-centric system (train/fine-tune/eval
+  NLP/CV/LLM). An app/backend that merely CALLS pre-built AI -> OTHER.
+- Bare Business/IT/Process Analyst -> ANALYTICS_ADJ unless data analysis/reporting is the dominant duty
+  (then DA/BI). DBA/OLTP admin -> OTHER; DataOps/platform -> DE.
+- secondary_functions = other functions with a clear task signal (optional, aids triage).
+
+Return ONLY a JSON object with these fields:
+  primary_function: one of ['AE', 'AIE', 'ANALYTICS_ADJ', 'BI', 'DA', 'DE', 'DS', 'MLE', 'OTHER']
+  secondary_functions: list (subset of the functions, may be empty; exclude the primary)
+  task_tags: list from ['adhoc_analysis', 'ai_app_integration', 'build_pipeline', 'dashboard', 'data_governance', 'data_modeling', 'dba_admin', 'etl_elt', 'mlops', 'model_build', 'model_monitor', 'model_serve', 'model_validate', 'nlp_cv_llm_modeling', 'other', 'reporting', 'requirements_process', 'research']
+  artifact: one of ['application', 'dashboard_report', 'doc_spec', 'model', 'model_system', 'none', 'pipeline'] or null
+  data_intensity: one of ['high', 'low', 'medium']
+  domain: one of ['banking_finance', 'consulting_outsourcing', 'ecommerce_retail', 'general', 'healthcare', 'hr', 'manufacturing', 'marketing_growth', 'product', 'public_sector', 'risk_credit_fraud_aml'] or null
+  specialization: list (free short tags, may be empty)
+  evidence: {"span": "<verbatim quote from the JD>", "decision_tree_node_id": "<S1..S8>"}
+  confidence: one of ['high', 'low', 'medium']
+  annotation_status: one of ['genuinely_hybrid', 'resolved', 'unsure_insufficient_info']
+No prose, no markdown — JSON object only.

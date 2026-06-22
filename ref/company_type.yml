@@ -1,0 +1,24 @@
+# Heuristics -> company_type {bank_fintech, outsourcing, product, ecommerce, startup, other}.
+# Matched (PRIORITY order, first match wins) against lowercased company name + JD snippet.
+# Bilingual. Heuristic only — for diagnostic comparison, not ground truth.
+version: 1
+
+rules:
+  - type: bank_fintech
+    patterns: [bank, "ngân hàng", techcombank, vpbank, vietinbank, mbbank, "mb bank", acb,
+               vib, tpbank, sacombank, hdbank, fintech, "công nghệ tài chính", payment,
+               "thanh toán", momo, vnpay, zalopay, insurance, "bảo hiểm", securities,
+               "chứng khoán", "tài chính"]
+  - type: outsourcing
+    patterns: [outsourc, "software services", "software outsourcing", "gia công phần mềm",
+               consulting, "tư vấn", "fpt software", "fpt is", capgemini, "kms", "nashtech",
+               "tma", "global", solutions, "giải pháp", "system integration"]
+  - type: ecommerce
+    patterns: [e-commerce, ecommerce, "thương mại điện tử", shopee, lazada, tiki, sendo,
+               "sàn", retail, "bán lẻ", marketplace]
+  - type: product
+    patterns: [product, "sản phẩm", platform, "nền tảng", saas, "phần mềm"]
+  - type: startup
+    patterns: [startup, "khởi nghiệp"]
+
+default: other

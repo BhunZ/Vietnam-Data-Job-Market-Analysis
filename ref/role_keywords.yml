@@ -1,0 +1,27 @@
+# Title/position-label/skills keyword patterns -> role_category {DE, DS, DA, MLE, BI, AE, OTHER}.
+# Evaluated in PRIORITY order (first match wins). Matched against lowercased
+# (title + position_label + joined skills). No match -> OTHER (kept for counts, excluded from model).
+# Patterns are bilingual (EN/VI). More specific roles first.
+version: 1
+
+rules:
+  - role: MLE   # ML / AI engineer (check before DS/DE since titles overlap)
+    patterns: ["machine learning engineer", "ml engineer", "mlops", "ai engineer",
+               "ai/ml", "deep learning engineer", "kỹ sư machine learning", "kỹ sư ai"]
+  - role: AE    # analytics engineer (specific; check before DA/DE)
+    patterns: ["analytics engineer", "kỹ sư phân tích"]
+  - role: DE    # data engineer (+ governance/quality/architecture data roles)
+    patterns: ["data engineer", "data engineering", "big data engineer", "etl developer",
+               "dataops", "kỹ sư dữ liệu", "kỹ sư data", "data platform engineer",
+               "data architect", "data governance", "data quality", "data steward",
+               "data warehouse engineer", "kiến trúc dữ liệu", "quản trị dữ liệu"]
+  - role: DS    # data scientist
+    patterns: ["data scientist", "data science", "applied scientist", "research scientist",
+               "khoa học dữ liệu", "nhà khoa học dữ liệu"]
+  - role: BI    # business intelligence
+    patterns: ["business intelligence", "bi developer", "bi analyst", "bi engineer",
+               "power bi developer", "báo cáo quản trị", "chuyên viên bi"]
+  - role: DA    # data analyst (broadest; check last among data roles)
+    patterns: ["data analyst", "data analytics", "reporting analyst", "business analyst",
+               "phân tích dữ liệu", "chuyên viên phân tích dữ liệu", "phân tích số liệu",
+               "data executive"]

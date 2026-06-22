@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vn-data-job-market"
+version = "0.1.0"
+description = "Reproducible pipeline ingesting & analyzing Vietnamese Data-domain job postings (salary-free)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "nd.baohung3105" }]
+
+# Core deps cover Phase 1 (ingest) + later transform stages.
+dependencies = [
+    "requests>=2.31",
+    "httpx>=0.27",
+    "pydantic>=2.6",
+    "python-dotenv>=1.0",
+    "pyyaml>=6.0",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "pandas>=2.2",
+    "duckdb>=1.0",
+    "rapidfuzz>=3.6",
+]
+
+[project.optional-dependencies]
+# Heavy / stage-specific deps kept optional so Phase 1 installs cleanly.
+modeling = ["scikit-learn>=1.4", "lightgbm>=4.3", "shap>=0.45"]
+# Dataset-engineering layer (discovery + taxonomy + LLM-first annotation).
+dataset = [
+    "sentence-transformers>=3.0",  # multilingual embeddings (e5 / bge-m3)
+    "scikit-learn>=1.4",           # KMeans / Agglomerative / silhouette
+    "pyarrow>=15.0",               # parquet artifacts
+    "hdbscan>=0.8",                # optional density clustering
+    "umap-learn>=0.5",             # optional 2D projection for the report
+    "openai>=1.0",                 # OpenRouter (OpenAI-compatible) judge client
+    "mistralai>=1.0",              # Mistral Large judge client
+]
+dashboard = ["streamlit>=1.33", "plotly>=5.20", "altair>=5.2"]
+transform = ["dbt-duckdb>=1.7"]
+dev = ["pytest>=8.0", "ruff>=0.4", "black>=24.0", "pre-commit>=3.7"]
+
+[project.scripts]
+vn-jobs = "pipeline.__main__:main"
+
+[tool.setuptools]
+packages = ["pipeline"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.black]
+line-length = 100

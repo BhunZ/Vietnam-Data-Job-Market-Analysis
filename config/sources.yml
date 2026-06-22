@@ -1,0 +1,107 @@
+# Per-source ingestion config: endpoints, params, rate limits.
+# Phase 1 implements ITviec only; TopDev / VietnamWorks are declared but stubbed.
+
+defaults:
+  # Responsible-scraping knobs (enforced in pipeline/utils/http.py).
+  min_delay_seconds: 3
+  max_delay_seconds: 8
+  request_timeout_seconds: 45
+  max_retries: 3
+  rotate_user_agent: true
+  respect_robots: true
+  # Route live fetches through ScraperAPI. If a ScraperAPI call fails and
+  # allow_direct_fallback is true, fall back to a direct request (logged).
+  use_scraperapi: true
+  allow_direct_fallback: true
+  scraperapi_render: false  # ITviec listings are server-rendered; no JS render needed.
+  # scraperapi_country_code: vn   # geotargeting is a PAID feature; leave unset on free plan.
+
+sources:
+  itviec:
+    enabled: true
+    base_url: "https://itviec.com"
+    # ITviec exposes Data jobs as keyword/skill category pages: /it-jobs/<slug>?page=N
+    # These overlap (a posting can carry several tags); the connector dedups by job UUID.
+    listing_path: "/it-jobs/{category}"
+    page_param: "page"
+    # Categories swept for the Vietnam Data domain (DE/DS/DA/MLE/BI/AE + adjacents).
+    categories:
+      - data-engineer
+      - data-analyst
+      - data-scientist
+      - machine-learning
+      - business-intelligence
+      - big-data
+      - ai-engineer
+      - etl
+      - data-warehouse
+    cards_per_page: 20
+    max_pages_per_category: 10
+
+  topdev:
+    # api.topdev.vn is robots.txt Disallow:/ and the HTML has no search data.
+    # OVERRIDE enabled 2026-06-15 by explicit operator decision for PERSONAL/EDUCATIONAL
+    # use only (not redistribution). To revert to compliant default, set enabled:false,
+    # respect_robots:true, robots_override_ack:false. See ingest/topdev.py.
+    enabled: true
+    use_scraperapi: false
+    respect_robots: false
+    robots_override_ack: true
+    base_url: "https://topdev.vn"
+    jobs_api: "https://api.topdev.vn/td/v2/jobs"
+    # Keyword search recycles results (~73 distinct/keyword even when logged in), so
+    # coverage comes from many Data-specific keywords, deduped. (Login adds nothing —
+    # verified 2026-06-16.) Keywords kept Data-precise to avoid non-Data noise.
+    queries: [data, "data engineer", "data analyst", "data scientist", "data analytics",
+              "big data", "data warehouse", "data architect", "data platform",
+              "business intelligence", "machine learning", "analytics engineer",
+              "etl", "mlops", "databricks"]
+    max_pages_per_query: 10   # TopDev fixes per_page=10
+
+  vietnamworks:
+    enabled: true
+    use_scraperapi: false      # public JSON API, robots-allowed (no robots.txt) -> direct
+    respect_robots: true
+    base_url: "https://www.vietnamworks.com"
+    search_api: "https://ms.vietnamworks.com/job-search/v1.0/search"
+    hits_per_page: 100
+    queries: [data, "data engineer", "data analyst", "data scientist",
+              "machine learning", "business intelligence", "analytics engineer"]
+    max_pages_per_query: 10
+
+  glints:
+    enabled: true
+    use_scraperapi: false      # GraphQL API is robots-allowed + anonymous -> direct
+    respect_robots: true
+    graphql_api: "https://glints.com/api/v2/graphql"
+    page_size: 30
+    queries: [data, "data engineer", "data analyst", "data scientist",
+              "machine learning", "business intelligence", "analytics engineer",
+              "data", "etl", "power bi"]
+    max_pages_per_query: 10
+
+  topcv:
+    # DISABLED — not scrapable with current tools/plan (2026-06-16):
+    #   anonymous -> HTTP 403 (DataDome anti-bot); ScraperAPI basic & render -> HTTP 500
+    #   (DataDome defeats it); ScraperAPI premium/ultra_premium -> 403 (not on free plan).
+    # Viable only via a real logged-in browser (Chrome + Claude-in-Chrome) or a paid
+    # ScraperAPI premium plan. Connector kept ready in ingest/topcv.py.
+    enabled: false
+    use_scraperapi: true
+    scraperapi_render: true
+    respect_robots: true
+    base_url: "https://www.topcv.vn"
+    listing_path: "/tim-viec-lam-{category}"
+    categories: [data]
+    max_pages_per_category: 3
+
+  careerviet:
+    enabled: true
+    use_scraperapi: false      # openresty, server-rendered HTML, no Cloudflare -> direct
+    respect_robots: true
+    base_url: "https://careerviet.vn"
+    # targeted role keywords (broad "data" over-matches); deduped by job id
+    categories: [data-engineer, data-analyst, data-scientist, machine-learning,
+                 business-intelligence, data-warehouse]
+    cards_per_page: 50
+    max_pages_per_category: 5

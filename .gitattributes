@@ -1,0 +1,6 @@
+# Normalize line endings: store text as LF in the repo (silences CRLF warnings on Windows).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.parquet binary
+*.duckdb binary

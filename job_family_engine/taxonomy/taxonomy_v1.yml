@@ -1,0 +1,125 @@
+# Job Family Taxonomy — hierarchical (Domain → Sub-domain → Family)
+# Data-informed (VN corpus title/skill frequency, 1701 jobs) + market refs (ESCO/O*NET/WEF, VN boards).
+# Versioned; family set lives here (NOT hardcoded in code). `support_hint` = approx title-signal count
+# in the current corpus (undercounts; engine recovers more from JD). `sparse: true` → report at
+# sub-domain/domain level, not family level (too few jobs for a reliable %).
+version: 1
+scheme: "domain -> subdomain -> family"
+unit: job_family            # the analytical label; domain/subdomain are roll-up levels
+notes:
+  - "Label by PRIMARY RESPONSIBILITIES (title+JD+skills), not title alone."
+  - "OTHER = not a data/AI role (sales/accounting/ops/generic software). Kept for counts, excluded from market-share-of-Data."
+  - "Sparse families: report rolled up to sub-domain/domain in the report; family-level % carries a caveat."
+
+domains:
+  - code: ANALYTICS
+    name: Analytics
+    subdomains:
+      - code: DATA_ANALYSIS
+        name: Data Analysis & BI
+        families:
+          - {code: DATA_ANALYST, name: Data Analyst, support_hint: 106, sparse: false,
+             aliases: [data analyst, "phân tích dữ liệu", "phân tích số liệu", reporting analyst, data executive],
+             typical_skills: [SQL, Excel, Power BI, Data Analysis, Reporting, Python]}
+          - {code: BI, name: BI Analyst / Developer, support_hint: 26, sparse: false,
+             aliases: [business intelligence, bi analyst, bi developer, "power bi developer", "chuyên viên bi"],
+             typical_skills: [Power BI, Tableau, SQL, Data Modeling, Reporting, Looker]}
+      - code: DOMAIN_ANALYSIS
+        name: Business / Domain Analysis
+        families:
+          - {code: BUSINESS_ANALYST, name: Business Analyst, support_hint: 85, sparse: false,
+             aliases: [business analyst, "phân tích nghiệp vụ", it business analyst, systems analyst],
+             typical_skills: [SQL, Excel, Reporting, Agile, Stakeholder]}
+          - {code: PRODUCT_ANALYST, name: Product Analyst, support_hint: 2, sparse: true,
+             aliases: [product analyst, "phân tích sản phẩm"], typical_skills: [SQL, A/B Testing, Product Analytics]}
+          - {code: RISK_FRAUD_ANALYST, name: Risk / Fraud / Financial Analyst, support_hint: 39, sparse: false,
+             aliases: [risk analyst, fraud, "rủi ro", financial analyst, "phân tích tài chính", credit risk, aml],
+             typical_skills: [SQL, Statistics, Python, Data Analysis, Excel]}
+  - code: DATA_ENGINEERING
+    name: Data Engineering
+    subdomains:
+      - code: PIPELINE_PLATFORM
+        name: Pipelines & Platform
+        families:
+          - {code: DATA_ENGINEER, name: Data Engineer, support_hint: 109, sparse: false,
+             aliases: [data engineer, "kỹ sư dữ liệu", etl developer, data platform engineer, data pipeline],
+             typical_skills: [SQL, Python, ETL, Spark, Airflow, Data Warehouse, Kafka]}
+          - {code: ANALYTICS_ENGINEER, name: Analytics Engineer, support_hint: 5, sparse: true,
+             aliases: [analytics engineer], typical_skills: [dbt, SQL, Data Modeling, Data Warehouse]}
+          - {code: BIG_DATA_ENGINEER, name: Big Data Engineer, support_hint: 1, sparse: true,
+             aliases: [big data engineer], typical_skills: [Spark, Hadoop, Big Data, Kafka]}
+          - {code: DATAOPS, name: DataOps Engineer, support_hint: 6, sparse: true,
+             aliases: [dataops, "vận hành dữ liệu"], typical_skills: [CI/CD, Airflow, Docker, Data Pipeline]}
+      - code: DATABASE
+        name: Database / DBA
+        families:
+          - {code: DBA_DATABASE, name: Database Engineer / DBA, support_hint: 11, sparse: true,
+             aliases: [database administrator, dba, "quản trị cơ sở dữ liệu", database developer, database engineer],
+             typical_skills: [Oracle, MySQL, PostgreSQL, SQL, Linux]}
+  - code: AI_ML
+    name: AI / Machine Learning
+    subdomains:
+      - code: SCIENCE
+        name: Data / Decision Science
+        families:
+          - {code: DATA_SCIENTIST, name: Data Scientist, support_hint: 30, sparse: false,
+             aliases: [data scientist, "khoa học dữ liệu", decision scientist, applied scientist],
+             typical_skills: [Python, Statistics, Machine Learning, SQL]}
+          - {code: RESEARCH_SCIENTIST, name: Research Scientist, support_hint: 4, sparse: true,
+             aliases: [research scientist, "nghiên cứu"], typical_skills: [Deep Learning, Research, Python]}
+      - code: ML_ENGINEERING
+        name: ML Engineering
+        families:
+          - {code: ML_ENGINEER, name: Machine Learning Engineer, support_hint: 8, sparse: false,
+             aliases: [machine learning engineer, ml engineer], typical_skills: [Python, Machine Learning, Deep Learning]}
+          - {code: MLOPS, name: MLOps Engineer, support_hint: 3, sparse: true,
+             aliases: [mlops], typical_skills: [MLOps, CI/CD, Docker, Kubernetes]}
+      - code: AI_GENAI
+        name: AI / GenAI Engineering
+        families:
+          - {code: AI_ENGINEER, name: AI Engineer, support_hint: 90, sparse: false,
+             aliases: [ai engineer, "kỹ sư ai", ai/ml engineer], typical_skills: [AI, Deep Learning, Python, Machine Learning]}
+          - {code: GENAI_LLM, name: GenAI / LLM Engineer, support_hint: 40, sparse: false,
+             aliases: [genai, "llm", generative ai, prompt engineer, rag, langchain], typical_skills: [LLM, NLP, Python, Vector Database]}
+          - {code: CV_NLP, name: Computer Vision / NLP Engineer, support_hint: 20, sparse: true,
+             aliases: [computer vision, nlp, "thị giác máy tính"], typical_skills: [Computer Vision, NLP, Deep Learning, PyTorch]}
+  - code: GOVERNANCE_ARCH
+    name: Governance & Architecture
+    subdomains:
+      - code: GOV
+        name: Governance & Architecture
+        families:
+          - {code: DATA_ARCHITECT, name: Data Architect, support_hint: 8, sparse: true,
+             aliases: [data architect, "kiến trúc dữ liệu"], typical_skills: [Data Modeling, Data Warehouse, Data Lake]}
+          - {code: DATA_GOVERNANCE, name: Data Governance / Quality / Steward, support_hint: 12, sparse: true,
+             aliases: [data governance, data quality, data steward, "quản trị dữ liệu", "chất lượng dữ liệu"],
+             typical_skills: [Data Governance, Data Quality, Data Modeling]}
+  - code: LEADERSHIP
+    name: Data Leadership
+    subdomains:
+      - code: LEAD
+        name: Leadership
+        families:
+          - {code: DATA_LEADERSHIP, name: Head of Data / Manager / Director / CDO, support_hint: 7, sparse: true,
+             aliases: [head of data, data manager, "giám đốc dữ liệu", "trưởng phòng dữ liệu", chief data officer, data director],
+             typical_skills: [Leadership, Data Strategy]}
+  - code: OTHER
+    name: Not a Data/AI role
+    subdomains:
+      - code: OTHER
+        name: Other
+        families:
+          - {code: OTHER, name: Not a data role, support_hint: null, sparse: false,
+             aliases: [], typical_skills: []}
+
+# Crosswalk: flat taxonomy_v2 (8) → this hierarchy (for backward reference)
+crosswalk_from_flat:
+  DE: [DATA_ENGINEER, ANALYTICS_ENGINEER, BIG_DATA_ENGINEER, DATAOPS, DBA_DATABASE]
+  DS: [DATA_SCIENTIST, RESEARCH_SCIENTIST, RISK_FRAUD_ANALYST]
+  MLE: [ML_ENGINEER, MLOPS]
+  AIE: [AI_ENGINEER, GENAI_LLM, CV_NLP]
+  DA: [DATA_ANALYST]
+  BI: [BI]
+  AE: [ANALYTICS_ENGINEER]
+  ANALYTICS_ADJ: [BUSINESS_ANALYST, PRODUCT_ANALYST]
+  OTHER: [OTHER]

@@ -1,0 +1,163 @@
+version: 1
+status: PROPOSAL v1 — gate decisions applied (2026-06-18); pending final approval
+scheme: 'faceted: function × domain × data_intensity'
+classification_principle: Classify by PRIMARY RESPONSIBILITIES / function, NOT job
+  title. Title is a prior only. `domain` and `data_intensity` are INDEPENDENT facets,
+  never the primary decision rule. Multi-label allowed; record exactly one primary
+  `function`.
+gate_decisions:
+- 'AI/GenAI/NLP/CV: in scope as AIE ONLY when the primary function is building AI/ML;
+  AI application/backend/fullstack → OTHER (software).'
+- 'Risk/Decision Analytics: NOT a function — it is a DOMAIN facet (risk_credit_fraud_aml).
+  Keep primary function (DS/DA/BI). Promote to a function later only if volume + separation
+  justify it.'
+- 'Business Analyst: ANALYTICS_ADJ by default; reclassify to DA/BI only when analytics/reporting
+  is the dominant duty. data_intensity recorded independently.'
+- AE kept provisionally; fold into DE/DA if it never separates (tiny + low silhouette).
+notes:
+- Clusters split mainly by language+source, not role → labels must be content-based
+  (LLM/human reading responsibilities), not assigned from clusters.
+- '`data_intensity` (0..1) lets borderline roles enter WITH a score instead of a hard
+  cut.'
+validation_from_discovery:
+  n_jobs: 1701
+  n_other: 1047
+  embed_model: intfloat/multilingual-e5-base
+  cluster_run_id: 42226ff3d50c7a21
+  cluster_note: clusters split mainly by LANGUAGE+SOURCE (silhouette ~0.07), not role
+    → clustering informs but cannot define labels; content-based labeling needed.
+  aie_split:
+    ai_titles: 157
+    pure_ml_nlp_cv: 95
+    software_with_ai: 14
+    generic_needs_jd: 48
+  risk_domain:
+    risk_titles: 59
+    data_heavy: 34
+    data_heavy_current_roles:
+      OTHER: 21
+      DA: 6
+      DS: 4
+      DE: 2
+      BI: 1
+    verdict: disperses across DS/DA/BI → DOMAIN facet, not a function
+functions:
+- code: DE
+  name: Data Engineering
+  definition: Builds/operates data platforms, pipelines, warehouses, ETL/ELT.
+  inclusion: data pipelines, ETL/ELT, warehouse/lakehouse, data platform/infra, streaming
+  exclusion: generic backend/software dev that merely touches a database (→ OTHER)
+  typical_skills:
+  - SQL
+  - Python
+  - ETL
+  - Spark
+  - Airflow
+  - Data Warehouse
+  - dbt
+- code: DS
+  name: Data Science
+  definition: Statistical modeling, experimentation, predictive/quant modeling.
+  inclusion: ML/statistical model building, experimentation, quant risk/credit/fraud
+    models
+  exclusion: pure reporting with no modeling (→ DA)
+  typical_skills:
+  - Python
+  - Statistics
+  - Machine Learning
+  - SQL
+- code: MLE
+  name: ML Engineering
+  definition: Productionizes ML models; MLOps, serving, training infra.
+  inclusion: model serving/deployment, MLOps, training pipelines, classic ML eng
+  exclusion: AI app/backend dev where ML is consumed not built (→ OTHER)
+  typical_skills:
+  - Python
+  - Machine Learning
+  - Deep Learning
+  - MLOps
+- code: AIE
+  name: AI / GenAI / NLP / CV Engineering
+  definition: 'Pure LLM/GenAI/NLP/Computer-Vision engineering & research (emerging).
+    IN SCOPE only when the PRIMARY function is building AI/ML, not shipping an app
+    that calls AI. (Discovery: 95 pure vs 14 software-with-AI of 157.)'
+  inclusion: LLM/GenAI modeling, NLP, computer vision, AI research, agent/model building
+  exclusion: AI Software/Backend/Fullstack/App engineer (AI as a feature) → OTHER
+  typical_skills:
+  - LLM
+  - NLP
+  - Deep Learning
+  - Python
+  - Computer Vision
+- code: DA
+  name: Data Analysis
+  definition: Analyzes data, builds reports/dashboards, answers business questions.
+  inclusion: data analysis, reporting/dashboarding, ad-hoc insight, risk/fraud DATA
+    analysis
+  exclusion: requirements/process analysis with little data work (→ ANALYTICS_ADJ)
+  typical_skills:
+  - SQL
+  - Data Analysis
+  - Reporting
+  - Power BI
+  - Excel
+- code: BI
+  name: Business Intelligence
+  definition: 'BI development/reporting: semantic models, dashboards, BI tooling.'
+  inclusion: BI semantic models, dashboard development, BI platform work
+  exclusion: one-off Excel reporting by a non-BI role (→ DA/ANALYTICS_ADJ)
+  typical_skills:
+  - Power BI
+  - Tableau
+  - SQL
+  - Data Modeling
+  - Reporting
+- code: AE
+  name: Analytics Engineering
+  definition: 'Transforms/models data for analytics (dbt-style); bridges DE↔DA. (Discovery:
+    tiny + does not separate cleanly — confirm or fold into DE/DA.)'
+  inclusion: analytics data modeling, dbt, transformation layer for BI/DA
+  exclusion: full data-platform engineering (→ DE)
+  typical_skills:
+  - dbt
+  - SQL
+  - Data Modeling
+- code: ANALYTICS_ADJ
+  name: Analytics-adjacent (Business/Product/Risk/Marketing Analyst)
+  definition: Analyst/BA roles where requirements/process/stakeholder work dominates.
+    Classify here by PRIMARY responsibility; if analytics/reporting dominates, reclassify
+    to DA/BI instead. data_intensity is recorded independently.
+  inclusion: business/requirements analyst, process analyst, product/marketing analyst
+    whose core duty is NOT data analysis
+  exclusion: analyst whose dominant duty IS data analysis/reporting (→ DA/BI)
+  typical_skills:
+  - SQL
+  - Excel
+  - Reporting
+  - Agile
+- code: OTHER
+  name: Not a data role
+  definition: No substantive data work (sales/accounting/ops/software-with-AI/etc).
+    Kept for counts, excluded from model training.
+  inclusion: sales, accounting, ops, generic software/AI-app engineering, etc.
+  exclusion: any role whose primary function is a data function above
+  typical_skills: []
+domains:
+- banking_finance
+- risk_credit_fraud_aml
+- product
+- marketing_growth
+- ecommerce_retail
+- manufacturing
+- consulting_outsourcing
+- healthcare
+- public_sector
+- general
+data_intensity:
+  type: float 0..1 (independent facet)
+  guide:
+    0.0-0.3: minimal data work
+    0.3-0.6: mixed/analytics-adjacent
+    0.6-1.0: core data role
+deferred_next: Phase 3 codebook (inclusion/exclusion already seeded per function)
+  → 3-judge LLM-first annotation → human Golden. Frozen only after approval.

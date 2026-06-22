@@ -1,0 +1,163 @@
+# Taxonomy v2 — VN Data/AI job-role benchmark
+# FROZEN DESIGN (PI decision 2026-06-18). v1 kept immutable; v2 is ADDITIVE.
+# Official benchmark target = `primary_function` (single label, macro-F1 headline).
+# Multi-dimensionality preserved via `secondary_functions` + `task_tags` (USED in
+# adjudication / multi-label eval / hard-slice — not decorative). `domain`,
+# `data_intensity`, `seniority` are independent facets; uncertainty lives in
+# `annotation_status`, NOT in the label space (no UNSURE class).
+version: 2
+supersedes: 1
+status: PROPOSAL v2 (additive) — pending pilot; functions frozen, handling rules pending IAA
+target: primary_function          # the predicted/benchmarked label
+scheme: "primary_function (taxonomy) × {secondary_functions, task_tags, artifact} × facets(domain, data_intensity, seniority)"
+
+classification_principle: >
+  Classify by PRIMARY RESPONSIBILITIES / function, NOT job title. Title is a prior only.
+  Extract task_tags + artifact FIRST (objective layer), then resolve primary_function via the
+  decision tree (priority: engineering → modeling → analysis → BA → other). secondary_functions =
+  every other function with a strong task signal. domain / data_intensity / seniority are recorded
+  independently and never drive the primary decision.
+
+changes_from_v1:
+  - id: CHANGE-1
+    what: "Add facet/metadata layer (secondary_functions, task_tags, artifact, data_intensity ordinal, evidence, annotation_status, is_borderline); seniority reused from silver; drop technical_depth."
+    backward_compatible: true
+  - id: CHANGE-2
+    what: "No UNSURE function. Epistemic uncertainty → annotation_status; genuine hybridity → multi-label (primary+secondary)."
+    backward_compatible: true
+  - id: CHANGE-3
+    what: "DE handling: Data Platform/Warehouse/Lake/Lakehouse/DataOps → DE; OLTP database administration (DBA) → OTHER."
+    backward_compatible: true
+  - id: CHANGE-4
+    what: "AIE defined by PRIMARY ARTIFACT (model/model-centric system → AIE; AI app/backend → OTHER), replacing builder-vs-integrator. DS/MLE/AIE carve documented. κ-watch: fold AIE→specialization only post-pilot if non-separable."
+    backward_compatible: true
+  - id: CHANGE-5
+    what: "ANALYTICS_ADJ = explicit holding area + reclassify rule (dominant-duty)."
+    backward_compatible: true
+  - id: CHANGE-6
+    what: "Model-lifecycle mapping rules + bilingual trap added (see handling_rules)."
+    backward_compatible: true
+
+# ---- TAXONOMY: the single-label target ----
+functions:
+  - {code: DE,  name: Data Engineering,
+     definition: "Builds/operates data systems for analytics/ML consumption.",
+     inclusion: "data pipelines, ETL/ELT, warehouse/lake/lakehouse, data platform, DataOps, data modeling-for-analytics, data governance/quality",
+     exclusion: "OLTP DBA admin (backup/tuning/HA) → OTHER; generic backend touching a DB → OTHER"}
+  - {code: DS,  name: Data Science,
+     definition: "Builds statistical/ML/quant models; experimentation.",
+     inclusion: "ML/statistical model building, experimentation, quant risk/credit/fraud model BUILDING, model validation (quant)",
+     exclusion: "pure reporting w/o modeling → DA; productionizing models → MLE"}
+  - {code: MLE, name: ML Engineering,
+     definition: "Productionizes ML: serving, MLOps, training/monitoring infra.",
+     inclusion: "model serving/deployment, MLOps, training pipelines, model monitoring/maintenance (engineering)",
+     exclusion: "model BUILDING (math/stats) → DS; AI app dev consuming models → OTHER"}
+  - {code: AIE, name: AI / GenAI / NLP / CV Engineering,
+     definition: "Primary artifact = an AI/ML model or model-centric system (NLP/CV/LLM/GenAI), or AI research.",
+     inclusion: "train/fine-tune/eval NLP/CV/LLM/GenAI models, retrieval/embedding/inference engineering as core product, AI research",
+     exclusion: "AI Software/Backend/Fullstack/App where AI is a consumed feature → OTHER; classic ML productionization → MLE"}
+  - {code: DA,  name: Data Analysis,
+     definition: "Analyzes data, builds reports/dashboards, answers business questions.",
+     inclusion: "data analysis, reporting/dashboarding, ad-hoc insight, risk/fraud DATA analysis",
+     exclusion: "requirements/process analysis w/ little data work → ANALYTICS_ADJ; BI-platform dev → BI"}
+  - {code: BI,  name: Business Intelligence,
+     definition: "BI development: semantic models, dashboards, BI tooling/platform.",
+     inclusion: "BI semantic models, dashboard development, BI platform work",
+     exclusion: "one-off Excel reporting by a non-BI role → DA"}
+  - {code: AE,  name: Analytics Engineering,
+     definition: "Transforms/models data for analytics (dbt-style); bridges DE↔DA.",
+     inclusion: "analytics data modeling, dbt, transformation layer for BI/DA",
+     exclusion: "full data-platform engineering → DE",
+     status: experimental}     # low-support; report separately; merge decision post-pilot
+  - {code: ANALYTICS_ADJ, name: "Analytics-adjacent (holding area)",
+     definition: "Analyst/BA where requirements/process/stakeholder work dominates over data work.",
+     inclusion: "business/requirements/process/product/marketing analyst whose core duty is NOT data analysis",
+     exclusion: "analyst whose dominant duty IS data analysis/reporting → DA/BI (reclassify)",
+     role: holding_area}       # default for bare BA; reclassify per dominant-duty rule
+  - {code: OTHER, name: Not a data role,
+     definition: "No substantive data work (sales/accounting/ops/OLTP-DBA/IT-infra/AI-app software).",
+     inclusion: "sales, accounting, ops, OLTP DBA, IT infrastructure, generic software/AI-app engineering",
+     exclusion: "any role whose primary function is a data function above"}
+
+# ---- FACETS / METADATA (NOT the target) ----
+facets:
+  secondary_functions:
+    layer: optional_facet
+    type: "list<function_code>"
+    # ML/portfolio scope (2026-06-20): secondary is an OPTIONAL recorded field — it helps the
+    # human triage ambiguous jobs and is free from the LLM. It is NOT a separate eval track.
+    # (Multi-label F1 / set-valued agreement → BACKLOG, not Phase 4.)
+    used_for: ["human triage aid for ambiguous jobs", "optional recorded field"]
+  task_tags:
+    layer: optional_facet      # required in golden; the objective C-layer, derive cross-check
+    type: "list<enum>"
+    vocab: [build_pipeline, etl_elt, data_modeling, data_governance, dba_admin,
+            model_build, model_validate, model_serve, model_monitor, mlops,
+            nlp_cv_llm_modeling, ai_app_integration, dashboard, adhoc_analysis,
+            reporting, requirements_process, research, other]
+  artifact:
+    layer: optional_facet
+    vocab: [pipeline, model, model_system, dashboard_report, application, doc_spec, none]
+  data_intensity:
+    layer: facet
+    type: ordinal
+    vocab: [low, medium, high]    # ordinal (more reliable than float for IAA)
+    note: "independent facet; never the primary decision rule"
+  domain:
+    layer: optional_facet
+    vocab: [banking_finance, risk_credit_fraud_aml, product, marketing_growth,
+            ecommerce_retail, manufacturing, consulting_outsourcing, healthcare,
+            public_sector, hr, general]
+  specialization:
+    layer: optional_facet         # preserves sub-discipline without exploding functions
+    type: "free-but-controlled (optional)"
+    examples: [credit_risk_modeling, fraud_modeling, aml, market_risk, model_validation,
+               nlp, computer_vision, llm_genai, product_analytics, marketing_analytics,
+               hr_analytics, dataops, dba]
+  seniority:
+    layer: metadata               # REUSED from jobs_silver; not re-annotated
+    source: jobs_silver.seniority
+
+annotation_metadata:
+  evidence: {required_in_golden: true, type: "{span(s) + decision_tree_node_id}", released: true}
+  confidence: {layer: per_judge, type: ordinal, vocab: [low, medium, high], released: internal}
+  annotation_status:
+    type: enum
+    vocab: [resolved, unsure_insufficient_info, genuinely_hybrid]
+    note: "uncertainty lives here, NOT in the label space"
+  is_borderline: {derived: true, from: "annotation_status / agreement", released: true}
+  review_required: {layer: internal}
+  reviewer: {layer: internal}
+  adjudication_notes: {layer: internal}
+  provenance: [taxonomy_version, codebook_version, decision_tree_version, prompt_version,
+               model_name, model_snapshot, run_id, content_hash, input_setting]
+
+# ---- HANDLING RULES (deterministic; full text in codebook_v1.md) ----
+handling_rules:
+  data_infra: "Data Platform/Warehouse/Lake/Lakehouse/DataOps/ETL → DE. OLTP DBA admin (backup/tuning/HA) → OTHER (specialization=dba). Database Developer → DE if ETL/analytics-data dominates, else OTHER."
+  model_lifecycle:
+    model_build: DS
+    model_validate: "DS (specialization=model_validation); → DA only if near-pure reporting/audit"
+    model_governance: "DS if quantitative; OTHER/ANALYTICS_ADJ if pure policy/compliance"
+    model_monitor: "MLE if engineering; DS if analysis"
+    model_deploy_serve_ops_maintain: MLE
+    data_governance: "DE (governance of DATA, not models)"
+  bilingual_trap: "'mô hình dữ liệu' = data model (schema/ERD) → DA/DE; 'mô hình' (rủi ro/ML) = ML/statistical model → DS. Do NOT conflate."
+  aie: "Primary artifact test: trains/fine-tunes/evaluates ML/DL/LLM/CV model OR model-centric system → AIE; integrates pre-built AI into an app/backend → OTHER. RAG/Agent: substantial retrieval/eval/model eng → AIE, else OTHER (is_borderline=true)."
+  ba_holding: "Bare Business/IT/Process Analyst → ANALYTICS_ADJ. Reclassify to DA/BI if data-analysis/reporting is the dominant duty; to DE if data governance/pipeline; to OTHER if no data signal. Record data_intensity + specialization regardless."
+
+# ---- EVAL / RELEASE contract ----
+# Evaluation (ML/portfolio scope 2026-06-20)
+evaluation:
+  headline: "primary_function macro-F1 + per-class P/R + confusion matrix on the human GOLD test split"
+  gold_only: true               # train on silver (LLM consensus); evaluate only on human GOLD
+  split: "group-aware by dup_group_id (no cross-source-duplicate leakage); test frozen"
+  backlog: "multi-label F1, per-input-setting (title/+skills/full-JD), hard-slice F1, calibration → BACKLOG (research)"
+
+# Annotation reliability (pragmatic — research-grade IAA moved to backlog)
+iaa:
+  scope_note: "ML/portfolio scope: pragmatic reliability, not research-grade."
+  primary: "percent inter-judge agreement on primary_function + human-validated accuracy on a checked sample; optional Fleiss/Cohen κ as a single summary number"
+  label_qa: "LITE judge-vs-human per-class confusion on the pilot → classes whose consensus is untrustworthy (or all-judge-shared-error pairs like BA→DA) are forced to human review, never auto-accepted"
+  forbidden: "no bespoke 'soft agreement' recode (set-overlap may only order the human queue, never resolve/auto-accept a primary disagreement)"
+  backlog: "Krippendorff α + bootstrap CI, α-MASI (set-valued, Passonneau 2006), formal judge-bias statistics, taxonomy-validity crosswalk → BACKLOG, not Phase 4"

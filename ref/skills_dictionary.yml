@@ -1,0 +1,104 @@
+# Canonical skill -> {category, aliases}. Normalization (pipeline/transform/normalize.py):
+#   - maps each structured skill tag (skills_raw) to a canonical name via aliases (lowercased),
+#   - extracts skills from the JD free-text using aliases of length >= 3 (word-boundary),
+#   - drops tokens not in this dict and LOGS them (data/quality/unmapped_skills.csv) for growth.
+# Bilingual EN/VI aliases because VNW/CareerViet JDs are heavily Vietnamese.
+# `category` groups skills for the report (skill-family analysis).
+version: 1
+
+skills:
+  # ---- Programming languages ----
+  Python: {category: language, aliases: [python, py, python3]}
+  SQL: {category: language, aliases: [sql, t-sql, pl/sql, ansi sql, "câu lệnh sql"]}
+  R: {category: language, aliases: [" r ", "ngôn ngữ r"]}   # short alias -> tags only (len<3 skips JD scan)
+  Java: {category: language, aliases: [java]}
+  Scala: {category: language, aliases: [scala]}
+  Go: {category: language, aliases: [golang]}
+  JavaScript: {category: language, aliases: [javascript, js, nodejs, node.js]}
+  "C#": {category: language, aliases: ["c#", ".net", dotnet]}
+  "C++": {category: language, aliases: ["c++"]}
+  Bash: {category: language, aliases: [bash, shell script, shell scripting]}
+
+  # ---- Databases ----
+  PostgreSQL: {category: database, aliases: [postgresql, postgres]}
+  MySQL: {category: database, aliases: [mysql]}
+  "SQL Server": {category: database, aliases: [sql server, mssql, "microsoft sql server"]}
+  Oracle: {category: database, aliases: [oracle, "oracle database"]}
+  MongoDB: {category: database, aliases: [mongodb, mongo]}
+  Redis: {category: database, aliases: [redis]}
+  Elasticsearch: {category: database, aliases: [elasticsearch, elastic search, elk]}
+  Cassandra: {category: database, aliases: [cassandra]}
+  NoSQL: {category: database, aliases: [nosql]}
+
+  # ---- Big data / streaming ----
+  Spark: {category: big_data, aliases: [spark, apache spark, pyspark]}
+  Hadoop: {category: big_data, aliases: [hadoop, hdfs, mapreduce]}
+  Kafka: {category: big_data, aliases: [kafka, apache kafka]}
+  Hive: {category: big_data, aliases: [hive, apache hive]}
+  Flink: {category: big_data, aliases: [flink, apache flink]}
+  "Big Data": {category: big_data, aliases: [big data, bigdata, "dữ liệu lớn"]}
+
+  # ---- Data warehouse / lakehouse ----
+  Snowflake: {category: warehouse, aliases: [snowflake]}
+  BigQuery: {category: warehouse, aliases: [bigquery, "google bigquery", "big query"]}
+  Redshift: {category: warehouse, aliases: [redshift, "amazon redshift"]}
+  Databricks: {category: warehouse, aliases: [databricks]}
+  "Data Warehouse": {category: warehouse, aliases: [data warehouse, "kho dữ liệu", dwh, "data warehousing"]}
+  "Data Lake": {category: warehouse, aliases: [data lake, datalake, "data lakehouse", lakehouse]}
+
+  # ---- Orchestration / transformation ----
+  Airflow: {category: orchestration, aliases: [airflow, "apache airflow"]}
+  dbt: {category: orchestration, aliases: [dbt, "data build tool"]}
+  ETL: {category: orchestration, aliases: [etl, "trích xuất dữ liệu"]}
+  ELT: {category: orchestration, aliases: [elt]}
+  SSIS: {category: orchestration, aliases: [ssis]}
+
+  # ---- Cloud / DevOps ----
+  AWS: {category: cloud, aliases: [aws, "amazon web services"]}
+  Azure: {category: cloud, aliases: [azure, "microsoft azure"]}
+  GCP: {category: cloud, aliases: [gcp, "google cloud", "google cloud platform"]}
+  Docker: {category: devops, aliases: [docker]}
+  Kubernetes: {category: devops, aliases: [kubernetes, k8s]}
+  Git: {category: devops, aliases: [git, github, gitlab]}
+  "CI/CD": {category: devops, aliases: ["ci/cd", "cicd"]}
+  Linux: {category: devops, aliases: [linux, unix]}
+  Terraform: {category: devops, aliases: [terraform]}
+
+  # ---- BI / visualization ----
+  "Power BI": {category: bi_viz, aliases: [power bi, powerbi, "power-bi"]}
+  Tableau: {category: bi_viz, aliases: [tableau]}
+  Looker: {category: bi_viz, aliases: [looker, "looker studio", "data studio"]}
+  Qlik: {category: bi_viz, aliases: [qlik, qlikview, qliksense]}
+  Excel: {category: bi_viz, aliases: [excel, "microsoft excel", "ms excel", "bảng tính"]}
+  "Google Sheets": {category: bi_viz, aliases: [google sheets, "google sheet"]}
+  "Data Visualization": {category: bi_viz, aliases: [data visualization, "trực quan hóa dữ liệu", dataviz, visualization]}
+  "Business Intelligence": {category: bi_viz, aliases: [business intelligence, bi]}
+
+  # ---- ML / AI / stats ----
+  "Machine Learning": {category: ml, aliases: [machine learning, "học máy", "máy học"]}
+  "Deep Learning": {category: ml, aliases: [deep learning, "học sâu"]}
+  NLP: {category: ml, aliases: [nlp, "natural language processing", "xử lý ngôn ngữ tự nhiên"]}
+  "Computer Vision": {category: ml, aliases: [computer vision, "thị giác máy tính"]}
+  TensorFlow: {category: ml, aliases: [tensorflow]}
+  PyTorch: {category: ml, aliases: [pytorch]}
+  "scikit-learn": {category: ml, aliases: [scikit-learn, sklearn, "scikit learn"]}
+  Pandas: {category: ml, aliases: [pandas]}
+  NumPy: {category: ml, aliases: [numpy]}
+  LLM: {category: ml, aliases: [llm, "large language model", genai, "generative ai"]}
+  "AI": {category: ml, aliases: ["artificial intelligence", "trí tuệ nhân tạo"]}  # 'ai' short -> tags only
+  Statistics: {category: ml, aliases: [statistics, "thống kê", statistical analysis]}
+  "A/B Testing": {category: ml, aliases: ["a/b testing", "a/b test", "ab testing"]}
+
+  # ---- Data concepts / analysis ----
+  "Data Analysis": {category: data_concept, aliases: [data analysis, "phân tích dữ liệu", data analytics, "phân tích số liệu"]}
+  "Data Modeling": {category: data_concept, aliases: [data modeling, data modelling, "mô hình hóa dữ liệu", "data model"]}
+  "Data Engineering": {category: data_concept, aliases: [data engineering, "kỹ thuật dữ liệu"]}
+  "Data Governance": {category: data_concept, aliases: [data governance, "quản trị dữ liệu"]}
+  "Data Mining": {category: data_concept, aliases: [data mining, "khai phá dữ liệu"]}
+  "Data Pipeline": {category: data_concept, aliases: [data pipeline, "đường ống dữ liệu", data pipelines]}
+  "Reporting": {category: data_concept, aliases: [reporting, "báo cáo", dashboard, "bảng điều khiển"]}
+  "Data Quality": {category: data_concept, aliases: [data quality, "chất lượng dữ liệu"]}
+
+  # ---- Methodology / soft ----
+  Agile: {category: method, aliases: [agile, scrum, "agile/scrum"]}
+  "English": {category: language_human, aliases: ["tiếng anh", "english"]}
