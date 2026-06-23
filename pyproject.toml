@@ -39,6 +39,8 @@ dataset = [
     "mistralai>=1.0",              # Mistral Large judge client
 ]
 dashboard = ["streamlit>=1.33", "plotly>=5.20", "altair>=5.2"]
+# Analysis layer (EDA + insight figures, P4–P5). Plotly for report-grade charts; kaleido for PNG export.
+analysis = ["plotly>=5.20", "kaleido>=0.2.1", "scikit-learn>=1.4", "mlxtend>=0.23"]
 transform = ["dbt-duckdb>=1.7"]
 dev = ["pytest>=8.0", "ruff>=0.4", "black>=24.0", "pre-commit>=3.7"]
 
@@ -46,7 +48,7 @@ dev = ["pytest>=8.0", "ruff>=0.4", "black>=24.0", "pre-commit>=3.7"]
 vn-jobs = "pipeline.__main__:main"
 
 [tool.setuptools]
-packages = ["pipeline"]
+packages = ["pipeline", "job_family_engine"]
 
 [tool.ruff]
 line-length = 100
