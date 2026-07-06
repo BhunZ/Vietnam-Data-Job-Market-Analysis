@@ -1,6 +1,6 @@
 # Trạng thái & Cẩm nang dự án — VN Data Job Market Intelligence
 
-> **Tài liệu bàn giao (authoritative).** Đọc kỹ trước khi làm tiếp. Cập nhật: 2026-06-22.
+> **Tài liệu bàn giao (authoritative).** Đọc kỹ trước khi làm tiếp. Cập nhật: 2026-07-07.
 > Mục đích: bất kỳ người/AI nào nạp file này đều biết **đã làm gì, đã chốt gì (KHÔNG được
 > đổi), và làm gì tiếp theo**, để KHÔNG làm lại từ đầu hay đi chệch kế hoạch.
 > Phân chia người làm: [WORK_DIVISION.md](WORK_DIVISION.md).
@@ -33,9 +33,9 @@ một báo cáo theo mạch **descriptive → diagnostic → prescriptive**, tro
 | P0. Data Collection | 6 nguồn → warehouse (CDC) | ✅ XONG |
 | P1. Silver (clean/standardize) | `jobs_silver`: skills/seniority/location/company + dedup | ✅ XONG |
 | **P2. ⭐ Job Family Labeling Engine** | taxonomy phân cấp + cascade 3 tầng (rule→embedding→LLM dynamic-failover) + metadata + `job_family` | ✅ **XONG** — 1701 job gán nhãn (100% resolved), tích hợp vào jobs_silver + 7 bảng family Gold (xem §13) |
-| P3. Feature/NLP | skill extraction/embedding/keyword; feature outputs | ⬜ |
-| P4. Market & Statistical Analysis | EDA + **% thị trường theo job_family** + so sánh geo/company/seniority | ⬜ |
-| P5. Insight-ML | association rules · clustering · topic modeling | ⬜ |
+| P3. Feature/NLP | skill extraction/embedding/keyword; feature outputs | ◐ **NỀN ĐÃ CÓ** — `jobs_silver.skills`, `job_family`, text/embedding artifacts; chưa mở rộng NER/keyphrase mới |
+| P4. Market & Statistical Analysis | EDA + **% thị trường theo job_family** + so sánh geo/company/seniority | ◐ **ĐÃ CÓ MẪU + VALIDATION** — `analysis/market_insights.py`, figures/report mẫu, `docs/VALIDATION_CHECKLIST.md` |
+| P5. Insight-ML | association rules · clustering · topic modeling | ◐ **ĐANG LÀM** — Association Rules ✅; tiếp theo Clustering → Topic Modeling |
 | P6. Recommendation | skill rec · similar-job (+ skill-gap) | ⬜ |
 | P7. Dashboard (Streamlit) | drill-down Domain→Sub-domain→Family | ⬜ |
 | P8. Report & Insight | seeker & recruiter | ⬜ |
@@ -109,10 +109,10 @@ Reference dicts: `ref/{skills_dictionary,role_keywords,seniority_rules,company_t
 sửa lại. Phân tích lọc `role_category != 'OTHER' AND is_active AND is_duplicate_of IS NULL`.**
 
 ## 8. VIỆC TIẾP THEO — roadmap chi tiết
-> **Roadmap từng bước chính thức = [MASTER_PLAN.md](MASTER_PLAN.md) §10 (B1–B11).** Bước ngay sau Silver
-> KHÔNG phải Gold-cũ mà là **P2 — Job Family Labeling Engine** (B1 chốt `taxonomy_v1.yml` data-informed →
-> B2 rule → B3 embedding → B4 LLM ensemble → B5 voting/confidence/reviewer → B6 KPI/spot-check →
-> B7 tích hợp `job_family` + re-Gold + % thị trường). Phân vai: [WORK_DIVISION.md](WORK_DIVISION.md).
+> **Roadmap từng bước chính thức = [MASTER_PLAN.md](MASTER_PLAN.md) §10 (B1–B11).** P2 Job Family
+> Labeling Engine đã hoàn thành và đã tích hợp vào `jobs_silver` + Family Gold. Việc tiếp theo hiện
+> nằm ở **P5 Insight-ML**: đã xong Association Rules, tiếp theo là **Clustering** rồi **Topic Modeling**.
+> Phân vai: [WORK_DIVISION.md](WORK_DIVISION.md).
 ### 8.1. Gold (bảng tổng hợp) — ✅ ĐÃ XONG (`python -m pipeline gold`)
 7 bảng trong DuckDB từ `jobs_silver`, lọc `role_category!='OTHER' AND is_active AND
 is_duplicate_of IS NULL` (**597 job Data**). Đã verify (pct hợp lệ, top-skill theo role đúng
@@ -127,6 +127,13 @@ Learning-path mạnh nhất: Python+SQL, Data Analysis+SQL, ML+Python. Các bả
 - `trend` (snapshot_date, skill, count) — từ `job_observations`; **chỉ mô tả, KHÔNG dự báo**
 
 ### 8.2. Phân tích nâng cao (insight ML) — Teammate (xem §9): association rules + clustering + topic modeling (unsupervised). KHÔNG supervised classifier, KHÔNG LLM-benchmark.
+**Cập nhật 2026-07-07:** Association Rules đã được triển khai:
+- Script: `analysis/association_rules.py`
+- Output: `analysis/outputs/association_rules.csv`
+- Findings: `docs/ASSOCIATION_RULES_FINDINGS.md`
+- Kết quả chạy: **711 transactions**, **1834 rules**
+- Bước kế tiếp: **Clustering skill profile** để kiểm chứng các cụm skill tự nhiên và đối chiếu với `job_family`.
+
 ### 8.3. Analyze (notebook) + Dashboard (Streamlit) — chia sau (xem WORK_DIVISION.md)
 ### 8.4. Report (báo cáo môn học) — xem §10
 ### 8.5. Tests (pytest) + CI (`.github/workflows/pipeline.yml`)

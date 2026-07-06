@@ -18,27 +18,29 @@
 ## 1. Trạng thái & ai làm gì (đồng bộ MASTER_PLAN v1.1 — [MASTER_PLAN.md](MASTER_PLAN.md) là nguồn chính)
 | Luồng | Nội dung (phase) | Chủ | Trạng thái |
 |---|---|---|---|
-| A. Data Eng | P0 Collect ✅ + P1 Silver ✅ | **Bạn** | xong (chờ tích hợp `job_family` ở P2) |
-| ⭐ E. Job Family Labeling Engine | **P2** — taxonomy phân cấp + cascade 3 tầng (rule→embedding→multi-LLM voting) + metadata + KPI → tích hợp `job_family` → re-Gold theo family. Module **độc lập** (`engine.predict(job)`). | **Bạn + Teammate** | **TIẾP THEO — trọng tâm** |
-| B. Analysis | P4 EDA + thống kê (**% thị trường**, geo/company/seniority) + P5 insight-ML (association rules · clustering · topic modeling) | **Teammate** | sau P2 |
-| C. NLP + Recommendation | P3 skill extraction/embedding/keyword + P6 skill rec · similar-job (+ skill-gap) | **chia sau** | sau P2/P3 |
+| A. Data Eng | P0 Collect ✅ + P1 Silver ✅ | **Bạn** | xong; chỉ vận hành/refresh nếu cần |
+| ⭐ E. Job Family Labeling Engine | **P2** — taxonomy phân cấp + cascade 3 tầng (rule→embedding→LLM dynamic-failover) + metadata + KPI → tích hợp `job_family` → re-Gold theo family. Module **độc lập** (`engine.predict(job)`). | **Bạn + Teammate** | ✅ **XONG** — xem PROJECT_STATUS §13 |
+| B. Analysis | P4 EDA + thống kê (**% thị trường**, geo/company/seniority) + P5 insight-ML (association rules · clustering · topic modeling) | **Teammate / bạn hỗ trợ** | ◐ **ĐANG LÀM** — Association Rules ✅; tiếp theo Clustering |
+| C. NLP + Recommendation | P3 skill extraction/embedding/keyword + P6 skill rec · similar-job (+ skill-gap) | **chia sau** | sau P5/P3 mở rộng |
 | D. Dashboard | P7 Streamlit drill-down Domain→Sub-domain→Family | **chia sau** | sau P4/P5 |
 | Báo cáo | P8 báo cáo + insight cho **seeker & recruiter** (Insight Framework 7 bước) | **cả 2** | cuối |
 
 Phụ thuộc: **A (P1) → ⭐E (P2 `job_family`) → {B, C} → D → Báo cáo.** `job_family` là interface chung;
-P2 là **cổng** cho mọi phân tích. 🚫 Không salary, không supervised classifier deliverable, không forecasting (1 snapshot).
+P2 là **cổng** cho mọi phân tích và hiện đã hoàn thành. Trạng thái hiện tại nằm ở **B/P5 Insight-ML**:
+Association Rules đã xong, tiếp theo là Clustering. 🚫 Không salary, không supervised classifier deliverable,
+không forecasting (1 snapshot).
 
 ## ⭐ LUỒNG E — Job Family Labeling Engine (P2, trọng tâm — chi tiết MASTER_PLAN §⭐P2 + §10)
 Module **độc lập, tái dùng** `job_family_engine/` (`engine.predict(job)`). Các bước (B1–B7):
-- [ ] **B1** Taxonomy phân cấp `taxonomy_v1.yml` (Domain→Sub-domain→Family) — data-informed (tần suất
+- [x] **B1** Taxonomy phân cấp `taxonomy_v1.yml` (Domain→Sub-domain→Family) — data-informed (tần suất
       title/skill trong corpus) + tham chiếu ESCO/O*NET/WEF/ITviec/VNW/TopCV. **Số family không hardcode**, có version.
-- [ ] **B2** Tier-1 **rule/keyword** (cấu hình `rules_v1.yml` — KHÔNG hardcode trong code).
-- [ ] **B3** Tier-2 **embedding similarity** vs prototype mỗi family (phần rule chưa chắc).
-- [ ] **B4** Tier-3 **multi-LLM ensemble** (mỗi model trả {family, confidence, reasoning}; provider module hóa).
-- [ ] **B5** **Voting** (majority/weighted) + **confidence** + **reviewer queue** (bất đồng → manual_review);
+- [x] **B2** Tier-1 **rule/keyword** (cấu hình `rules_v1.yml` — KHÔNG hardcode trong code).
+- [x] **B3** Tier-2 **embedding similarity** vs prototype mỗi family (phần rule chưa chắc).
+- [x] **B4** Tier-3 **LLM judge + dynamic failover** (provider module hóa; metadata lưu method/confidence/reasoning).
+- [x] **B5** **Confidence** + **reviewer status** (bất đồng/không chắc → manual_review nếu có);
       lưu metadata: domain/subdomain/job_family/confidence/labeling_method/llm_votes/reasoning/review_status.
-- [ ] **B6** **KPI** engine (coverage, agreement, unknown rate, review rate, label dist, **spot-check accuracy**).
-- [ ] **B7** Tích hợp `job_family` vào `jobs_silver` → **re-Gold theo family** → bảng **% thị trường**.
+- [x] **B6** **KPI** engine (coverage, agreement, unknown rate, review rate, label dist, **spot-check accuracy**).
+- [x] **B7** Tích hợp `job_family` vào `jobs_silver` → **re-Gold theo family** → bảng **% thị trường**.
 - **Bàn giao:** engine chạy được + `job_family` (+metadata) phủ toàn bộ job + báo cáo KPI labeling.
 
 ---
@@ -53,7 +55,7 @@ của CareerViet/Glints sẽ rỗng — đã có guard carry-forward nhưng vẫ
 ## 3. LUỒNG B — Phân tích nâng cao (insight ML) → Teammate (đọc kỹ PROJECT_STATUS §9)
 Đầu vào: Silver (`jobs_silver`) + Gold (`skill_cooccurrence`, `role_skill_matrix`).
 **CHỈ ML unsupervised TẠO INSIGHT** (đây là dự án Data Analyst — KHÔNG prediction, KHÔNG classifier):
-- [ ] ⭐ **Association rules** (Apriori/FP-growth) trên `skills` → combo "biết X nên học Y"
+- [x] ⭐ **Association rules** (Apriori/FP-growth) trên `skills` → combo "biết X nên học Y"
       (ngôi sao prescriptive, không leakage).
 - [ ] **Clustering** (KMeans/HDBSCAN trên vector skill) → nhóm nghề tự nhiên + kiểm chứng role có
       tách theo skill không; (UMAP/PCA tùy chọn để VẼ).
