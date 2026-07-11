@@ -35,7 +35,7 @@ một báo cáo theo mạch **descriptive → diagnostic → prescriptive**, tro
 | **P2. ⭐ Job Family Labeling Engine** | taxonomy phân cấp + cascade 3 tầng (rule→embedding→LLM dynamic-failover) + metadata + `job_family` | ✅ **XONG** — 1701 job gán nhãn (100% resolved), tích hợp vào jobs_silver + 7 bảng family Gold (xem §13) |
 | P3. Feature/NLP | skill extraction/embedding/keyword; feature outputs | ◐ **NỀN ĐÃ CÓ** — `jobs_silver.skills`, `job_family`, text/embedding artifacts; chưa mở rộng NER/keyphrase mới |
 | P4. Market & Statistical Analysis | EDA + **% thị trường theo job_family** + so sánh geo/company/seniority | ◐ **ĐÃ CÓ MẪU + VALIDATION** — `analysis/market_insights.py`, figures/report mẫu, `docs/VALIDATION_CHECKLIST.md` |
-| P5. Insight-ML | association rules · clustering · topic modeling | ◐ **ĐANG LÀM** — Association Rules ✅; tiếp theo Clustering → Topic Modeling |
+| P5. Insight-ML | association rules · clustering · topic modeling | ✅ **XONG** — Association Rules ✅; Clustering ✅; Topic Modeling ✅ |
 | P6. Recommendation | skill rec · similar-job (+ skill-gap) | ⬜ |
 | P7. Dashboard (Streamlit) | drill-down Domain→Sub-domain→Family | ⬜ |
 | P8. Report & Insight | seeker & recruiter | ⬜ |
@@ -111,7 +111,7 @@ sửa lại. Phân tích lọc `role_category != 'OTHER' AND is_active AND is_du
 ## 8. VIỆC TIẾP THEO — roadmap chi tiết
 > **Roadmap từng bước chính thức = [MASTER_PLAN.md](MASTER_PLAN.md) §10 (B1–B11).** P2 Job Family
 > Labeling Engine đã hoàn thành và đã tích hợp vào `jobs_silver` + Family Gold. Việc tiếp theo hiện
-> nằm ở **P5 Insight-ML**: đã xong Association Rules, tiếp theo là **Clustering** rồi **Topic Modeling**.
+> nằm ở **P5 Insight-ML**: đã xong Association Rules + **Clustering** + **Topic Modeling**.
 > Phân vai: [WORK_DIVISION.md](WORK_DIVISION.md).
 ### 8.1. Gold (bảng tổng hợp) — ✅ ĐÃ XONG (`python -m pipeline gold`)
 7 bảng trong DuckDB từ `jobs_silver`, lọc `role_category!='OTHER' AND is_active AND
@@ -127,12 +127,22 @@ Learning-path mạnh nhất: Python+SQL, Data Analysis+SQL, ML+Python. Các bả
 - `trend` (snapshot_date, skill, count) — từ `job_observations`; **chỉ mô tả, KHÔNG dự báo**
 
 ### 8.2. Phân tích nâng cao (insight ML) — Teammate (xem §9): association rules + clustering + topic modeling (unsupervised). KHÔNG supervised classifier, KHÔNG LLM-benchmark.
-**Cập nhật 2026-07-07:** Association Rules đã được triển khai:
+**Cập nhật 2026-07-11:** P5 Insight-ML đã được triển khai:
 - Script: `analysis/association_rules.py`
 - Output: `analysis/outputs/association_rules.csv`
 - Findings: `docs/ASSOCIATION_RULES_FINDINGS.md`
 - Kết quả chạy: **711 transactions**, **1834 rules**
-- Bước kế tiếp: **Clustering skill profile** để kiểm chứng các cụm skill tự nhiên và đối chiếu với `job_family`.
+- Clustering skill profile đã triển khai:
+  - Script: `analysis/skill_clustering.py`
+  - Outputs: `analysis/outputs/skill_clusters.csv`, `analysis/outputs/skill_cluster_summary.csv`, `analysis/outputs/skill_cluster_k_selection.csv`
+  - Findings: `docs/SKILL_CLUSTERING_FINDINGS.md`
+  - Kết quả chạy: **852 analysis base**, **806 clustered jobs**, **72 skills**, **k=8**
+- Topic Modeling trên JD/text đã triển khai:
+  - Script: `analysis/topic_modeling.py`
+  - Outputs: `analysis/outputs/topic_terms.csv`, `analysis/outputs/job_topics.csv`, `analysis/outputs/topic_summary.csv`, `analysis/outputs/topic_k_selection.csv`
+  - Findings: `docs/TOPIC_MODELING_FINDINGS.md`
+  - Giải thích: `docs/TOPIC_MODELING_EXPLAINED_VI.md`
+  - Kết quả chạy: **852 analysis base**, **775 modeled jobs**, **2380 TF-IDF features**, **5 topics**
 
 ### 8.3. Analyze (notebook) + Dashboard (Streamlit) — chia sau (xem WORK_DIVISION.md)
 ### 8.4. Report (báo cáo môn học) — xem §10

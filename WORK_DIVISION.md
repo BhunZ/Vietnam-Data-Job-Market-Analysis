@@ -20,14 +20,14 @@
 |---|---|---|---|
 | A. Data Eng | P0 Collect ✅ + P1 Silver ✅ | **Bạn** | xong; chỉ vận hành/refresh nếu cần |
 | ⭐ E. Job Family Labeling Engine | **P2** — taxonomy phân cấp + cascade 3 tầng (rule→embedding→LLM dynamic-failover) + metadata + KPI → tích hợp `job_family` → re-Gold theo family. Module **độc lập** (`engine.predict(job)`). | **Bạn + Teammate** | ✅ **XONG** — xem PROJECT_STATUS §13 |
-| B. Analysis | P4 EDA + thống kê (**% thị trường**, geo/company/seniority) + P5 insight-ML (association rules · clustering · topic modeling) | **Teammate / bạn hỗ trợ** | ◐ **ĐANG LÀM** — Association Rules ✅; tiếp theo Clustering |
+| B. Analysis | P4 EDA + thống kê (**% thị trường**, geo/company/seniority) + P5 insight-ML (association rules · clustering · topic modeling) | **Teammate / bạn hỗ trợ** | ✅ **P5 INSIGHT-ML XONG** — Association Rules ✅; Clustering ✅; Topic Modeling ✅ |
 | C. NLP + Recommendation | P3 skill extraction/embedding/keyword + P6 skill rec · similar-job (+ skill-gap) | **chia sau** | sau P5/P3 mở rộng |
 | D. Dashboard | P7 Streamlit drill-down Domain→Sub-domain→Family | **chia sau** | sau P4/P5 |
 | Báo cáo | P8 báo cáo + insight cho **seeker & recruiter** (Insight Framework 7 bước) | **cả 2** | cuối |
 
 Phụ thuộc: **A (P1) → ⭐E (P2 `job_family`) → {B, C} → D → Báo cáo.** `job_family` là interface chung;
 P2 là **cổng** cho mọi phân tích và hiện đã hoàn thành. Trạng thái hiện tại nằm ở **B/P5 Insight-ML**:
-Association Rules đã xong, tiếp theo là Clustering. 🚫 Không salary, không supervised classifier deliverable,
+Association Rules + Clustering + Topic Modeling đã xong. 🚫 Không salary, không supervised classifier deliverable,
 không forecasting (1 snapshot).
 
 ## ⭐ LUỒNG E — Job Family Labeling Engine (P2, trọng tâm — chi tiết MASTER_PLAN §⭐P2 + §10)
@@ -57,9 +57,9 @@ của CareerViet/Glints sẽ rỗng — đã có guard carry-forward nhưng vẫ
 **CHỈ ML unsupervised TẠO INSIGHT** (đây là dự án Data Analyst — KHÔNG prediction, KHÔNG classifier):
 - [x] ⭐ **Association rules** (Apriori/FP-growth) trên `skills` → combo "biết X nên học Y"
       (ngôi sao prescriptive, không leakage).
-- [ ] **Clustering** (KMeans/HDBSCAN trên vector skill) → nhóm nghề tự nhiên + kiểm chứng role có
+- [x] **Clustering** (KMeans trên vector skill) → nhóm nghề tự nhiên + kiểm chứng role có
       tách theo skill không; (UMAP/PCA tùy chọn để VẼ).
-- [ ] **Topic modeling** (LDA/NMF trên JD free-text) → chủ đề công nghệ/kỹ năng ẩn → "công nghệ nào đang nổi".
+- [x] **Topic modeling** (NMF trên JD free-text) → chủ đề công nghệ/kỹ năng ẩn → "công nghệ nào đang nổi".
 - ✅ **Nhãn role = LLM consensus labeling** (engine `pipeline/dataset/annotate.py`+`agreement.py`:
       đọc title+JD+skills, 2–3 model bỏ phiếu → nhánh Data) → nền cho **% thị trường** + skill theo nhánh.
 - 🚫 KHÔNG: salary prediction, forecasting, **train supervised classifier**, golden/IAA benchmark
