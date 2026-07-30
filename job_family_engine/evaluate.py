@@ -119,9 +119,33 @@ def run_eval(spot_n: int = 40, seed: int = 42) -> dict:
     # domain expertise. Fill with ok / wrong / unsure. `human_family` only if you know the right label.
     sc["verdict"] = ""
     sc["human_family"] = ""
-    sc[["job_id", "title", "job_family", "reasoning", "labeling_method", "review_status",
-        "stratum", "stratum_size", "verdict", "human_family"]] \
-        .to_csv(DATA_DIR / "labeling" / "spot_check.csv", index=False, encoding="utf-8-sig")
+    cols = ["job_id", "title", "job_family", "reasoning", "labeling_method", "review_status",
+            "stratum", "stratum_size", "verdict", "human_family"]
+    out = DATA_DIR / "labeling" / "spot_check.csv"
+
+    # NEVER clobber hand-filled review. This file is the only human-labelled artifact in the project and
+    # it costs a person an hour; regenerating it silently threw that away once (2026-07-31) because
+    # `label-kpi` was run as a routine step in a re-run chain. Carry the existing answers forward by
+    # job_id — the sample is deterministic (`random_state=seed`) so the rows normally match anyway, and
+    # a row that genuinely dropped out of the sample simply has nothing to carry.
+    if out.exists():
+        try:
+            prev = pd.read_csv(out, encoding="utf-8-sig")
+        except Exception:                                        # noqa: BLE001
+            prev = None
+        if prev is not None and {"job_id", "verdict", "human_family"} <= set(prev.columns):
+            keep = prev[(prev["verdict"].astype(str).str.strip() != "")
+                        | (prev["human_family"].astype(str).str.strip() != "")]
+            if not keep.empty:
+                m = keep.set_index("job_id")[["verdict", "human_family"]]
+                sc = sc.set_index("job_id")
+                sc.update(m)                                     # only fills where prev has a value
+                sc = sc.reset_index()
+                carried = int(sc["job_id"].isin(m.index).sum())
+                print(f"  spot_check.csv: carried forward {carried} hand-filled row(s) "
+                      f"out of {len(keep)} previously filled")
+
+    sc[cols].to_csv(out, index=False, encoding="utf-8-sig")
 
     print(json.dumps(kpi, ensure_ascii=False, indent=2))
     print(f"-> docs/labeling_kpi.md + data/labeling/spot_check.csv")

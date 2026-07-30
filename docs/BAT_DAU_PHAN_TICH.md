@@ -1,7 +1,8 @@
 # Bắt đầu phân tích — đọc file này trước
 
-*Viết 2026-07-28. Bộ dữ liệu đã hoàn chỉnh và đã kiểm. File này nói bạn đang có gì, tin được đến đâu, và
-ba câu tuyệt đối không được viết. Không có gì phải chạy lại nữa.*
+*Cập nhật 2026-07-31. Bộ dữ liệu đã hoàn chỉnh, đã kiểm, và nhãn nghề nay có **độ chính xác đo được
+96,7%** từ nhãn người. File này nói bạn đang có gì, tin được đến đâu, và ba câu tuyệt đối không được
+viết. Không có gì phải chạy lại nữa.*
 
 ---
 
@@ -45,8 +46,13 @@ không bảng nào trùng khoá. Tổng số luôn khớp 720.
 **Cấp bậc: đã kiểm định mù, 86,2% đúng bậc** (hai LLM độc lập chỉ đọc tiêu đề + JD, không thấy nhãn của
 mình; 96,9% lệch không quá 1 bậc).
 
-**Nghề: chưa có nhãn người để đối chiếu.** Đây là giới hạn lớn nhất. 59% nhãn do quy tắc đọc tiêu đề, 41%
-do LLM. Nên **đừng xếp hạng** bốn nghề đứng đầu — chúng nằm trong sai số của nhau.
+**Nghề: đã có nhãn người, độ chính xác 96,7%** (29/30, khoảng tin cậy 95%: 83,3%–99,4%). Người gán nhãn
+đọc tin khi đã **ẩn đáp án của máy**, nên đây là kiểm định độc lập thật. Tách theo tầng: LLM **18/18 và
+3/3 đều đúng**, tầng quy tắc đọc tiêu đề **8/9**. Ca sai duy nhất là một tin `BUSINESS_ANALYST` do quy tắc
+gán mà người đọc ra `OTHER` — đúng chỗ đã được cảnh báo.
+
+Vẫn **đừng xếp hạng** bốn nghề đứng đầu: n=30 quá nhỏ để phân biệt các nghề với nhau, và nhãn vẫn phụ
+thuộc judge nào chấm.
 
 ---
 
@@ -147,6 +153,10 @@ Chỉ điền **2 cột cuối**, 8 cột đầu là dữ liệu sẵn:
 Chỉ điền **1 cột `industry`**. Đây là 98 nhà tuyển dụng mà 2 LLM **không đồng thuận** được ngành, nên bị
 để `unknown`. Chúng chiếm **104/720 tin (14,4%)**.
 
+> ✅ **ĐÃ HOÀN THÀNH 2026-07-31 — 98/98 công ty, không còn `unknown` nào.** Độ phủ ngành giờ là **100%**.
+> Kết quả đã lật một kết luận: Công nghệ/Phần mềm **211 tin (29,3%)** vượt Ngân hàng/Tài chính **205
+> (28,5%)**, trong khi trước đó bảng xếp hạng là ngược lại. Phần dưới giữ lại làm hướng dẫn cho lần sau.
+
 **16 giá trị hợp lệ — chỉ dùng đúng các chuỗi này, viết thường, có gạch dưới:**
 
 | Giá trị | Nghĩa | Đang có (base 720) |
@@ -166,7 +176,7 @@ Chỉ điền **1 cột `industry`**. Đây là 98 nhà tuyển dụng mà 2 LLM
 | `energy_agri` | Năng lượng, nông nghiệp | 9 |
 | `healthcare_pharma` | Y tế, dược, bệnh viện | 5 |
 | `public_sector` | Nhà nước, cơ quan công | 1 |
-| `unknown` | **Thật sự không tra được** — để nguyên | 104 |
+| `unknown` | **Thật sự không tra được** — để nguyên | 0 (đã phân loại hết) |
 
 **Cách làm nhanh:** file đã sắp theo `n_postings` giảm dần. **Chỉ cần điền 30 dòng đầu là phủ ~35% phần
 còn thiếu** — hiệu quả nhất trên mỗi phút bỏ ra. Tra tên công ty ở cột `company` bằng Google; nếu 30 giây

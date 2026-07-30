@@ -158,25 +158,40 @@ tập trung ở tầng tự khai của nhà tuyển dụng.
 (`--cached-only` để tái lập báo cáo không tốn quota) · `tests/test_derived_fields.py` (mỗi lỗi trên được
 ghim bằng một test).
 
-### A4. Ngân hàng/Tài chính là nhà tuyển dụng Data lớn nhất — hơn cả công ty công nghệ
+### A4. Công nghệ và Ngân hàng tuyển ngang nhau — và chúng tuyển hai thứ khác nhau
 
-**Phát hiện.** Ngân hàng/Tài chính **199 tin (27,6%)** vs Công nghệ/Phần mềm **176 tin (24,4%)** — hai
-khối gần bằng nhau, chênh 3,2pt nên **không kết luận dứt khoát cái nào lớn hơn** (bản trước chênh 5,4pt
-và tôi đã kết luận quá mạnh).
-Ngân hàng tuyển **toàn phổ**, không chỉ risk: BA 37 · Data Engineer 37 · Risk/Fraud 29 · Data Analyst 21 ·
-AI Engineer 18 · Data Governance 12.
-Ngược lại, **29/38 tin Risk/Fraud Analyst (76%) đến từ ngân hàng** — gần như độc quyền một nhánh nghề.
+**Phát hiện.** Sau khi phân loại **đủ 100%** nhà tuyển dụng (2026-07-31): Công nghệ/Phần mềm **211 tin
+(29,3%)** vs Ngân hàng/Tài chính **205 tin (28,5%)** — chênh **0,8pt (6 tin)**, tức **ngang nhau, không
+xếp hạng được**. Sản xuất đứng thứ ba với 75 tin (10,4%).
 
-**Ý nghĩa.** Ai muốn vào ngành data ở VN thì **ngân hàng là cửa lớn nhất**, không phải công ty tech.
-Điều này cũng lý giải vì sao `Data Governance` tồn tại như một nhánh riêng (16 tin từ ngân hàng) — đó là
-áp lực tuân thủ của ngành tài chính, không phải nhu cầu tự nhiên của thị trường.
+Điều đáng nói không phải khối nào lớn hơn, mà là **cơ cấu tuyển khác hẳn nhau**:
+
+| | Ngân hàng (205) | Công nghệ (211) |
+|---|---|---|
+| Đông nhất | Business Analyst **38** | **AI Engineer 53** |
+| | Data Engineer 37 | Data Engineer 47 |
+| | **Risk/Fraud 29** | Business Analyst 43 |
+| | Data Analyst 21 | Data Analyst 26 |
+| | AI Engineer 19 | Data Scientist 9 |
+| | **Data Governance 14** | Data Governance 4 |
+
+**Ý nghĩa.** Hai cửa vào nghề, hai loại năng lực:
+* **Công nghệ tuyển AI Engineer nhiều gấp gần 3 lần ngân hàng** (53 vs 19) — đây là nơi làm sản phẩm AI.
+* **Ngân hàng gần như độc chiếm hai nhánh**: Risk/Fraud **29/38 tin (76%)** và Data Governance
+  **14/27 tin (52%)**. Cả hai đều sinh ra từ **áp lực tuân thủ** của ngành tài chính, không phải nhu cầu
+  tự nhiên của thị trường — một điểm diễn giải tốt cho báo cáo.
 
 **Bằng chứng.** `gold_company` · `analysis/figures/industry_share.png`.
-⚠️ **14,4% tin chưa phân loại được ngành** → mọi tỉ lệ ngành là "trong số đã nhận dạng được", phải nói
-rõ mẫu số. Nguồn (cột `company_type_source`): **464 tin từ tên công ty** (rule) · **152 tin từ LLM**
-(2 judge phải đồng thuận về thương hiệu; bất đồng → giữ `unknown`) · **104 tin vẫn chưa rõ**. Phần dư là
-**đuôi dài công ty nhỏ/vô danh** (gần như mỗi công ty 1 tin) — LLM đã **chủ động trả lời "không biết"**
-thay vì đoán (`Sunteco`, `Slimcase`, `DENIS G.M.`).
+✅ **Độ phủ ngành giờ là 100%** — không còn nhóm `unknown`, nên mọi tỉ lệ ngành tính trên **đủ mẫu số 720**,
+không phải "trong số đã nhận dạng được". Nguồn (cột `company_type_source`): **463 tin từ tên công ty**
+(rule) · **152 tin từ LLM** (2 judge đồng thuận) · **105 tin do người phân loại tay** (98 nhà tuyển dụng mà
+2 judge bất đồng — phần đuôi dài công ty nhỏ/vô danh, gần như mỗi công ty 1 tin).
+
+⚠️ **Đây là một kết luận đã BỊ LẬT.** Bản trước của mục này có tiêu đề *"Ngân hàng là nhà tuyển dụng Data
+lớn nhất — hơn cả công ty công nghệ"* (199 vs 176). Nó sai vì **14,4% tin khi đó chưa phân loại được ngành**,
+và phần chưa phân loại hoá ra lệch mạnh về công ty công nghệ. Bài học đáng viết vào báo cáo: **một nhóm
+"không xác định" 14% có thể tự nó lật ngược thứ hạng** — đừng bao giờ xếp hạng khi phần khuyết còn lớn hơn
+khoảng cách giữa hai nhóm dẫn đầu.
 
 ### A5. Tiếng Anh là kỹ năng đứng thứ 5 — cao hơn Power BI
 

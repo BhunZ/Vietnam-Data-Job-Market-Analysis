@@ -326,13 +326,25 @@ không cào lại từ đầu, không phình lưu trữ.
 > **44,8%–92,5%**; cặp thực dùng nhiều nhất (cerebras+mistral, n=820) là **82,7%**. Vote 2-judge không
 > phát hiện được lỗi này vì mọi judge lệch cùng chiều.
 
-- **Spot-check: CHƯA CÓ BẢN GHI (kiểm lại 2026-07-28).** `data/labeling/spot_check.csv` có 30 dòng và cột
-  `verdict` **trống 0/30**. Tác giả cho biết đã đọc mẫu trên một máy khác và thấy hợp lý, nhưng **kết quả
-  không được lưu**. Vì vậy đây là **tự báo cáo, không có artifact kiểm chứng được** — KHÔNG trích dẫn nó
-  như bằng chứng chất lượng, và tuyệt đối không suy ra con số accuracy.
-  Bản trước của mục này ghi "ĐÃ CÓ BẢN GHI... `verdict = reasoning_ok`" — sai, vì file trống.
-  Muốn có accuracy trích dẫn được: điền `human_family` cho 30 dòng đó **trước khi xem nhãn engine**.
-  File này đã được đưa ra khỏi `.gitignore` để teammate cùng điền được.
+- ⭐ **Spot-check: ĐÃ XONG, và đây LÀ con số accuracy (2026-07-31).** `data/labeling/spot_check.csv` đã điền
+  đủ **30/30**, không giá trị nào sai định dạng. Người review gán `human_family` **khi đã ẩn cột
+  `job_family` và `reasoning`** rồi mới so — tức gán nhãn **mù**, nên khác hẳn kiểu "đọc lý do thấy hợp lý"
+  và nó **cho ra được accuracy**.
+
+  | | Khớp với nhãn người |
+  |---|---|
+  | **Toàn mẫu** | **29/30 = 96,7%** (Wilson 95% CI **83,3%–99,4%**) |
+  | Có trọng số theo `stratum_size` | 96,8% |
+  | Tầng `vote` (≥2 judge) | 18/18 = **100%** |
+  | Tầng `refine` | 3/3 = **100%** |
+  | **Tầng `rule` (regex tiêu đề)** | **8/9 = 88,9%** |
+
+  **Ca lệch duy nhất đúng bằng thứ audit đã dự đoán:** một tin `BUSINESS_ANALYST` do **tầng rule** gán
+  ("Chuyên Viên Phân Tích Nghiệp Vụ"), người đọc ra `OTHER`. Mọi nhãn do LLM quyết trong mẫu **đều đúng**;
+  lỗi duy nhất đến từ tầng chỉ đọc tiêu đề.
+
+  ⚠️ Giới hạn phải nói kèm: **n=30 nhỏ**, khoảng tin cậy rộng (83,3%–99,4%), và 11/30 dòng thuộc stratum
+  `OTHER` vốn là nhóm dễ. Đây là ước lượng, không phải phép đo chính xác.
 - (lịch sử) Trước đó: Mẫu 21 job đã được review tay ở một session/máy khác
   (kết quả báo: đúng hết), nhưng **bản ghi không được lưu** — cột `human_family` trong
   `data/labeling/spot_check.csv` trống 21/21, và `data/labeling/` bị gitignore nên không có history.

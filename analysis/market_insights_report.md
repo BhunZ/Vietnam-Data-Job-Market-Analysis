@@ -1,7 +1,7 @@
 # Thị trường nhân lực Data Việt Nam — Báo cáo Insight
 
 *Báo cáo phân tích (Phase 4) trên tập dữ liệu tuyển dụng đã gán nhãn. Snapshot: **một lát cắt duy nhất
-2026-06-16**. Số liệu cập nhật 2026-07-28.*
+2026-06-16**. Số liệu cập nhật 2026-07-31.*
 *Phạm vi: **720** tin Data/AI đang hoạt động, đã khử trùng lặp, non-OTHER, rút từ **1.701** tin trên 6 job
 board Việt Nam.*
 
@@ -18,9 +18,10 @@ board Việt Nam.*
 > careerviet 50,9% · itviec 28,9% · glints 25,5%. Vì vnw chiếm 255/720, **"Analytics 46,9%" phần lớn là
 > profile của VietnamWorks pha loãng**, không phải cấu trúc thị trường Việt Nam.
 >
-> **4. Chưa có nhãn người (gold label).** Bằng chứng chất lượng hiện có là độ đồng thuận giữa các LLM
-> (reliability), KHÔNG phải accuracy. Riêng `seniority` thì đã có kiểm định mù: 86,2% đúng bậc, 96,9%
-> lệch ≤1 bậc (n=65) — xem `docs/INSIGHTS_BRAINSTORM.md` mục A3b.
+> **4. Đã có nhãn người — độ chính xác 96,7%** (29/30; Wilson 95% CI 83,3%–99,4%; người gán nhãn khi đã
+> ẩn đáp án của máy). Tầng LLM đúng 21/21; ca sai duy nhất đến từ tầng quy tắc đọc tiêu đề. n=30 nhỏ nên
+> đây là **ước lượng**, và nó không cho phép xếp hạng giữa các nghề. `seniority` cũng đã kiểm định mù:
+> 86,2% đúng bậc, 96,9% lệch ≤1 bậc (n=65) — xem `docs/INSIGHTS_BRAINSTORM.md` mục A3b.
 >
 > **Một lát cắt ⇒ không có phát ngôn xu hướng.** Mọi câu "đang tăng / đang hot / nhu cầu giảm" đều
 > không có cơ sở trong dữ liệu này. Không có trường lương ⇒ không phát ngôn về thu nhập.
@@ -47,10 +48,10 @@ board Việt Nam.*
 3. **Mỗi nhánh có "dấu vân tay" kỹ năng riêng** (DA = Power BI/Reporting, DE = ETL/Warehouse,
    AI = ML/**LLM 69,1%**). Nhưng kỹ năng **không tạo thành cụm nghề tự nhiên**: silhouette chỉ 0,132–0,191
    qua k=2..20 — 8 cụm trong báo cáo clustering là cách trình bày, không phải 8 nghề thật.
-4. **Ngân hàng & Fintech là khối tuyển lớn nhất nhận dạng được (27,6%, 199 tin)**, trên Công nghệ/Phần mềm
-   (24,4%, 176) — chênh 3,2pt nên **không kết luận dứt khoát khối nào lớn hơn**. Ngân hàng gần như độc
-   chiếm phân tích rủi ro/gian lận: **29/38 tin** Risk/Fraud. Còn **14,4% (104 tin) không xác định được
-   ngành**, đã để riêng thành một nhóm chứ không chia lại vào các nhóm khác.
+4. **Công nghệ/Phần mềm (29,3%, 211 tin) và Ngân hàng/Tài chính (28,5%, 205) tuyển ngang nhau** — chênh
+   0,8pt, không xếp hạng được. Nhưng **cơ cấu khác hẳn**: công nghệ tuyển AI Engineer nhiều gần gấp 3
+   (53 vs 19), còn ngân hàng độc chiếm Risk/Fraud (**29/38 tin**) và Data Governance (**14/27**).
+   Độ phủ ngành nay là **100%** — không còn nhóm "không xác định".
 5. **Thị trường cần kinh nghiệm: Mid 33,3% + Senior 30,0% = 63%; Junior 17,4% + Intern 2,6% = 20%.**
    Bản trước của báo cáo này ghi "54% Mid, ~5% Junior/Intern" — con số đó là **hiện vật của cách đo**, không
    phải sự thật thị trường: quy tắc cũ có `default: Mid` hút 45% corpus và không đọc số năm kinh nghiệm.
@@ -119,9 +120,11 @@ Thị trường chia thành 5 domain: **Analytics 46,9% (338 tin)**, AI/ML 24,9%
 
 ![Cấp bậc](figures/seniority_share.png)
 
-- **Ngân hàng/Fintech là khối tuyển lớn nhất nhận dạng được (199 tin, 27,6%)**, trên Công nghệ/Phần mềm
-  (176 tin, 24,4%) — chênh **3,2pt**, quá nhỏ để nói dứt khoát khối nào lớn hơn. Ngân hàng gần như độc
-  chiếm Risk/Fraud Analyst: **29/38 tin** của nhánh này.
+- **Công nghệ/Phần mềm 211 tin (29,3%) và Ngân hàng/Tài chính 205 tin (28,5%) ngang nhau** — chênh 0,8pt.
+  Sản xuất thứ ba (75 tin, 10,4%). Cơ cấu tuyển khác hẳn: công nghệ dẫn đầu bằng **AI Engineer 53**, ngân
+  hàng bằng **Business Analyst 38** và độc chiếm **Risk/Fraud 29/38 tin** cùng **Data Governance 14/27**.
+  ⚠️ Bản trước xếp ngân hàng trên công nghệ (199 vs 176) — kết luận đó **đã bị lật** khi 14,4% tin chưa
+  phân loại được ngành cuối cùng lệch mạnh về phía công nghệ.
 - **14,4% (104 tin) không xác định được ngành.** Nhóm này giữ nguyên thành một mục riêng, **không** chia
   lại vào các nhóm khác — nên mọi % ngành bên trên đều tính trên mẫu số 720 đầy đủ.
 - **Cấp bậc: Mid 33,3% (240) + Senior 30,0% (216) = 63%**; Junior 17,4% (125) + Intern 2,6% (19) = **20%**;
@@ -198,8 +201,7 @@ lên nhanh, nên đầu tư sớm.
   toàn bộ nhãn. Vì vậy đọc top-4 như **một cụm**, không xếp hạng #1.
 - **Tầng rule chỉ đọc tiêu đề, không đọc JD** → alias rộng từng kéo nhầm role nghiệp vụ vào nhánh data
   (đã siết 07/2026, nhưng đây là hạn chế cấu trúc của tầng này).
-- **`unknown` (loại công ty) chiếm 14,4% (104 tin)** — giữ nguyên thành một mục, không chia lại vào các
-  nhóm khác, nên % ngành vẫn tính trên mẫu số 720.
+- **Loại công ty: độ phủ 100%**, không còn `unknown` — 105 tin được người phân loại tay ngày 2026-07-31.
 - Một số nhánh quá mỏng (< 30 tin) → **không báo cáo tỉ lệ % riêng**; roll-up lên Sub-domain/Domain.
 
 ### 6.1. Giới hạn quan trọng nhất: mẫu không đại diện cho thị trường Việt Nam

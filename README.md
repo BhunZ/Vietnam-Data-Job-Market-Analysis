@@ -190,20 +190,33 @@ where a ranking is safe:
 rules first and only then by an LLM where the rules gave up, and `seniority_source` /
 `company_type_source` record which decided each value (`rule` / `llm` / `manual` / `none`). Current
 coverage on the 720-posting base: seniority `rule_title` 342 · `rule_years_source` 183 ·
-`rule_years_jd` 161 · `llm` 29 · unresolved **5 (0.7%)**; employer industry `rule` 464 · `llm` 152 ·
-unresolved **104 (14.4%)**. The three `rule_*` values stay apart on purpose — collapsing them hid that
+`rule_years_jd` 161 · `llm` 29 · unresolved **5 (0.7%)**; employer industry `rule` 463 · `llm` 152 ·
+`manual` 105 · unresolved **0** — the 98-employer residual the two judges could not agree on was
+hand-classified on 2026-07-31, so every posting in the base now carries an industry and no percentage is
+computed over a shrunken denominator. The three `rule_*` values stay apart on purpose — collapsing them hid that
 22% of all seniority came from a regex over JD prose rather than from a title, and a blind audit
 (`analysis/audit_seniority.py`) then measured each tier separately and found the weakest one was *not* the
 one the design expected. The industry LLM path requires **two judges
 to agree on the brand** and answers `unknown` otherwise, so the residual is an honest long tail of 84
 small employers (88 postings) rather than a guess.
 
-**Human review: not done yet — do not cite it.** `data/labeling/spot_check.csv` holds a tier-stratified
-30-job sample with each label's recorded `reasoning`, and its `verdict` column is **empty, 0 of 30**
-(re-checked 2026-07-28). An earlier version of this section claimed the author had read all 30 and marked
-every reasoning plausible; the author reports doing so on another machine but the result was never saved,
-so **there is no auditable artifact** and no accuracy figure may be quoted from it. Filling
-`human_family` for those 30 rows *before* looking at the engine's answer is the cheapest way to earn one.
+**Human review: done, and it is a real accuracy figure (2026-07-31).** `data/labeling/spot_check.csv` is a
+tier-stratified 30-job sample. The reviewer assigned `human_family` **with the engine's `job_family` and
+`reasoning` columns hidden**, and only then compared — so this is blind labelling, not a plausibility pass,
+and it does yield an accuracy estimate.
+
+| | Agreement with the human label |
+|---|---|
+| **Overall** | **29/30 = 96.7%** (Wilson 95% CI **83.3%–99.4%**) |
+| Weighted by stratum size | 96.8% |
+| `vote` tier (≥2 LLM judges) | 18/18 = 100% |
+| `refine` tier (stage 2) | 3/3 = 100% |
+| **`rule` tier (title regex)** | **8/9 = 88.9%** |
+
+The single miss is the exact failure the audit predicted: a `rule`-tier `BUSINESS_ANALYST`
+("Chuyên Viên Phân Tích Nghiệp Vụ") the reviewer read as `OTHER`. **Every LLM-decided label in the sample
+was correct; the one error came from the tier that only reads the title.** Be honest about the limits:
+n=30 is small, the CI is wide, and 11 of the 30 rows are `OTHER`-stratum, which are the easy ones.
 
 **What the quality evidence actually is.** Two numbers, and they measure different things:
 
