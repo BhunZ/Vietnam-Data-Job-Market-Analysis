@@ -24,6 +24,16 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
+# These run as standalone scripts (`python analysis/<name>.py`), so the repo root is not on sys.path
+# by default — add it before importing the shared analysis-base definition.
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from pipeline.utils.analysis_base import qualified
+
+
 ROOT = Path(__file__).resolve().parents[1]
 DB = ROOT / "data" / "warehouse.duckdb"
 OUT = Path(__file__).resolve().parent / "outputs"
@@ -34,6 +44,17 @@ WS = re.compile(r"\s+")
 BOILERPLATE = re.compile(
     r"(benefits?|why you'?ll love|about us|company overview|equal opportunity|how to apply|"
     r"quyen loi|phuc loi|che do|ve chung toi|cach thuc ung tuyen|nop ho so)",
+    re.I,
+)
+
+# Job-board UI chrome that ends up inside `description_raw`. Removed everywhere (not just at a section
+# boundary) because it is interleaved with real content, and it is pure scraper artefact: keeping it
+# produced a topic whose top terms were "salary; now; apply now; sign view; ago" — i.e. a cluster of
+# which SITE rendered the page, not of what the job does.
+SITE_CHROME = re.compile(
+    r"(sign in to view salary|sign in to view|view salary|apply now|save job|share this job|"
+    r"\b\d+\s+(?:days?|hours?|weeks?|months?)\s+ago\b|top \d+ reasons to join us|"
+    r"dang tin tuyen dung|xem luong|ung tuyen ngay|luu tin|chia se tin)",
     re.I,
 )
 
@@ -55,12 +76,54 @@ def _ascii_fold(text: str) -> str:
     return "".join(ch for ch in text if not unicodedata.combining(ch))
 
 
+MIN_KEEP_CHARS = 300     # never let boilerplate stripping shrink a JD below this
+
+
+def _strip_boilerplate(jd: str) -> str:
+    """Remove benefits/about-us sections WITHOUT destroying single-blob descriptions.
+
+    The previous version filtered line by line. That is safe only for multi-line JDs, but 5 of the 6
+    sources store `description_raw` as ONE line (itviec/topcv/careerviet/glints medians = 1 line), so a
+    single occurrence of "benefits" or "quyen loi" anywhere inside a 4,000-character blob dropped the
+    entire description: measured 356 of 752 analysis-base postings (47.3%) lost 100% of their JD —
+    itviec and topcv 100%. Their documents then collapsed to `title + "Skills: ..."`, so the model was
+    reading back the skill tags it was supposed to look beyond, and the surviving topics separated by
+    scraper/language rather than by theme.
+
+    Now: multi-line JDs keep the line filter; single-blob JDs are TRUNCATED at the first boilerplate
+    marker instead (benefits sections come after the job content, so the prefix is the part we want),
+    and any cut that would leave less than MIN_KEEP_CHARS is abandoned in favour of the raw text.
+    """
+    lines = [ln for ln in jd.splitlines() if ln.strip()]
+    if len(lines) >= 3:
+        kept = [ln for ln in lines if not BOILERPLATE.search(ln)]
+        out = " ".join(kept).strip()
+        return out if len(out) >= MIN_KEEP_CHARS or not jd.strip() else " ".join(lines).strip()
+    m = BOILERPLATE.search(jd)
+    if m and m.start() >= MIN_KEEP_CHARS:
+        return jd[:m.start()].strip()
+    return jd.strip()
+
+
+# Contact / application blocks: emails, URLs, phone numbers and the phrases that introduce them. These
+# produced a topic of pure recruiter contact details (careers.<bank>.com.vn, "vui long", fanpage, email)
+# — an employer's application instructions, not a job theme.
+CONTACT = re.compile(
+    r"([\w.+-]+@[\w-]+\.[\w.]+|https?://\S+|www\.\S+|\b[\w.-]+\.(?:com|vn|net|org)(?:\.vn)?\b|"
+    r"\b0\d[\d\s.-]{7,}\b|vui long|fanpage|hotline|lien he|so dien thoai|dien thoai|"
+    r"gui ho so|gui cv|please send|contact us)",
+    re.I,
+)
+
+
+def _strip_chrome(text: str) -> str:
+    return CONTACT.sub(" ", SITE_CHROME.sub(" ", text))
+
+
 def _role_view(title: str | None, jd: str | None, skills: list[str]) -> str:
-    jd = jd or ""
-    jd = _ascii_fold(jd)
+    jd = _ascii_fold(jd or "")
     title = _ascii_fold(title or "")
-    kept = [line for line in jd.splitlines() if line.strip() and not BOILERPLATE.search(_ascii_fold(line))]
-    jd_clean = WS.sub(" ", " ".join(kept)).strip()
+    jd_clean = WS.sub(" ", _strip_chrome(_strip_boilerplate(jd))).strip()
     parts = [
         title.strip(),
         ("Skills: " + ", ".join(skills)) if skills else "",
@@ -72,7 +135,7 @@ def _role_view(title: str | None, jd: str | None, skills: list[str]) -> str:
 def load_jobs() -> pd.DataFrame:
     con = duckdb.connect(str(DB), read_only=True)
     df = con.execute(
-        """
+        f"""
         SELECT
             s.job_id,
             s.source,
@@ -91,10 +154,7 @@ def load_jobs() -> pd.DataFrame:
             j.description_raw
         FROM jobs_silver s
         JOIN jobs j USING (source, source_job_id)
-        WHERE s.job_family IS NOT NULL
-          AND s.job_family != 'OTHER'
-          AND s.is_active
-          AND s.is_duplicate_of IS NULL
+        WHERE {qualified()}
         """
     ).df()
     con.close()
@@ -123,7 +183,20 @@ def stop_words() -> set[str]:
     role san skills strong support tai team teams thang theo thong thuc tich tin tien toan toi
     tot tri trien trinh tro ung uu vien vu van viec work working xay years yeu cau
     """
-    return {w.strip() for w in words.split() if w.strip()}
+    # Accent-folded Vietnamese SYLLABLES. Vietnamese is syllable-segmented, so a whitespace tokenizer
+    # yields syllables, not words, and folding then collapses homographs (số/sở/so -> "so",
+    # ngân/ngăn/ngán -> "ngan"). These flooded the model: the largest topic's entire top-30 was
+    # function-word syllables with zero domain terms. Multi-syllable domain phrases survive as bigrams
+    # (e.g. "du lieu", "ngan hang"), which is where the real Vietnamese signal lives.
+    vi_syllables = """
+    hanh thu quy gia su khai giai hinh hien vi so chi te phong ho thanh kiem kha bo vuc ro kien
+    thiet hoa xu pham len xuat tinh nhat mien tuyen hon dam bao cung cap thuong xuyen dinh ky
+    tham muu de xuat phoi hop truc tiep lien quan noi bo ben ngoai cap tren giao pho nhiem vu khac
+    dam nhan chuc nang chuyen mon nghiep vu don vi cap nhat bao cao ket qua thuc hien danh gia
+    kiem tra giam sat xay dung hoan thien nang cao chat luong hieu suat tien do muc tieu chien luoc
+    mb mbers bank vietcombank agribank techcombank vpbank
+    """
+    return {w.strip() for w in (words + vi_syllables).split() if w.strip()}
 
 
 def vectorize_text(df: pd.DataFrame, *, min_df: int, max_df: float, max_features: int):
@@ -157,6 +230,41 @@ def topic_diversity(topics: dict[int, list[tuple[str, float]]]) -> float:
     return len(set(terms)) / len(terms) if terms else 0.0
 
 
+def npmi_coherence(topics: dict[int, list[tuple[str, float]]], X, terms: list[str]) -> float:
+    """Mean pairwise NPMI over each topic's top terms, averaged across topics.
+
+    Standard intrinsic coherence: co-document-frequency of term pairs, normalised so it does not
+    trivially reward frequent words. Unlike the previous ad-hoc score it has no built-in preference for
+    small k, so it can genuinely select a larger model. Computed on the same TF-IDF matrix (binarised to
+    presence) that the model was fitted on, so no external reference corpus is needed.
+    """
+    import numpy as np
+
+    idx = {t: i for i, t in enumerate(terms)}
+    B = (X > 0).astype("float32")
+    n_docs = B.shape[0]
+    per_topic = []
+    for values in topics.values():
+        cols = [idx[t] for t, _ in values if t in idx]
+        if len(cols) < 2:
+            continue
+        sub = B[:, cols].toarray() if hasattr(B, "toarray") else B[:, cols]
+        p = sub.mean(axis=0)                                  # P(term)
+        joint = (sub.T @ sub) / n_docs                        # P(term_i, term_j)
+        scores = []
+        for a in range(len(cols)):
+            for b in range(a + 1, len(cols)):
+                pj = joint[a, b]
+                if pj <= 0 or p[a] <= 0 or p[b] <= 0:
+                    scores.append(-1.0)                       # never co-occur → maximally incoherent
+                    continue
+                pmi = np.log(pj / (p[a] * p[b]))
+                scores.append(float(pmi / -np.log(pj)))
+        if scores:
+            per_topic.append(float(np.mean(scores)))
+    return float(np.mean(per_topic)) if per_topic else -1.0
+
+
 def choose_k(X, terms: list[str], *, k_min: int, k_max: int, top_n: int):
     from sklearn.decomposition import NMF
 
@@ -178,16 +286,21 @@ def choose_k(X, terms: list[str], *, k_min: int, k_max: int, top_n: int):
         total = W.sum(axis=1)
         dominant_share = dominant / total.clip(min=1e-12)
         diversity = topic_diversity(topics)
-        # Heuristic score for exploratory reporting: prefer distinct topics and
-        # documents with a clear dominant topic, with a small penalty for many k.
-        score = (0.6 * diversity) + (0.4 * float(dominant_share.mean())) - (0.01 * k)
+        coherence = npmi_coherence(topics, X, terms)
+        # Select on NPMI topic coherence — the standard criterion, and one that can actually prefer a
+        # larger k. The previous score, 0.6*diversity + 0.4*mean_dominant_share - 0.01*k, was
+        # mathematically incapable of choosing anything but k_min: diversity is bounded by 1.0 and
+        # already ~0.98 at k_min, mean_dominant_share falls mechanically as k grows (each document's
+        # top-topic weight is diluted), and the -0.01k term adds a further penalty. Even with diversity
+        # forced to a perfect 1.0, no k>5 could beat k=5. reconstruction_error has the same problem in
+        # reverse (it always falls as k grows), so it is reported for transparency but never selected on.
         rows.append(
             {
                 "k": k,
+                "npmi_coherence": round(float(coherence), 4),
                 "reconstruction_error": round(float(model.reconstruction_err_), 4),
                 "topic_diversity": round(float(diversity), 4),
                 "mean_dominant_topic_share": round(float(dominant_share.mean()), 4),
-                "selection_score": round(float(score), 4),
             }
         )
         models[k] = (model, W, topics)
@@ -196,7 +309,7 @@ def choose_k(X, terms: list[str], *, k_min: int, k_max: int, top_n: int):
         raise ValueError(f"No valid k in range {k_min}-{k_max} for matrix shape {X.shape}.")
 
     scores = pd.DataFrame(rows)
-    best_k = int(scores.sort_values(["selection_score", "topic_diversity"], ascending=False).iloc[0]["k"])
+    best_k = int(scores.sort_values(["npmi_coherence", "topic_diversity"], ascending=False).iloc[0]["k"])
     model, W, topics = models[best_k]
     return best_k, scores, model, W, topics
 
@@ -252,6 +365,25 @@ def build_job_topics(df: pd.DataFrame, W) -> pd.DataFrame:
     return out.sort_values(["dominant_topic", "topic_weight"], ascending=[True, False]).reset_index(drop=True)
 
 
+# Domain vocabulary used only to FLAG interpretability, never to steer the model. A topic whose top
+# terms contain none of these is residual boilerplate (recruiter contact blocks, employer templates,
+# accent-folded Vietnamese function syllables) rather than a technology or task theme. Flagging beats
+# adding ever more stop-word regexes: the report can drop such topics openly instead of narrating noise.
+_DOMAIN_HINTS = {
+    "sql", "python", "etl", "elt", "bi", "power", "tableau", "excel", "dashboard", "warehouse", "lake",
+    "spark", "airflow", "hadoop", "kafka", "oracle", "mysql", "postgresql", "mongodb", "server",
+    "ai", "ml", "llm", "learning", "machine", "pytorch", "tensorflow", "vision", "nlp", "deep",
+    "analyst", "analysis", "analytics", "reporting", "statistics", "model", "modeling", "pipeline",
+    "governance", "quality", "risk", "rui", "data", "du lieu", "database", "cloud", "azure", "aws",
+    "gcp", "docker", "api", "agile", "science", "scientist", "engineer", "engineering", "ngan",
+}
+
+
+def _is_interpretable(top_terms: list[str]) -> bool:
+    tokens = {tok for term in top_terms for tok in term.split()}
+    return bool(tokens & _DOMAIN_HINTS)
+
+
 def summarize_topics(job_topics: pd.DataFrame, topic_terms: pd.DataFrame, top_n: int) -> pd.DataFrame:
     rows = []
     total = len(job_topics)
@@ -272,10 +404,49 @@ def summarize_topics(job_topics: pd.DataFrame, topic_terms: pd.DataFrame, top_n:
                 "top_families": _fmt_counter(family_counts, len(part), top_n=5),
                 "top_domains": _fmt_counter(domain_counts, len(part), top_n=4),
                 "top_terms": "; ".join(top_terms),
+                # False => top terms carry no domain vocabulary; treat as residual boilerplate and
+                # exclude from the narrative rather than inventing a theme for it.
+                "interpretable": _is_interpretable(top_terms),
                 "sample_titles": sample_titles,
             }
         )
     return pd.DataFrame(rows).sort_values("n_jobs", ascending=False).reset_index(drop=True)
+
+
+_VI_MARKS = set("ăâđêôơưàáảãạèéẻẽẹìíỉĩịòóỏõọùúủũụýỳỷỹỵ")
+
+
+def confound_table(modeled: pd.DataFrame, job_topics: pd.DataFrame) -> str:
+    """Cross-tabulate each topic against JD LANGUAGE and SOURCE BOARD.
+
+    A topic that is 100% Vietnamese or 91% English is not a theme in the market — it is the model
+    separating two languages, and the same holds for a topic that is mostly one job board. NMF runs on a
+    bag of words, so it has every incentive to do this, and nothing in the coherence score penalises it.
+    Reporting the split next to the topics stops a language artifact from being narrated as a finding.
+    """
+    def is_vi(t: str) -> bool:
+        t = str(t or "")
+        return sum(1 for ch in t.lower() if ch in _VI_MARKS) > len(t) * 0.005
+
+    m = job_topics[["job_id", "dominant_topic"]].merge(
+        modeled[["job_id", "source", "description_raw"]], on="job_id", how="inner")
+    if m.empty:
+        return "_(khong ghep duoc job_topics voi source)_"
+    m["lang"] = ["VI" if is_vi(t) else "EN" for t in m["description_raw"]]
+    sources = sorted(m["source"].unique())
+    head = "| topic | n | VI% | " + " | ".join(sources) + " | nguồn lớn nhất |"
+    sep = "|---|--:|--:|" + "--:|" * len(sources) + "---|"
+    lines = [head, sep]
+    for t, g in m.groupby("dominant_topic"):
+        n = len(g)
+        vi = 100 * (g["lang"] == "VI").sum() / n
+        counts = [int((g["source"] == s).sum()) for s in sources]
+        top_i = counts.index(max(counts))
+        flag = "**" if vi >= 90 or vi <= 10 or max(counts) / n >= 0.5 else ""
+        lines.append(f"| {t} | {n} | {flag}{vi:.0f}%{flag} | "
+                     + " | ".join(str(c) for c in counts)
+                     + f" | {sources[top_i]} {100*max(counts)/n:.0f}% |")
+    return "\n".join(lines)
 
 
 def write_findings(
@@ -287,9 +458,10 @@ def write_findings(
     best_k: int,
     k_scores: pd.DataFrame,
     summary: pd.DataFrame,
+    confound_md: str,
 ) -> None:
     k_rows = "\n".join(
-        "| {k} | {reconstruction_error:.4f} | {topic_diversity:.4f} | {mean_dominant_topic_share:.4f} | {selection_score:.4f} |".format(
+        "| {k} | {npmi_coherence:.4f} | {reconstruction_error:.4f} | {topic_diversity:.4f} | {mean_dominant_topic_share:.4f} |".format(
             **row
         )
         for row in k_scores.to_dict("records")
@@ -330,7 +502,12 @@ job_family IS NOT NULL
 AND job_family != 'OTHER'
 AND is_active
 AND is_duplicate_of IS NULL
+AND COALESCE(jf_review, 'resolved') NOT IN ('manual_review', 'domain_only')
 ```
+
+The last clause holds out postings the labeling engine could not settle. It currently excludes 0 rows
+(every posting was resolved, 30 of them via the stage-2 `refine` pass), but it is executed, so it is
+printed here — the filter shown must be the filter run.
 
 Text input: `title_clean` + normalized `skills` + `jobs.description_raw`, with light boilerplate trimming. `job_family` is used only after modeling for interpretation.
 
@@ -357,9 +534,9 @@ Outputs:
 
 ### Topic Count Selection
 
-`selection_score` is a lightweight interpretability proxy: topic diversity plus mean dominant-topic share, with a small penalty for larger k. It is used for reproducible exploratory reporting, not as a formal benchmark.
+`k` is selected on **NPMI topic coherence** (mean pairwise normalised PMI over each topic's top terms) — higher is better. `reconstruction_error` and `mean_dominant_topic_share` fall monotonically as `k` grows by construction, so they are reported for transparency but are NOT selection criteria; an earlier version selected on a weighted mix of them and could therefore only ever return the smallest `k` in the search range.
 
-| k | reconstruction_error | topic_diversity | mean_dominant_topic_share | selection_score |
+| k | npmi_coherence | reconstruction_error | topic_diversity | mean_dominant_topic_share |
 |---:|---:|---:|---:|---:|
 {k_rows}
 
@@ -368,6 +545,16 @@ Outputs:
 | Topic | Jobs | % | Dominant family | Dominant family share | Top terms |
 |---:|---:|---:|---|---:|---|
 {topic_rows}
+
+### Topic vs JD language and source board — READ THIS BEFORE NAMING ANY TOPIC
+
+{confound_md}
+
+Bold = the topic is >=90% or <=10% Vietnamese, or one job board supplies >=50% of it. Those topics are
+substantially an artifact of **which language the JD was written in** or **which board it came from**, not
+a theme in the labour market. NMF works on a bag of words and the NPMI coherence score does not penalise a
+language split, so this table is the only thing standing between a language artifact and a "finding".
+Do not name a bold topic as a market theme.
 
 ## Interpretation
 
@@ -384,6 +571,8 @@ Use these topics as supporting evidence for learning paths and report narrative:
 ## Limitations
 
 - Topic labels are model-derived themes, not official job labels.
+- **Several topics separate by JD LANGUAGE rather than by content** — see the topic-vs-language table
+  above and check it before quoting any topic. This is measured, not hypothetical.
 - JD text is bilingual and noisy; some terms may reflect generic recruiting language despite stop-word filtering.
 - The model uses one snapshot only, so topics cannot be interpreted as increasing or decreasing trends.
 - Salary is not available in this repo, so topics cannot imply compensation differences.
@@ -481,6 +670,7 @@ def main() -> None:
     summary.to_csv(OUT / "topic_summary.csv", index=False, encoding="utf-8")
     k_scores.to_csv(OUT / "topic_k_selection.csv", index=False, encoding="utf-8")
     write_findings(
+        confound_md=confound_table(modeled, job_topics),
         base_n=base_n,
         modeled_n=len(modeled),
         dropped_short_text_n=base_n - len(modeled),

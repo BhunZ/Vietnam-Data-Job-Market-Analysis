@@ -1,24 +1,47 @@
-# Patterns -> seniority {Intern, Junior, Mid, Senior, Lead, Manager} (locked 6-class taxonomy).
-# Evaluated in PRIORITY order (first match wins). Matched against lowercased
-# (title + source seniority_label + JD head). Default = Mid when nothing matches.
-# Includes Vietnamese title words + VNW/TopCV source labels (jobLevelVI).
-version: 1
+# Patterns -> seniority {Intern, Junior, Mid, Senior, Lead, Manager, Unknown}.
+# Evaluated in PRIORITY order (first match wins), against lowercased title + source level label + JD head.
+#
+# CHANGED 2026-07-25 — `default` was `Mid` while this file contained NO rule for Mid, so every posting
+# that matched nothing was silently reported as mid-level. Measured: 339 of 752 analysis-base postings
+# (45.1%) reached that default. "Mid 54%" was therefore largely a statement about unmatched text, and it
+# made the very low Junior/Intern share look like a market finding when part of it was a labelling
+# artifact.
+#
+# Now: Mid has explicit patterns, and anything still unmatched is `Unknown` so the gap is visible and
+# quantifiable instead of inflating one class. `pipeline/transform/normalize.py::seniority` additionally
+# infers a band from a stated years-of-experience requirement before falling back to Unknown.
+version: 2
 
 rules:
   - seniority: Intern
-    patterns: [intern, internship, "thực tập", "thực tập sinh", fresher-intern]
+    patterns: [intern, internship, "thực tập", "thực tập sinh", fresher-intern, "sinh viên thực tập"]
+  # NOTE: bare "quản lý" is deliberately NOT here. In Vietnamese titles it almost always names a TASK,
+  # not a rank — "Chuyên viên Quản lý Kho", "Chuyên Viên Cao Cấp Quản Lý Rủi Ro", "Chuyên viên Quản lý
+  # chất lượng" are all specialists. Including it pushed Manager to 301 of 1,701 postings and stole rows
+  # from Senior (it is matched before Senior). Rank in Vietnamese is carried by trưởng/giám đốc/phó.
   - seniority: Manager
-    patterns: [manager, "head of", director, "giám đốc", "trưởng phòng", "quản lý",
-               "trưởng bộ phận", "phó phòng"]
+    patterns: [manager, "head of", director, "giám đốc", "trưởng phòng",
+               "trưởng bộ phận", "phó phòng", "phó giám đốc", "trưởng ban", chief, cto, cio]
   - seniority: Lead
-    patterns: [lead, principal, staff, "tech lead", "team lead", "team leader", "leader",
-               "trưởng nhóm"]
+    patterns: [lead, principal, staff, "tech lead", "team lead", "team leader", leader,
+               "trưởng nhóm", "tổ trưởng", supervisor, "giám sát", "phó trưởng", deputy,
+               "assistant manager"]
   - seniority: Senior
-    patterns: [senior, sr, expert, "chuyên gia", "chuyên viên cao cấp", "cao cấp"]
+    patterns: [senior, sr, expert, "chuyên gia", "chuyên viên cao cấp", "cao cấp", cvcc,
+               "chuyên viên chính"]
   - seniority: Junior
-    patterns: [junior, jr, fresher, "mới tốt nghiệp", "mới ra trường", entry]
+    patterns: [junior, jr, fresher, "mới tốt nghiệp", "mới ra trường", entry, "entry level",
+               "không yêu cầu kinh nghiệm", "chưa có kinh nghiệm", trainee, associate,
+               "sinh viên mới"]
+  # Explicit Mid signals. Previously absent, which is exactly why Mid became the catch-all.
+  - seniority: Mid
+    patterns: [middle, "mid-level", "mid level", "trung cấp"]
 
-default: Mid
+default: Unknown
 
-# Note: "Nhân viên" (VNW staff level) -> falls through to default Mid (intended).
-# "Giám Đốc và Cấp Cao Hơn" -> Manager via "giám đốc".
+# Notes:
+# - "Nhân viên" (the VietnamWorks staff level) intentionally does NOT map to Mid: in Vietnamese postings
+#   it marks "non-manager" rather than a seniority band, and mapping it inflated Mid.
+# - "Giám Đốc và Cấp Cao Hơn" -> Manager via "giám đốc".
+# - Years-of-experience fallback (normalize.py): 0-1y -> Junior, 2-5y -> Mid, >5y -> Senior. Applied only
+#   when no pattern matched, so its contribution stays separable from title-based evidence.

@@ -22,6 +22,7 @@ import json
 import logging
 import threading
 import time
+import zlib
 from collections import Counter, deque
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -259,7 +260,18 @@ def _label_remainder(remainder: list[dict], results: list[dict], n: int) -> None
               f"  exhausted: {[s.key for s in states if s.exhausted]}", flush=True)
 
 
-def run_corpus() -> pd.DataFrame:
+def run_corpus(*, allow_single_judge: bool = False) -> pd.DataFrame:
+    """LEGACY single-judge corpus run. Superseded by `run_corpus_consensus`.
+
+    Kept because `predict()` and the tests exercise the dispatcher, but it must not be reachable by
+    accident: it writes the same OUT_PARQUET with one unchecked opinion per job, which would silently
+    downgrade every consensus label. Pass allow_single_judge=True to acknowledge that.
+    """
+    if not allow_single_judge:
+        raise RuntimeError(
+            "run_corpus() is the legacy single-judge path and overwrites the consensus labels in "
+            f"{OUT_PARQUET.name}. Use run_corpus_consensus() (python -m pipeline label), or pass "
+            "allow_single_judge=True if you really mean it.")
     df = pd.read_parquet(_io.TEXT_DIR / "jobs_text.parquet")
     jobs = df.to_dict("records")
     embed_match._prototypes(); embed_match._job_vectors()  # warm once
@@ -288,6 +300,200 @@ def run_corpus() -> pd.DataFrame:
         for r in rep_results:
             for job in by_hash.get(rep_hash.get(r["job_id"]), []):
                 results.append(r if job["job_id"] == r["job_id"] else {**r, "job_id": job["job_id"]})
+
+    out = pd.DataFrame(results)
+    _io.write_parquet(out, OUT_PARQUET, schema_version="job_family/1", produced_by="job_family_engine")
+    print(f"\nmethod: {dict(Counter(out['labeling_method']))}")
+    print(f"review: {dict(Counter(out['review_status']))}")
+    print(f"families: {dict(Counter(out['job_family']).most_common())}")
+    print(f"-> {OUT_PARQUET}")
+    return out
+
+
+# =====================================================================================
+# CONSENSUS voting (v3). Each LLM-tier job is judged by 2+ DISTINCT judges; agreement =
+# confidence, disagreement escalates to a 3rd judge (majority). Replaces the single-model +
+# human-review path — no manual labeling. Failover is implicit: a judge that errors/exhausts is
+# skipped and the next judge in the per-job rotation votes instead.
+# =====================================================================================
+
+# Consensus judge pool, best-first; the tail entries act as arbiters. Deliberately NOT every provider
+# with a key: `groq8b` is excluded because it is the outlier judge (OTHER rate 61% vs 75-77% for
+# cerebras/mistral on the same cached corpus) — i.e. it is the one most willing to file a generic
+# business role under a data family, and it used to decide the most jobs. `ninerouter`/`sambanova` are
+# excluded for latency/reliability (they stalled jobs near the client timeout). Fewer, better,
+# less-correlated judges beat more judges.
+#
+# Order is by SUSTAINED THROUGHPUT, not model size: `_consensus_one` uses the leading len-2 entries as
+# first-voters and the last two as arbiters, so a slow judge in a leading slot throttles every job that
+# rotates onto it (cerebras at 13s/call caps a quarter of the corpus at ~4.6 jobs/min). groq-70b and
+# github gpt-4o-mini are the fast pair; cerebras/mistral are strong but slow, so they only arbitrate
+# genuine disagreements. qwen/gemini stay in the list even when their daily quota is gone: their CACHED
+# votes still count toward a quorum for free, and a quota-dead judge is skipped via the `dead` registry.
+JUDGE_POOL = ["groq", "github", "cloudflare", "qwen", "gemini", "cerebras", "mistral"]
+
+
+def _available_judges() -> list[str]:
+    """Judge keys whose API key is present in .env (preserves JUDGES order)."""
+    sec = get_secrets()
+    from pipeline.dataset.llm_clients import JUDGES as _J
+    return [k for k, j in _J.items() if getattr(sec, j.key_env, None)]
+
+
+def _decide_votes(votes: list[dict], job: dict) -> dict:
+    """Aggregate collected votes into one labeled result."""
+    if not votes:
+        return _result(job, "OTHER", 0.0, "failed", [], "all judges failed", "manual_review")
+    tally = Counter(v["job_family"] for v in votes)
+    fam, n_agree = tally.most_common(1)[0]
+    n = len(votes)
+    agree = [v for v in votes if v["job_family"] == fam]
+    conf = sum(v["confidence"] for v in agree) / len(agree)
+    judge_keys = sorted({llm_judge.provider_key_for(v["judge"]) for v in votes})
+    if n_agree >= 2:                                   # consensus / majority
+        # Keep the judges' own mean confidence. The previous `conf * (0.9 + 0.1*n_agree)` capped at 0.99
+        # pinned 76% of two-vote rows to exactly 0.99, so the "confidence distribution" KPI described the
+        # formula rather than the labels. Agreement strength belongs in its own columns, not smuggled
+        # into a score that is already a mix of incommensurable scales.
+        review = "resolved"
+        method = "vote:" + "+".join(judge_keys)
+    elif n == 1:
+        # Only one judge ever answered (the others were exhausted/erroring). This job did NOT get the
+        # 2-vote standard, so label the method `single:` — never silently pass it off as a vote, and
+        # send it to review unless the lone judge was confident.
+        review = "resolved" if votes[0]["confidence"] >= 0.6 else "manual_review"
+        method = "single:" + "+".join(judge_keys)
+    else:                                              # every judge disagreed (rare)
+        # No majority. If the disputed families all sit inside ONE taxonomy domain, the judges DO agree
+        # at domain level (a posting titled just "Analyst" drawing BUSINESS_ANALYST / DATA_ANALYST /
+        # RISK_FRAUD_ANALYST is unanimously "Analytics") — record that instead of pretending to a family.
+        # Such rows are excluded from family tables but counted in `gold_domain_share`. Otherwise the
+        # dispute crosses domains (usually because one judge said OTHER, i.e. "not a data job at all",
+        # which has no common ancestor with any family) and only stage-2 `refine` can settle it.
+        doms = {meta(v["job_family"]).get("domain") for v in votes}
+        best = max(votes, key=lambda v: v["confidence"])
+        fam, conf = best["job_family"], best["confidence"] * 0.7
+        if len(doms) == 1 and None not in doms and "OTHER" not in {v["job_family"] for v in votes}:
+            review, method = "domain_only", "domain-consensus:" + "+".join(judge_keys)
+        else:
+            review, method = "manual_review", "split:" + "+".join(judge_keys)
+    reasoning = next((v["reasoning"] for v in votes if v["job_family"] == fam), "")
+    return _result(job, fam, conf, method, votes, reasoning, review)
+
+
+def _vote_once(judge_key: str, job: dict, dead: set | None = None) -> dict | None:
+    """One vote: CACHE FIRST (no throttle), then a single live attempt. Returns None on any failure so
+    the caller fails over to the next judge immediately.
+
+    Two correctness/speed guards:
+      * the cache probe happens BEFORE `_throttle`, so a cached vote costs ~0ms instead of waiting on
+        that judge's global rate lock (this is what made resumed runs take hours);
+      * `dead` is a shared registry of providers that returned a daily-quota 429 — once a judge is in
+        it, every worker skips it for the rest of the run instead of re-discovering it job by job.
+    """
+    from pipeline.dataset.llm_clients import _throttle
+    hit = llm_judge.cached_vote(judge_key, job)
+    if hit is not None:
+        return hit
+    if dead is not None and judge_key in dead:
+        return None
+    try:
+        _throttle(judge_key)
+        return llm_judge.classify_once(judge_key, job)
+    except llm_judge.RateLimited as rl:
+        if dead is not None and rl.reset_seconds > EXHAUST_RESET:
+            dead.add(judge_key)
+            log.warning("judge %s EXHAUSTED (reset ~%.0fs) — skipped for the rest of this run",
+                        judge_key, rl.reset_seconds)
+        return None
+    except Exception:  # noqa: BLE001  (network / JSON / bad-code → drop this judge's vote)
+        return None
+
+
+def _consensus_one(job: dict, judges: list[str], dead: set | None = None) -> dict:
+    """Collect distinct-judge votes for one job: ALWAYS seek >= 2 votes; a 3rd only breaks a tie.
+
+    Uniform standard on purpose. The earlier version accepted a single vote whenever the label was a
+    confident non-{OTHER, BUSINESS_ANALYST} family — which held BA/OTHER to a harsher evidence bar
+    than the data families, and so quietly pushed borderline postings INTO data families: the mirror
+    image of the contamination it was meant to fix. Measured evidence also killed its premise: among
+    jobs where two judges disagreed, 36/66 had BOTH judges self-reporting confidence >= 0.85, so LLM
+    self-confidence is not calibrated well enough to license a single vote.
+
+    `judges` is pre-sorted best-first; the tail acts as arbiters. Rotation is seeded per job so load
+    spreads across judges, using crc32 — NOT `hash()`, which is salted per process and made judge
+    assignment irreproducible between runs.
+    """
+    k = len(judges)
+    fast = max(2, k - 2)                                  # all but the 2 slowest are first-voters
+    seed = zlib.crc32((job.get("content_hash") or job.get("job_id") or "").encode()) % fast
+    order = [judges[(seed + i) % fast] for i in range(fast)] + judges[fast:]
+    votes: list[dict] = []
+    for jk in order:
+        rec = _vote_once(jk, job, dead)
+        if rec is None:
+            continue                                    # judge failed/exhausted → failover to next
+        votes.append(rec)
+        if len(votes) == 2 and votes[0]["job_family"] == votes[1]["job_family"]:
+            break                                       # two independent judges agree → done
+        if len(votes) >= 3:
+            break                                       # arbiter cast → decide by majority
+    return _decide_votes(votes, job)
+
+
+def run_corpus_consensus(max_workers: int = 10) -> pd.DataFrame:
+    df = pd.read_parquet(_io.TEXT_DIR / "jobs_text.parquet")
+    jobs = df.to_dict("records")
+    embed_match._prototypes(); embed_match._job_vectors()  # warm once
+    n = len(jobs)
+    have = set(_available_judges())
+    judges = [k for k in JUDGE_POOL if k in have]       # JUDGE_POOL order = best-first
+    if len(judges) < 3:
+        # `fast = max(2, k-2)` leaves judges[fast:] empty below 3, i.e. no arbiter for a disagreement.
+        # Two judges can only ever agree or deadlock, so require a third before claiming a tiebreak.
+        raise RuntimeError(
+            f"consensus needs >=3 judges (2 voters + 1 arbiter) with keys in .env; have {judges}")
+    dead: set[str] = set()                              # providers exhausted during THIS run
+    print(f"\n{'='*64}\nJOB FAMILY ENGINE (CONSENSUS v4) — {n} jobs\n"
+          f"judges ({len(judges)}, best-first): {judges}\n{'='*64}", flush=True)
+
+    # Pass 1: local tiers (rule + embedding) — unchanged, free.
+    results, remainder = [], []
+    for job in jobs:
+        r = _tier12(job)
+        (results.append(r) if r else remainder.append(job))
+    print(f"  tier1+tier2 resolved {len(results)}/{n}; LLM remainder {len(remainder)}", flush=True)
+
+    # Pass 2: consensus vote per UNIQUE content_hash, then fan out to duplicate postings.
+    if remainder:
+        by_hash: dict = {}
+        for job in remainder:
+            by_hash.setdefault(job["content_hash"], []).append(job)
+        reps = [grp[0] for grp in by_hash.values()]
+        print(f"  consensus on {len(reps)} unique (from {len(remainder)}); >=2 votes each", flush=True)
+        rep_results: list = []
+        done, lock = [0], threading.Lock()
+
+        def work(job: dict) -> None:
+            try:
+                r = _consensus_one(job, judges, dead)
+            except Exception as exc:  # noqa: BLE001
+                r = _result(job, "OTHER", 0.0, "failed", [],
+                            f"consensus error: {str(exc)[:80]}", "manual_review")
+            with lock:
+                rep_results.append(r)
+                done[0] += 1
+                if done[0] % 25 == 0 or done[0] == len(reps):
+                    print(f"    labeled {done[0]}/{len(reps)}", flush=True)
+
+        with ThreadPoolExecutor(max_workers=max_workers) as ex:
+            list(ex.map(work, reps))
+
+        rep_by_id = {r["job_id"]: r for r in rep_results}
+        for grp in by_hash.values():
+            rep = rep_by_id[grp[0]["job_id"]]
+            for job in grp:
+                results.append(rep if job["job_id"] == rep["job_id"] else {**rep, "job_id": job["job_id"]})
 
     out = pd.DataFrame(results)
     _io.write_parquet(out, OUT_PARQUET, schema_version="job_family/1", produced_by="job_family_engine")

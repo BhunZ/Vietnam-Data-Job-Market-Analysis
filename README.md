@@ -4,7 +4,7 @@
 > reliable **job family** label, and mines the market for **insight**: which roles hire most, which
 > skills are in demand, how cities and company types differ, and what a job seeker should learn.
 
-**Authoritative roadmap:** [`MASTER_PLAN.md`](MASTER_PLAN.md) · **handoff/status:** [`PROJECT_STATUS.md`](PROJECT_STATUS.md) · **who-does-what:** [`WORK_DIVISION.md`](WORK_DIVISION.md)
+**Current status (authoritative):** [`PROJECT_STATUS.md`](PROJECT_STATUS.md) · **original design (frozen):** [`MASTER_PLAN.md`](MASTER_PLAN.md) · **who-does-what:** [`WORK_DIVISION.md`](WORK_DIVISION.md)
 
 ---
 
@@ -44,31 +44,47 @@ It is a **3-tier cascade** — cheap & precise first, expensive only for the har
 
 ```mermaid
 flowchart TD
-    T[Job posting: title + JD + skills] --> R[Tier 1 · Rule / keyword on title]
-    R --> RC{confidence ≥ 0.9?}
+    T[Job posting: title + JD + skills] --> R[Tier 1 · Rule / alias on title only]
+    R --> RC{specific alias, conf ≥ 0.9?}
     RC -- yes --> DONE([✓ job_family + metadata])
     RC -- no --> E[Tier 2 · Embedding similarity vs family prototypes -e5-]
-    E --> EC{score ≥ 0.82 and margin ≥ 0.02?}
+    E --> EC{score ≥ 0.88 and margin ≥ 0.08?}
     EC -- yes --> DONE
-    EC -- no --> L[Tier 3 · LLM judge -title + JD + skills-]
-    L --> LF{provider rate-limited?}
-    LF -- yes, reroute --> L2[Failover to another provider]
-    L2 --> L
-    LF -- no --> LC{confidence ≥ 0.6?}
-    LC -- yes --> DONE
-    LC -- no --> MR([manual_review])
+    EC -- no --> L[Tier 3 · LLM judges read title + skills + JD]
+    L --> V1[Vote 1 + Vote 2 · two different judges]
+    V1 --> AG{same family?}
+    AG -- yes --> DONE
+    AG -- no --> V3[Vote 3 · arbiter]
+    V3 --> MAJ{majority?}
+    MAJ -- yes --> DONE
+    MAJ -- no --> RF[Stage 2 · refine: only the disputed families + FULL JD + quoted evidence]
+    RF --> RM{majority?}
+    RM -- yes --> DONE
+    RM -- no --> KO[Knockout of two-option questions]
+    KO --> DONE
 ```
 
-- **Tier 1 — Rules** (YAML config, title only): high-precision keyword/alias match, accept at conf ≥ 0.9.
-  Resolved **527 jobs (~31%)**.
-- **Tier 2 — Embedding similarity**: multilingual-`e5` cosine between the job and each family prototype;
-  accept only when the top match is confident **and** clearly ahead of the runner-up. Resolved **58 jobs**.
-- **Tier 3 — LLM with dynamic failover**: for the hard remainder, **one judge per job** routed across
-  **6 free-tier providers** (Groq, Cerebras, Mistral, OpenRouter, Gemini). A provider that hits its
-  rate/daily limit is marked exhausted and its jobs are **automatically rerouted** to one with capacity,
-  so the run never stalls; every answer is **disk-cached** so reruns are free and resumable. Resolved
-  **1116 jobs**. *(Multi-judge voting is supported and modular, but a single strong judge per job is used
-  at scale to fit free-tier limits — see [`docs/TAXONOMY.md`](docs/TAXONOMY.md).)*
+- **Tier 1 — Rules** (YAML config, **title only, never reads the JD**): matches only *specific* aliases,
+  accept at conf ≥ 0.9. Resolves **489 jobs**. Aliases are deliberately narrow — broad ones like
+  `rủi ro` / `phân tích tài chính` / `nghiên cứu` were removed in 2026-07 after they pulled generic
+  banking, FP&A and market-research roles into data families at high confidence.
+- **Tier 2 — Embedding similarity**: multilingual-`e5` cosine vs family prototypes, accepted only on a
+  real gap to the runner-up (`≥ 0.88` / margin `≥ 0.08`). **At these thresholds it currently accepts
+  nothing** — an honest result: at the old margin of `0.02` the "winner" was float noise, and an audit of
+  the 58 jobs it had accepted found labels like *UI-UX Designer → AI_ENGINEER* and *Software Engineer →
+  BIG_DATA_ENGINEER*. Ambiguous jobs now fall through to a tier that actually reads the JD.
+- **Tier 3 — LLM consensus with failover**: every remaining job (**1,212**) is judged by **≥ 2 different
+  judges**; if they disagree a **third arbitrates** by majority, and anything still split goes to the
+  stage-2 `refine` pass described in §4. Judges are free-tier and modular (Groq Llama-3.3-70B, OpenRouter Qwen-2.5-72B, Gemini
+  2.0 Flash, Cerebras gpt-oss-120B, GitHub gpt-4o-mini, Mistral Large). A judge that exhausts its daily
+  quota is marked dead for the whole run and skipped; every answer is **disk-cached**, so reruns are
+  cheap and resumable.
+
+> **Why a uniform 2-vote bar:** an earlier version accepted a single vote whenever the label was a
+> confident non-`{OTHER, BUSINESS_ANALYST}` family. That held BA/OTHER to a stricter evidence bar than
+> the data families and so quietly pushed borderline postings *into* data families. Self-reported LLM
+> confidence cannot substitute for a second opinion either — among jobs where two judges disagreed,
+> **36/66 had both judges claiming confidence ≥ 0.85**.
 
 Output per job: `domain, subdomain, job_family, confidence_score, labeling_method, llm_votes, reasoning,
 review_status, taxonomy_version`. API: `engine.predict(job)`.
@@ -86,7 +102,7 @@ flowchart TD
         S --> D[Discovery · embeddings + clustering]
         D --> TX[Hierarchical taxonomy · 20 families]
         TX --> JE[⭐ Job Family Engine · 3-tier cascade]
-        JE --> IG[Integrate · job_family into jobs_silver + 7 gold_* tables + market share]
+        JE --> IG[Integrate · job_family into jobs_silver + 8 gold_* tables + market share]
     end
     subgraph AN["Analysis — next (P3–P8, teammate / Luồng B)"]
         IG --> EDA[EDA · market share, skills, geo/company]
@@ -103,22 +119,104 @@ Everything in **Data engineering (P0–P2)** is done and shipped in `data/wareho
 
 ## 4. Results (P2)
 
-**1,701 postings labeled, 100% resolved, 0 manual-review.** Spot-check: the stratified sample
-(`data/labeling/spot_check.csv`) was reviewed by hand and found **correct across all families**.
+**1,701 postings labeled, 100% resolved, 0 manual review.** Every LLM-tier label carries **≥2 agreeing
+judges** (1,209 jobs); inter-judge agreement **86.8%** (measured over all 1,212 LLM-decided rows — an
+earlier figure of 87.6% excluded the 30 hardest, disputed rows and was therefore biased upward).
 
-**Market share** over the **852** active Data/AI postings (non-OTHER, deduped):
+> ⚠️ **86.8% is conditioned on whichever judge pair happened to run**, so it flatters the engine. A
+> fixed-pair measurement on the shared vote cache gives **82.7%** (cerebras vs mistral, n=820) and a
+> pairwise range of **44.8%–92.5%** across all pairs; the rate at which each judge calls a posting "not a
+> data role" is 75.4% / 70.0% / 60.1% on the same 293 postings, which means **base membership itself is
+> judge-dependent**. See §"What the quality evidence actually is" below before quoting any single number.
+> Note also that **59% of the 720-posting analysis base was decided by the title rule, not by an LLM.**
+
+The 30 postings the open-ended vote could not settle were resolved by a **second stage**
+(`python -m pipeline refine`) rather than by adding more of the same votes. Titles like `Analyst`,
+`AI Solutions Architect` or `Platform Engineer` drew a different-but-defensible family from every judge,
+because a 20-way question invites a 20th answer. Stage 2 changes the question instead: the choice set is
+narrowed to exactly the disputed families, the judge reads the **full** JD (not the 2,500-char window),
+and it must quote the decisive sentence. 27 settled that way; the last 3 went to a **knockout of
+two-option questions** — three judges on a binary choice always yield a majority, and binary is the
+best-grounded question form. Provenance stays visible in `labeling_method` (`refine:…`,
+`refine-knockout:…`) so any reader can see which labels needed the extra stage.
+
+### Lead with the domain roll-up — it is the defensible ranking
+
+The taxonomy is hierarchical (`Domain → Sub-domain → Family`), so aggregates roll up for free —
+table `gold_domain_share`, over the **720** active Data/AI postings:
+
+| Domain | n | Share |
+|---|--:|--:|
+| Analytics (DA · BA · BI · Product · Risk) | 338 | **46.9%** |
+| AI / Machine Learning (AI · ML · DS · CV-NLP · GenAI) | 179 | **24.9%** |
+| Data Engineering (DE · Analytics Eng · DataOps · DBA) | 145 | **20.1%** |
+| Governance & Architecture | 40 | 5.6% |
+| Data Leadership | 18 | 2.5% |
+
+These gaps (20+ pt) are far larger than the uncertainty, so `Analytics > AI/ML > Data Engineering` holds.
+Rolling up also dissolves 26% of the engine's own labeling disagreements — every `AI vs ML vs GenAI`,
+`BI vs BA vs Risk` and `BigData vs DE` tie is intra-domain noise.
+
+**Family detail** (same 720 postings) — useful for skills work, but see the caveats below:
 
 | Family | Share | | Family | Share |
 |---|--:|--|---|--:|
-| Business Analyst | 21.2% | | BI Analyst/Dev | 5.0% |
-| Data Engineer | 17.5% | | Data Scientist | 3.9% |
-| Data Analyst | 14.7% | | Data Governance | 3.3% |
-| AI Engineer | 13.8% | | Product Analyst | 2.7% |
-| Risk/Fraud Analyst | 6.1% | | Data Leadership | 2.7% |
+| Business Analyst | 19.9% | | BI Analyst/Dev | 5.9% |
+| Data Engineer | 17.2% | | Data Scientist | 4.4% |
+| AI Engineer | 15.2% | | Data Governance | 3.9% |
+| Data Analyst | 14.9% | | Data Leadership | 2.4% |
+| Risk/Fraud Analyst | 6.0% | | CV / NLP | 1.7% |
 
-…and 10 smaller families (DBA, CV/NLP, ML Engineer, Data Architect, GenAI/LLM, Analytics Engineer,
-Research Scientist, DataOps, MLOps, Big Data Engineer). Full breakdown: [`docs/labeling_kpi.md`](docs/labeling_kpi.md),
+…and 10 smaller families (Data Architect, GenAI/LLM, ML Engineer, DBA, Product Analyst, Analytics
+Engineer, Big Data Engineer, DataOps, MLOps, Research Scientist). Full breakdown: [`docs/labeling_kpi.md`](docs/labeling_kpi.md),
 taxonomy: [`docs/TAXONOMY.md`](docs/TAXONOMY.md).
+
+### How much to trust these numbers
+
+Read the top four **families** as one cluster at 15–20%, **not a ranking** — the domain roll-up above is
+where a ranking is safe:
+
+- With n ≈ 720, the sampling error on a ~15% share is already **±1.3 pt**.
+- Labels are **judge-dependent, and this was observed, not theorised**: swapping which judges vote (same
+  corpus, same prompt) moved Data Engineer from 158 jobs to 119 and handed the #1 family spot to Business
+  Analyst. Judges differ systematically in how readily they answer `OTHER` (61% for Llama-3.1-8B vs 77%
+  for gpt-oss-120B), so the family order at the top is not a stable finding. Domain shares barely move.
+- Rewording the tier-3 prompt (v2 → v3) moved **~13% of all labels**. Wording is a real source of
+  variance, not a rounding detail.
+- Every family is scoped by the **scrape keywords**: ~48% of the crawled corpus is not a data role at
+  all, so "X% of the data market" is a statement about this corpus, not about Vietnam as a whole.
+
+**Derived fields carry their provenance.** `seniority` and `company_type` are filled by deterministic
+rules first and only then by an LLM where the rules gave up, and `seniority_source` /
+`company_type_source` record which decided each value (`rule` / `llm` / `manual` / `none`). Current
+coverage on the 720-posting base: seniority `rule_title` 342 · `rule_years_source` 183 ·
+`rule_years_jd` 161 · `llm` 29 · unresolved **5 (0.7%)**; employer industry `rule` 464 · `llm` 152 ·
+unresolved **104 (14.4%)**. The three `rule_*` values stay apart on purpose — collapsing them hid that
+22% of all seniority came from a regex over JD prose rather than from a title, and a blind audit
+(`analysis/audit_seniority.py`) then measured each tier separately and found the weakest one was *not* the
+one the design expected. The industry LLM path requires **two judges
+to agree on the brand** and answers `unknown` otherwise, so the residual is an honest long tail of 84
+small employers (88 postings) rather than a guess.
+
+**Human review: not done yet — do not cite it.** `data/labeling/spot_check.csv` holds a tier-stratified
+30-job sample with each label's recorded `reasoning`, and its `verdict` column is **empty, 0 of 30**
+(re-checked 2026-07-28). An earlier version of this section claimed the author had read all 30 and marked
+every reasoning plausible; the author reports doing so on another machine but the result was never saved,
+so **there is no auditable artifact** and no accuracy figure may be quoted from it. Filling
+`human_family` for those 30 rows *before* looking at the engine's answer is the cheapest way to earn one.
+
+**What the quality evidence actually is.** Two numbers, and they measure different things:
+
+* `docs/labeling_kpi.md` reports **base-LLM agreement 86.8%** — for each LLM-decided posting, did the
+  judges that happened to run on it agree? It is conditioned on whichever pair was alive at that moment.
+* A **fixed-pair** measurement on the shared vote cache is less flattering and more honest: cerebras and
+  mistral agree on **82.7%** of the 820 postings both judged, and pairwise agreement across all judge
+  pairs ranges **44.8%–92.5%**. On 293 postings judged by all three main judges, the rate at which each
+  calls a posting "not a data role" is 75.4% / 70.0% / 60.1% — so **base membership is judge-dependent**.
+  Quote this range, not the single 86.8%.
+
+`jf_confidence` mixes a rule constant (0.90 for all 426 rule-tier rows in the base), a cosine score and
+self-reported LLM numbers — it is provenance, never an accuracy estimate.
 
 ---
 
@@ -144,9 +242,11 @@ pipeline/            ingest/ · transform/ (load·silver·gold) · dataset/ (dis
 job_family_engine/   taxonomy/taxonomy_v1.yml · rules.py · embed_match.py · llm_judge.py ·
                      engine.py (dynamic-failover cascade) · evaluate.py (KPIs) · integrate.py (→ silver + Gold)
 ref/                 reference dictionaries (skills, seniority, company type) + taxonomy/
-docs/                DATA_DICTIONARY.md · TAXONOMY.md · quality_report.md · labeling_kpi.md
-analysis/            EDA + insight-ML (P4–P5, teammate)        dashboard/  Streamlit app (P7)
-tests/               pytest (45 tests)
+docs/                DATA_DICTIONARY · TAXONOMY · DATA_LINEAGE · labeling_kpi (generated) ·
+                     INSIGHTS_BRAINSTORM (report material) · *_FINDINGS (generated by analysis/)
+analysis/            market_insights.py (5 figures) · association_rules · skill_clustering ·
+                     topic_modeling · validate_gold · figures/ · outputs/
+tests/               pytest (112 tests)
 data/                warehouse.duckdb IS shipped (the data layer); raw/bronze/labeling/dataset gitignored
 ```
 
@@ -165,9 +265,13 @@ python -m pipeline load                     # bronze → warehouse (incremental 
 python -m pipeline silver                   # normalize + dedup → jobs_silver
 python -m pipeline discover                 # embeddings + clusters (feeds Tier-2)
 python -m pipeline label                    # ⭐ Job Family Engine → job_family.parquet (resumable)
+python -m pipeline refine                   # stage 2: settle disputed labels (narrowed choice + full JD)
+python -m pipeline enrich-llm               # fill seniority + employer industry where rules gave up
+python -m pipeline apply-manual             # (optional) apply hand-labelled employers from the todo CSV
 python -m pipeline label-kpi                # labeling KPIs + spot-check sample
-python -m pipeline integrate                # job_family → jobs_silver + 7 gold_* tables + market share
-python -m pytest -q                         # 45 tests
+python -m pipeline integrate                # job_family → jobs_silver + 8 gold_* tables + market share
+python -m pipeline gold                     # legacy skill tables, also keyed on job_family (needs integrate first)
+python -m pytest -q                         # 112 tests
 ```
 
 ## 8. For the analysis teammate (Luồng B — P3+)
@@ -180,7 +284,10 @@ start analysing right after cloning, **no rebuild needed**:
 import duckdb
 con = duckdb.connect("data/warehouse.duckdb", read_only=True)
 con.sql("SELECT job_family, n, pct FROM gold_market_share ORDER BY n DESC").show()
-con.sql("SELECT * FROM jobs_silver WHERE job_family <> 'OTHER' LIMIT 5").show()
+con.sql("""SELECT * FROM jobs_silver
+            WHERE job_family NOT IN ('OTHER') AND is_active AND is_duplicate_of IS NULL
+              AND COALESCE(jf_review,'resolved') NOT IN ('manual_review','domain_only')
+            LIMIT 5""").show()   -- same 720-row base as gold_*
 ```
 
 Your work keys off `jobs_silver.job_family` + the `gold_*` tables — you do **not** need the engine
@@ -195,11 +302,16 @@ internals. Read [`WORK_DIVISION.md`](WORK_DIVISION.md) for the split and
 - **Label first, analyse second.** No standard role label exists, so labeling is the gate for every
   insight — hence a dedicated, reusable engine rather than ad-hoc title rules (the old rule label was
   ~27% contaminated).
-- **3-tier cascade for cost.** Rules and embeddings (free, local) resolve ~34% of jobs; the LLM is spent
-  only on the genuinely ambiguous remainder.
-- **Single judge + failover, not voting.** Free-tier rate/daily limits cannot sustain N-judge voting over
-  ~1,700 jobs; dynamic failover gives throughput + resilience, and the disk cache makes runs resumable.
-  Voting stays modular for anyone who wants it.
+- **3-tier cascade for cost.** The title-only rule tier (free, local) resolves ~29% of jobs; the LLM is
+  spent on the genuinely ambiguous remainder. **Cheap tiers must be narrow, not just cheap** — a
+  short-circuiting tier that guesses is worse than no tier, because the LLM never gets to read the JD.
+- **Uniform ≥2-judge consensus, with failover for throughput.** Every LLM-tier label needs two
+  independent judges to agree (third arbitrates), because a *selective* bar applied only to
+  contamination-prone labels biases borderline jobs toward whatever is checked less. Free-tier limits are
+  survivable because the disk cache is checked *before* any rate throttle and exhausted providers are
+  skipped for the rest of the run.
+- **Report uncertainty, not a leaderboard.** Labels shift with judge choice and prompt wording, so the
+  deliverable states share *ranges* and refuses to defend a "#1 family".
 - **Hierarchical taxonomy** lets sparse families (MLOps, DataOps…) roll up to a sub-domain/domain for
   statistically meaningful aggregates.
 - **Constraints:** no salary · no LinkedIn · no forecasting (1 snapshot) · VN + Data only · secrets only

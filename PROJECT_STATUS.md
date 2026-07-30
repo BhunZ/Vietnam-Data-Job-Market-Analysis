@@ -32,7 +32,7 @@ một báo cáo theo mạch **descriptive → diagnostic → prescriptive**, tro
 |---|---|---|
 | P0. Data Collection | 6 nguồn → warehouse (CDC) | ✅ XONG |
 | P1. Silver (clean/standardize) | `jobs_silver`: skills/seniority/location/company + dedup | ✅ XONG |
-| **P2. ⭐ Job Family Labeling Engine** | taxonomy phân cấp + cascade 3 tầng (rule→embedding→LLM dynamic-failover) + metadata + `job_family` | ✅ **XONG** — 1701 job gán nhãn (100% resolved), tích hợp vào jobs_silver + 7 bảng family Gold (xem §13) |
+| **P2. ⭐ Job Family Labeling Engine** | taxonomy phân cấp + cascade 3 tầng (rule→embedding→LLM dynamic-failover) + metadata + `job_family` | ✅ **XONG** — 1701 job gán nhãn (100% resolved), tích hợp vào jobs_silver + 8 bảng family Gold (xem §13) |
 | P3. Feature/NLP | skill extraction/embedding/keyword; feature outputs | ◐ **NỀN ĐÃ CÓ** — `jobs_silver.skills`, `job_family`, text/embedding artifacts; chưa mở rộng NER/keyphrase mới |
 | P4. Market & Statistical Analysis | EDA + **% thị trường theo job_family** + so sánh geo/company/seniority | ◐ **ĐÃ CÓ MẪU + VALIDATION** — `analysis/market_insights.py`, figures/report mẫu, `docs/VALIDATION_CHECKLIST.md` |
 | P5. Insight-ML | association rules · clustering · topic modeling | ✅ **XONG** — Association Rules ✅; Clustering ✅; Topic Modeling ✅ |
@@ -76,10 +76,16 @@ first_seen_date)`** (luôn non-null) + **`date_source`** ('site' / 'first_seen')
 luôn có ngày dùng được, minh bạch nguồn gốc.
 
 ### 5.2. CLI (`python -m pipeline ...`)
-`inspect` (khảo sát) · `scrape` (cào) · `enrich --source <s>` (điền JD) · `load` (Bronze→DuckDB CDC)
-· `silver` (chuẩn hóa + dedup → `jobs_silver`) · `gold` (7 bảng aggregate).
+**Thứ tự chuẩn (nguồn duy nhất):**
+`scrape` → `enrich --source <s>` → `load` → `silver` → `discover` → `label` → **`refine`** →
+**`enrich-llm`** → (tùy chọn **`apply-manual`**) → `label-kpi` → `integrate` → `gold`.
+· `enrich-llm` điền `seniority` + ngành công ty ở những chỗ rule bỏ trống (LLM, có cache); ngành công ty
+  cần **2 judge đồng thuận** mới nhận, bất đồng thì giữ `unknown`.
+· `apply-manual` áp danh sách công ty bạn tự gán trong `data/labeling/company_industry_todo.csv`.
+⚠️ `gold` giờ **phụ thuộc `integrate`** (nó lọc theo `job_family`, sẽ thoát sớm nếu chưa có cột đó).
+Ngoài ra: `inspect` (khảo sát).
 Bonus: `pipeline/topcv_browser_merge.py` (gộp JD TopCV từ Chrome). Code: `pipeline/{ingest,transform,utils,quality}/`.
-Tests: `tests/` (pytest, 21 test) + CI `.github/workflows/pipeline.yml`.
+Tests: `tests/` (pytest, 61 test) + CI `.github/workflows/pipeline.yml`.
 
 ### 5.3. Silver (ĐÃ XONG) — `jobs_silver`
 1.701 job đã chuẩn hóa; **571 là role Data thật** (non-OTHER), còn lại OTHER là nhiễu (chủ yếu
@@ -105,8 +111,9 @@ remote_flag, skills (JSON mảng chuẩn hóa), n_skills, language_req (JSON, EN
 posted_date, effective_date, date_source, first_seen_date, last_seen_date, is_active,
 is_duplicate_of (job_id bản gốc nếu là trùng)`. Lịch sử snapshot qua `job_observations`.
 Reference dicts: `ref/{skills_dictionary,role_keywords,seniority_rules,company_type}.yml`
-(song ngữ EN/VI). **Bước sau (Gold/Model/Analyze/Dashboard) CHỈ đọc `jobs_silver`/Gold, không
-sửa lại. Phân tích lọc `role_category != 'OTHER' AND is_active AND is_duplicate_of IS NULL`.**
+(song ngữ EN/VI). **Bước sau (Gold/Analyze/Dashboard) CHỈ đọc `jobs_silver`/Gold, không sửa lại.**
+⚠️ **Phân tích lọc theo `job_family`, KHÔNG theo `role_category`** (cột rule cũ, nhiễu ~27%, chỉ giữ để
+so sánh baseline). Định nghĩa chuẩn duy nhất: `pipeline/utils/analysis_base.py::ANALYSIS_BASE_WHERE`.
 
 ## 8. VIỆC TIẾP THEO — roadmap chi tiết
 > **Roadmap từng bước chính thức = [MASTER_PLAN.md](MASTER_PLAN.md) §10 (B1–B11).** P2 Job Family
@@ -114,9 +121,18 @@ sửa lại. Phân tích lọc `role_category != 'OTHER' AND is_active AND is_du
 > nằm ở **P5 Insight-ML**: đã xong Association Rules + **Clustering** + **Topic Modeling**.
 > Phân vai: [WORK_DIVISION.md](WORK_DIVISION.md).
 ### 8.1. Gold (bảng tổng hợp) — ✅ ĐÃ XONG (`python -m pipeline gold`)
-7 bảng trong DuckDB từ `jobs_silver`, lọc `role_category!='OTHER' AND is_active AND
-is_duplicate_of IS NULL` (**597 job Data**). Đã verify (pct hợp lệ, top-skill theo role đúng
-trực giác). Top skill: SQL 54% · Python 48% · Reporting 42% · Data Analysis 41% · ML 34%.
+7 bảng trong DuckDB từ `jobs_silver`, lọc theo `ANALYSIS_BASE_WHERE` (job_family, **720 job Data**). Đã verify
+2026-07-28 bằng cách tính lại từ `jobs_silver`: `gold_market_share`/`gold_seniority`/`gold_company`/`gold_domain_share`
+lệch **0 dòng**, `gold_family_skill` 0/683 sai `share_in_family`, không bảng nào trùng khoá grain.
+Top skill: SQL 47,8% · Python 43,5% · Data Analysis 39,6% · Reporting 38,3% · English 33,8% ·
+Machine Learning 30,4% · **Database 28,1%** · **Data Management 27,9%** · Power BI 24,4% ·
+**Data Science 21,0%** · **Cloud 20,8%**.
+
+**Bổ sung từ điển kỹ năng 2026-07-28:** 7 kỹ năng trước đây xuất hiện nhiều nhưng **không được đếm ở đâu cả**
+đã được thêm vào `ref/skills_dictionary.yml`: Business Analysis · Data Management · Data Science · Database ·
+Cloud · API · ERP. Quy tắc: chỉ thêm token rõ ràng là kỹ năng và ≥20 lần. **Cố ý không thêm** kỹ năng mềm
+(Communication sẽ phủ 37,4%, Analytical Skills 28,1%, Leadership 16,4%) vì từ điển được quét trên **toàn văn
+JD**, nên chúng bắn từ câu sáo rỗng và ghép cặp vô nghĩa với mọi thứ trong association rules.
 Learning-path mạnh nhất: Python+SQL, Data Analysis+SQL, ML+Python. Các bảng:
 - `skill_demand` (skill, role_category, count, pct_of_role)
 - `skill_cooccurrence` (skill_a, skill_b, count) — cạnh learning-path
@@ -124,25 +140,43 @@ Learning-path mạnh nhất: Python+SQL, Data Analysis+SQL, ML+Python. Các bả
 - `seniority_progression` (seniority, skill, share)
 - `role_by_location` (role, city, count)
 - `company_type_demand` (company_type, role/skill counts)
-- `trend` (snapshot_date, skill, count) — từ `job_observations`; **chỉ mô tả, KHÔNG dự báo**
+- `trend` (snapshot_date, skill, count) — từ `job_observations`; **chỉ mô tả, KHÔNG dự báo**.
+  ⚠️ Chỉ có **1 snapshot** (2026-06-16) nên số của nó **trùng y hệt `skill_demand`** (SQL = 344 ở cả hai).
+  Bảng không mang thêm thông tin nào; tên `trend` là bẫy — đừng dùng nó để nói tăng/giảm.
+
+⚠️ **8 bảng `gold_*` do `job_family_engine/integrate.py` sinh ra chứa cùng nội dung với 4 trong 7 bảng trên**
+(`skill_cooccurrence`≡`gold_skill_cooccurrence`, `role_skill_matrix`≡`gold_family_skill`,
+`role_by_location`≡`gold_location`, `company_type_demand`≡`gold_company` — kiểm 2026-07-28, lệch 0 dòng).
+Nhưng `skill_demand`, `seniority_progression`, `trend` **chỉ tồn tại ở bộ tên trần** — xoá cả bộ này là mất
+3 aggregate. `gold_jobs` là bảng gold **duy nhất không lọc**: 1554 dòng, 834 = `OTHER`; đừng dùng nó làm mẫu số.
 
 ### 8.2. Phân tích nâng cao (insight ML) — Teammate (xem §9): association rules + clustering + topic modeling (unsupervised). KHÔNG supervised classifier, KHÔNG LLM-benchmark.
 **Cập nhật 2026-07-11:** P5 Insight-ML đã được triển khai:
 - Script: `analysis/association_rules.py`
 - Output: `analysis/outputs/association_rules.csv`
 - Findings: `docs/ASSOCIATION_RULES_FINDINGS.md`
-- Kết quả chạy: **711 transactions**, **1834 rules**
+- Kết quả chạy (2026-07-28, sau khi bổ sung 7 kỹ năng vào từ điển): **663 transactions** (tin có ≥2 skill;
+  57 tin bị loại ⇒ `support_pct` là share của 663, KHÔNG phải 720), **1649 rules**, **1244 vượt
+  Bonferroni** ở alpha = 0.05/**4060 giả thuyết đã test**. Cột `significant_at_kept_alpha` giữ ngưỡng cũ
+  0.05/1649 (quá lỏng, cho 1299 luật) để so được. Số luật distinct (bỏ trùng hai chiều) xem file findings.
 - Clustering skill profile đã triển khai:
   - Script: `analysis/skill_clustering.py`
   - Outputs: `analysis/outputs/skill_clusters.csv`, `analysis/outputs/skill_cluster_summary.csv`, `analysis/outputs/skill_cluster_k_selection.csv`
   - Findings: `docs/SKILL_CLUSTERING_FINDINGS.md`
-  - Kết quả chạy: **852 analysis base**, **806 clustered jobs**, **72 skills**, **k=8**
+  - Kết quả chạy (2026-07-28): **720 analysis base**, **709 clustered jobs** (11 tin không có skill bị
+    loại ⇒ % cụm chia cho 709), 78 skill trong vocab, **k=8 (chọn để dễ trình bày — silhouette phẳng qua
+    k=2..20 ⇒ KHÔNG có cụm tự nhiên; đừng kể 8 cụm như 8 nghề thật — xem file findings cho số mới nhất)**
 - Topic Modeling trên JD/text đã triển khai:
   - Script: `analysis/topic_modeling.py`
   - Outputs: `analysis/outputs/topic_terms.csv`, `analysis/outputs/job_topics.csv`, `analysis/outputs/topic_summary.csv`, `analysis/outputs/topic_k_selection.csv`
   - Findings: `docs/TOPIC_MODELING_FINDINGS.md`
   - Giải thích: `docs/TOPIC_MODELING_EXPLAINED_VI.md`
-  - Kết quả chạy: **852 analysis base**, **775 modeled jobs**, **2380 TF-IDF features**, **5 topics**
+  - Kết quả chạy (2026-07-28): **720 analysis base**, **720 modeled jobs** (0 job mất JD sau khi sửa lỗi
+    filter boilerplate xoá 47% JD), **9 topics** chọn theo NPMI coherence
+  - ⚠️ **6/9 topic tách theo NGÔN NGỮ hoặc NGUỒN, không theo nội dung**: topic 6 và 7 là 100% JD tiếng
+    Việt, topic 5 là 98%, topic 1 chỉ 10% (tức 90% tiếng Anh); topic 2 và 4 có một job board chiếm ≥50%.
+    Bảng `topic × ngôn ngữ × nguồn` giờ được sinh tự động trong `docs/TOPIC_MODELING_FINDINGS.md` —
+    **đọc bảng đó trước khi đặt tên cho bất kỳ topic nào**.
 
 ### 8.3. Analyze (notebook) + Dashboard (Streamlit) — chia sau (xem WORK_DIVISION.md)
 ### 8.4. Report (báo cáo môn học) — xem §10
@@ -251,15 +285,63 @@ không cào lại từ đầu, không phình lưu trữ.
 
 ## 13. ⭐ JOB FAMILY ENGINE — ✅ ĐÃ CHẠY XONG (2026-06-23, dynamic failover)
 **KẾT QUẢ THỰC TẾ (label → label-kpi → integrate đều chạy thành công):**
-- **1701/1701 job gán nhãn, 100% resolved, 0 manual_review.** Method mix: rule 527 · embedding 58 ·
-  LLM 1116 (groq8b 476 · cerebras 358 · mistral 154 · groq 102 · qwen 26 — gemini tự reroute do hết quota).
-- Confidence: 1483 ở [0.85-1.0], 213 ở [0.66-0.85], 5 ở [0.5-0.66]. OTHER 45.8% (nhiễu VNW như dự kiến).
-- **852 job Data/AI** (active, non-dup, non-OTHER) → `jobs_silver.job_family` + 7 bảng Gold + market share
-  (tổng 99.9%): **BA 21.2% · DE 17.5% · DA 14.7% · AIE 13.8%** · RISK 6.1% · BI 5.0% · DS 3.9% · …
+- **1701/1701 job gán nhãn, 100% resolved, 0 manual_review.** Method mix (25/07/2026): rule **489** ·
+  embedding **0** (tier-2 đã siết ngưỡng → không nhận job nào) · LLM **1212** (`vote:*` 1182 + `refine:*` 27
+  + `refine-knockout:*` 3). Judge tham gia: cerebras · mistral · qwen · github · groq · cloudflare.
+- OTHER **51,9%** (nhiễu do scrape-query rộng, như dự kiến). `confidence_score` KHÔNG dùng làm thước đo
+  chất lượng: nó trộn 3 thang khác nhau (hằng số 0.9 cho rule, cosine cho embedding, LLM tự khai).
+- **720 job Data/AI** (active, non-dup, non-OTHER, resolved) → `jobs_silver.job_family` + **8 bảng Gold**.
 - Artifacts: `data/labeling/job_family.parquet`, `docs/labeling_kpi.md`, `data/labeling/spot_check.csv`,
   Gold tables trong `warehouse.duckdb`.
-- **Spot-check (2026-06-23):** đã review tay mẫu stratified 21 job (1/family) → **đúng hết** → engine
-  đáng tin để dùng cho phân tích. (Có thể nâng `spot_n` nếu muốn mẫu lớn hơn cho báo cáo.)
+
+> ⚠️ **SỐ HIỆN TẠI (28/07/2026) — mọi con số ở trên đã bị thay thế.** Analysis base = **720**;
+> `jf_review` = `resolved` cho cả 1701 dòng (0 `manual_review`, 0 `domain_only`).
+>
+> **Tầng nào quyết định nhãn, trên base 720:** rule (regex tiêu đề) **426 = 59,2%** · vote LLM **272 =
+> 37,8%** · refine **22 = 3,1%**. Nói cách khác **phần lớn base KHÔNG do LLM gán** — 317/426 tin tầng rule
+> chưa từng có judge nào đọc. Chú thích trên figure đã sửa lại cho đúng tỉ lệ này.
+>
+> **Cấp DOMAIN — `gold_domain_share`, 720 job:** Analytics 46,9% (338) · AI/ML 24,9% (179) ·
+> Data Engineering 20,1% (145) · Governance 5,6% (40) · Leadership 2,5% (18).
+>
+> **Cấp FAMILY chỉ để bóc chi tiết, KHÔNG xếp hạng:** BA 20,3% (146) · DE 17,4% (125) · AIE 15,3% (110) ·
+> DA 14,6% (105) · BI 6,0% (43) · RISK 5,3% (38).
+>
+> ⚠️ **Cấp domain cũng KHÔNG bền — đo 28/07/2026.** Tỉ lệ Analytics khác nhau rất xa theo từng job board:
+> vietnamworks **60,4%** · topcv 53,8% · careerviet 50,9% · itviec 28,9% · glints 25,5%. Và tỉ lệ tin
+> "vào được base" cũng theo board: topcv 91,9% · glints 82,3% · itviec 66,4% · vnw 32,3% · careerviet
+> 28,8% · topdev 28,0%. Vì vnw chiếm 255/720 base, **"Analytics 46,9%" phần lớn là profile của
+> VietnamWorks pha loãng**, không phải cấu trúc thị trường VN. Báo cáo phải nói rõ điều này.
+>
+> ⚠️ **`BUSINESS_ANALYST` (top-1, 146 tin) không nên gọi là nghề data.** Đo trên cả 146 tin: **31 tin
+> (21%)** có 0 tín hiệu data-core và ≥2 tín hiệu BA-phần-mềm (BRD/SRS/user story/UAT/backlog/ERP/CRM/
+> presales); chỉ 55% có tín hiệu data ≥ tín hiệu phần mềm. Nhiễm khu trú đúng ở BA — DATA_ANALYST 0%,
+> BI 0%, RISK_FRAUD 0%. Nguồn nhiễm là tầng rule (31% sw_only) chứ không phải LLM (8%).
+> **Cách trình bày an toàn, không cần chạy lại gì:** tách hai dòng — "Analytics lõi (DA 105 + BI 43 +
+> RISK 38 = **186**)" và "BUSINESS_ANALYST **146**" — kèm câu 21% ở trên. Đừng viết "BA dẫn đầu nghề Data".
+>
+> **Nhãn phụ thuộc judge nào còn quota.** Đo ghép cặp trên cache v3 (cùng tin, cùng prompt,
+> `temperature=0`), 293 tin có phiếu của cả 3 judge lớn: tỉ lệ gọi `OTHER` là cerebras **75,4%** ·
+> mistral **70,0%** · groq-8b **60,1%**; `DATA_ENGINEER` 1,7% vs 10,6%. Đồng thuận từng cặp dao động
+> **44,8%–92,5%**; cặp thực dùng nhiều nhất (cerebras+mistral, n=820) là **82,7%**. Vote 2-judge không
+> phát hiện được lỗi này vì mọi judge lệch cùng chiều.
+
+- **Spot-check: CHƯA CÓ BẢN GHI (kiểm lại 2026-07-28).** `data/labeling/spot_check.csv` có 30 dòng và cột
+  `verdict` **trống 0/30**. Tác giả cho biết đã đọc mẫu trên một máy khác và thấy hợp lý, nhưng **kết quả
+  không được lưu**. Vì vậy đây là **tự báo cáo, không có artifact kiểm chứng được** — KHÔNG trích dẫn nó
+  như bằng chứng chất lượng, và tuyệt đối không suy ra con số accuracy.
+  Bản trước của mục này ghi "ĐÃ CÓ BẢN GHI... `verdict = reasoning_ok`" — sai, vì file trống.
+  Muốn có accuracy trích dẫn được: điền `human_family` cho 30 dòng đó **trước khi xem nhãn engine**.
+  File này đã được đưa ra khỏi `.gitignore` để teammate cùng điền được.
+- (lịch sử) Trước đó: Mẫu 21 job đã được review tay ở một session/máy khác
+  (kết quả báo: đúng hết), nhưng **bản ghi không được lưu** — cột `human_family` trong
+  `data/labeling/spot_check.csv` trống 21/21, và `data/labeling/` bị gitignore nên không có history.
+  Lưu ý: mẫu đó thuộc thời **tier-2 còn bật**, mà tier-2 sau này bị xác định sinh nhãn sai
+  (`Software Engineer → BIG_DATA_ENGINEER`) → kết luận "đúng hết" có thể có trước khi phát hiện lỗi này.
+- **Vì vậy bằng chứng chất lượng dùng được hiện tại = độ đồng thuận giữa các LLM độc lập
+  (reliability), KHÔNG phải accuracy.** Muốn có accuracy trích dẫn được: điền `verdict`/`human_family`
+  trên mẫu phân tầng mới (`evaluate.py` đã sinh, có `stratum`/`stratum_size` để tính trọng số, kèm
+  `reasoning` để review nhanh — chỉ cần phán "lý do có vô lý không", không cần đọc lại JD).
 - → **Bàn giao Teammate: phân tích chỉ đọc `jobs_silver.job_family` + bảng `gold_*`.** 45 test pass.
 
 **(Lịch sử) Engine module `job_family_engine/`:**

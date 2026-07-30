@@ -17,6 +17,7 @@ from itertools import combinations
 import duckdb
 import pandas as pd
 
+from pipeline.utils.analysis_base import ANALYSIS_BASE_DOMAIN_WHERE, ANALYSIS_BASE_WHERE
 from pipeline.utils.config import DATA_DIR
 
 DB = DATA_DIR / "warehouse.duckdb"
@@ -45,11 +46,24 @@ def integrate() -> None:
         FROM lab WHERE jobs_silver.job_id=lab.job_id""")
     con.unregister("lab")
 
-    # analysis set
-    sd = con.execute("""SELECT job_id, job_family, jf_domain, jf_subdomain, seniority, city, region,
-        company, company_type, skills FROM jobs_silver
+    # Analysis set. Two kinds of row are held out of the FAMILY-level base:
+    #   * jf_review='manual_review' — no judge pair agreed at all; counting it as a family would book
+    #     the engine's own uncertainty as demand for that family.
+    #   * jf_review='domain_only'   — judges split across sibling families but ALL inside one domain
+    #     (e.g. a posting titled just "Analyst" drew BUSINESS_ANALYST / DATA_ANALYST /
+    #     RISK_FRAUD_ANALYST). The family is genuinely undetermined, yet the domain has full 3/3
+    #     consensus — so these are excluded from family tables but DO count in `gold_domain_share`.
+    # Both stay in `gold_jobs`, so every exclusion is auditable.
+    sd = con.execute("""SELECT job_id, job_family, jf_domain, jf_subdomain, jf_review, seniority, city,
+        region, company, company_type, skills FROM jobs_silver
         WHERE job_family IS NOT NULL AND is_active AND is_duplicate_of IS NULL""").df()
-    data = sd[sd["job_family"] != "OTHER"].copy()
+    n_unresolved = int((sd["jf_review"] == "manual_review").sum())
+    n_domain_only = int((sd["jf_review"] == "domain_only").sum())
+    data = sd[(sd["job_family"] != "OTHER")
+              & (~sd["jf_review"].isin(["manual_review", "domain_only"]))].copy()
+    if n_unresolved or n_domain_only:
+        print(f"  held out of family tables: {n_unresolved} manual_review + {n_domain_only} "
+              f"domain_only (the latter still counted in gold_domain_share)")
     data["skill_list"] = data["skills"].map(lambda s: json.loads(s) if isinstance(s, str) else [])
     n = len(data)
 
@@ -59,6 +73,16 @@ def integrate() -> None:
     ms = (data.groupby(["jf_domain", "job_family"])["job_id"].nunique().reset_index(name="n"))
     ms["pct"] = (100.0 * ms["n"] / n).round(1)
     _write(con, "gold_market_share", ms.sort_values("n", ascending=False))
+
+    # gold_domain_share — the headline table. Domain shares are the level a ranking survives at: family
+    # order at the top is judge-dependent (swapping judges moved DATA_ENGINEER 158->119 and changed the
+    # #1 family), while domain shares sit 20+pt apart. This is also the only table that can include
+    # `domain_only` jobs, whose domain has consensus even though their family does not.
+    # Domain base intentionally differs from the family base: see ANALYSIS_BASE_DOMAIN_WHERE.
+    dom_src = sd[(sd["job_family"] != "OTHER") & (sd["jf_review"] != "manual_review")]
+    dom = dom_src.groupby("jf_domain")["job_id"].nunique().reset_index(name="n")
+    dom["pct"] = (100.0 * dom["n"] / len(dom_src)).round(1)
+    _write(con, "gold_domain_share", dom.sort_values("n", ascending=False))
     # gold_family_skill (skill share within family)
     long = data.explode("skill_list").dropna(subset=["skill_list"]).rename(columns={"skill_list": "skill"})
     fam_tot = data.groupby("job_family")["job_id"].nunique().to_dict()
@@ -86,10 +110,14 @@ def integrate() -> None:
 
     rep = con.execute("""SELECT job_family, n, pct FROM gold_market_share
         ORDER BY n DESC LIMIT 12""").fetchall()
+    dom_rep = con.execute("SELECT jf_domain, n, pct FROM gold_domain_share ORDER BY n DESC").fetchall()
     con.close()
     print(f"\n{'='*64}\nINTEGRATE → jobs_silver.job_family + family Gold ({n} Data/AI jobs)\n{'='*64}")
-    print("Market share (top families):")
+    print(f"Domain share ({len(dom_src)} jobs) — the level a ranking is safe at:")
+    for d, c, p in dom_rep:
+        print(f"  {p:5.1f}%  {c:4d}  {d}")
+    print("\nMarket share (top families) — detail only, do NOT rank the top of this list:")
     for f, c, p in rep:
         print(f"  {p:5.1f}%  {c:4d}  {f}")
-    print("Gold tables: gold_jobs, gold_market_share, gold_family_skill, gold_company, "
-          "gold_location, gold_seniority, gold_skill_cooccurrence")
+    print("Gold tables: gold_jobs, gold_domain_share, gold_market_share, gold_family_skill, "
+          "gold_company, gold_location, gold_seniority, gold_skill_cooccurrence")

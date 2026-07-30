@@ -9,6 +9,18 @@
 # can work straight from the DB without rebuilding the whole pipeline.
 !/data/warehouse.duckdb
 
+# Ship the three small collaboration artifacts too. Each is a task someone can pick up, and each is
+# referenced by name in the docs — a doc that points at an ignored file is a dead end for a teammate.
+# NOTE the re-ignore line inside each directory: un-ignoring the DIRECTORY alone would also un-ignore
+# `llm_cache/` (3,694 vote JSONs) and the label parquets, which must stay out of the repo.
+!/data/labeling/
+/data/labeling/*
+!/data/labeling/spot_check.csv
+!/data/labeling/company_industry_todo.csv
+!/data/quality/
+/data/quality/*
+!/data/quality/unmapped_skills.csv
+
 # Recon scratch
 _recon/
 
@@ -35,3 +47,6 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# Desktop-tool scratch (not part of the project)
+.hermes/

@@ -11,6 +11,16 @@ from pathlib import Path
 
 import duckdb
 
+# These run as standalone scripts (`python analysis/<name>.py`), so the repo root is not on sys.path
+# by default — add it before importing the shared analysis-base definition.
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE
+
+
 ROOT = Path(__file__).resolve().parents[1]
 DB = ROOT / "data" / "warehouse.duckdb"
 
@@ -24,15 +34,15 @@ def dup_grain(con: duckdb.DuckDBPyConnection, table: str, cols: list[str]) -> in
 def main() -> None:
     con = duckdb.connect(str(DB), read_only=True)
 
+    # Must mirror job_family_engine/integrate.py exactly, including the jf_review exclusion — jobs no
+    # judge pair agreed on are NOT part of the analysis base. Without that clause this check reported
+    # 729 against a Gold total of 667 and looked like a data bug.
     analysis_base = con.execute(
-        """
-        SELECT COUNT(*)
-        FROM jobs_silver
-        WHERE job_family IS NOT NULL
-          AND job_family != 'OTHER'
-          AND is_active
-          AND is_duplicate_of IS NULL
-        """
+        f"SELECT COUNT(*) FROM jobs_silver WHERE {ANALYSIS_BASE_WHERE}"
+    ).fetchone()[0]
+    unresolved = con.execute(
+        "SELECT COUNT(*) FROM jobs_silver WHERE jf_review = 'manual_review' AND is_active "
+        "AND is_duplicate_of IS NULL AND job_family != 'OTHER'"
     ).fetchone()[0]
     gold_jobs = con.execute("SELECT COUNT(*) FROM gold_jobs").fetchone()[0]
     market_total = con.execute(
@@ -40,6 +50,7 @@ def main() -> None:
     ).fetchone()
 
     print("analysis_base", analysis_base)
+    print("excluded_unresolved(non-OTHER)", unresolved)
     print("gold_jobs", gold_jobs)
     print("gold_market_total_n", market_total[0])
     print("gold_market_total_pct", market_total[1])

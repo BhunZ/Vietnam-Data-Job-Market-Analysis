@@ -1,5 +1,11 @@
 # Giải Thích Skill Clustering
 
+> ⚠️ **File viết tay — có thể lệch.** Nguồn số liệu chuẩn là các file TỰ SINH:
+> `docs/ASSOCIATION_RULES_FINDINGS.md`, `docs/SKILL_CLUSTERING_FINDINGS.md`,
+> `docs/TOPIC_MODELING_FINDINGS.md` (chạy lại script trong `analysis/` để TÁI SINH).
+> Nếu số ở đây khác các file đó, tin file tự sinh.
+
+
 Tài liệu này giải thích bước **Clustering skill profile** trong P5 Insight ML.
 
 Bước này không dự đoán, không làm supervised classifier, không phân tích lương, không forecasting.
@@ -129,10 +135,12 @@ Kết quả chạy gần nhất:
 
 | Chỉ số | Giá trị |
 |---|---:|
-| Official analysis base | 852 job |
-| Job có skill dùng được để clustering | 806 job |
-| Số skill trong vocabulary | 72 skill |
+| Official analysis base | **720** job |
+| Job có skill dùng được để clustering | **709** job |
+| Số skill trong vocabulary | **78** skill |
 | Số cluster được chọn | 8 cluster |
+
+> Cập nhật 2026-07-28. Bảng trên trước đây giữ số của lần gán nhãn 852-job và không được đánh dấu là cũ. Số chuẩn luôn nằm ở file TỰ SINH tương ứng.
 
 ---
 

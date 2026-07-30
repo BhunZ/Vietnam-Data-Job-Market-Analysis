@@ -16,15 +16,27 @@ import pandas as pd
 
 from .taxonomy import families
 
-ACCEPT_THRESHOLD = 0.82   # calibrated vs tier-1: T≥0.82 + margin≥0.02 → ~92% agreement
-ACCEPT_MARGIN = 0.02      # top1 must beat top2 by this much (margin = precision lever)
-_EMB_GLOB = "data/dataset/discovery/embeddings_*.parquet"
+ACCEPT_THRESHOLD = 0.88   # tightened 2026-07-25 (was 0.82)
+ACCEPT_MARGIN = 0.08      # tightened 2026-07-25 (was 0.02)
+# WHY: at margin 0.02 the "winner" was float noise — top1 beat top2 by 2% cosine, i.e. a coin flip
+# between two prototypes. Audit of the 58 jobs this tier accepted found many absurd labels
+# (UI-UX Designer -> AI_ENGINEER, Software Engineer -> BIG_DATA_ENGINEER, an AI-robotics *teacher* ->
+# AI_ENGINEER). Root cause: multilingual-e5 packs every tech title into one region, the job vector is
+# built from title+skills only (never the JD), and short prototypes make sparse families easy to win
+# by a hair. This tier short-circuits the LLM, so those jobs were never actually read. Prefer
+# deferring to Tier-3 (which reads the JD) over a cheap geometric guess.
+_EMB_GLOB = None   # resolved from DATA_DIR at call time (was CWD-relative → IndexError)
 _E5_PREFIX = "passage: "
 
 
 @lru_cache(maxsize=1)
 def _job_vectors() -> dict:
-    path = sorted(glob.glob(_EMB_GLOB))[-1]
+    from pipeline.utils.config import DATA_DIR
+
+    hits = sorted(glob.glob(str(DATA_DIR / "dataset" / "discovery" / "embeddings_*.parquet")))
+    if not hits:                 # no discovery run yet → tier-2 simply abstains, never crashes
+        return {}
+    path = hits[-1]
     df = pd.read_parquet(path)
     return {r["job_id"]: np.asarray(r["vector"], dtype="float32") for _, r in df.iterrows()}
 

@@ -22,6 +22,16 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
+# These run as standalone scripts (`python analysis/<name>.py`), so the repo root is not on sys.path
+# by default — add it before importing the shared analysis-base definition.
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE
+
+
 ROOT = Path(__file__).resolve().parents[1]
 DB = ROOT / "data" / "warehouse.duckdb"
 OUT = Path(__file__).resolve().parent / "outputs"
@@ -45,7 +55,7 @@ def _parse_skills(raw: object) -> list[str]:
 def load_jobs() -> pd.DataFrame:
     con = duckdb.connect(str(DB), read_only=True)
     df = con.execute(
-        """
+        f"""
         SELECT
             job_id,
             title_clean,
@@ -59,10 +69,7 @@ def load_jobs() -> pd.DataFrame:
             skills,
             n_skills
         FROM jobs_silver
-        WHERE job_family IS NOT NULL
-          AND job_family != 'OTHER'
-          AND is_active
-          AND is_duplicate_of IS NULL
+        WHERE {ANALYSIS_BASE_WHERE}
         """
     ).df()
     con.close()
@@ -128,6 +135,27 @@ def choose_k(X, k_min: int, k_max: int) -> tuple[int, pd.DataFrame, object]:
     return best_k, scores, models[best_k]
 
 
+def structure_verdict(scores: pd.DataFrame) -> str:
+    """One-line honest reading of the k sweep, written into the findings doc.
+
+    Guards against the headline error this script used to invite: reporting `argmax(silhouette)` as
+    "the natural number of skill clusters". Silhouette below ~0.25 is conventionally read as no
+    substantial cluster structure, and if the curve is flat with no interior peak then argmax is telling
+    you where the search stopped, not what the data contains.
+    """
+    lo, hi = float(scores.silhouette_cosine.min()), float(scores.silhouette_cosine.max())
+    kmin, kmax = int(scores.k.min()), int(scores.k.max())
+    arg = int(scores.sort_values("silhouette_cosine", ascending=False).iloc[0]["k"])
+    band = "no substantial cluster structure" if hi < 0.25 else "weak-to-moderate cluster structure"
+    edge = (" argmax sits at the edge of the search range, so it reflects where the search stopped, "
+            "not an optimum.")
+    return (f"Silhouette (cosine) stays within {lo:.3f}-{hi:.3f} across k={kmin}..{kmax} — "
+            f"conventionally **{band}**. argmax(silhouette) = k={arg}."
+            + (edge if arg in (kmin, kmax) else "")
+            + " Clusters below are therefore a descriptive summary of skill-tag co-occurrence, NOT "
+              "evidence that the market separates into that many natural roles.")
+
+
 def _fmt_counter(counter: Counter[str], total: int, top_n: int) -> str:
     parts = []
     for key, n in counter.most_common(top_n):
@@ -141,15 +169,26 @@ def summarize_clusters(df: pd.DataFrame, vocab: list[str], X_binary, top_n: int)
     for cluster_id, part in df.groupby("cluster_id"):
         positions = part.index.to_list()
         cluster_skill_share = X_binary[positions].mean(axis=0)
-        top_skill_ids = sorted(
-            range(len(vocab)),
-            key=lambda i: (cluster_skill_share[i], cluster_skill_share[i] / max(overall_skill_share[i], 1e-9)),
-            reverse=True,
+        # TWO columns on purpose. The old single column sorted by (share, lift) — but share is a float,
+        # so lift never broke a tie and the column was just "most common skills" while being *labelled*
+        # as lift-aware. That advertised anti-characteristic skills: a cluster could list
+        # "SQL (30%, lift 0.6)" as a top skill when SQL is UNDER-represented there versus the corpus,
+        # inviting the exact opposite conclusion. `most_common_skills` answers "what do these postings
+        # ask for"; `most_distinctive_skills` (lift, with a share floor so a 2-job skill cannot top it)
+        # answers "what makes this cluster different".
+        common_ids = sorted(range(len(vocab)), key=lambda i: cluster_skill_share[i], reverse=True)[:top_n]
+        most_common = "; ".join(
+            f"{vocab[i]} ({100 * cluster_skill_share[i]:.0f}%)"
+            for i in common_ids if cluster_skill_share[i] > 0
+        )
+        lift_of = lambda i: cluster_skill_share[i] / max(overall_skill_share[i], 1e-9)  # noqa: E731
+        distinct_ids = sorted(
+            (i for i in range(len(vocab)) if cluster_skill_share[i] >= 0.20),
+            key=lift_of, reverse=True,
         )[:top_n]
-        top_skills = "; ".join(
-            f"{vocab[i]} ({100 * cluster_skill_share[i]:.0f}%, lift {cluster_skill_share[i] / max(overall_skill_share[i], 1e-9):.1f})"
-            for i in top_skill_ids
-            if cluster_skill_share[i] > 0
+        most_distinctive = "; ".join(
+            f"{vocab[i]} ({100 * cluster_skill_share[i]:.0f}%, lift {lift_of(i):.1f})"
+            for i in distinct_ids
         )
         family_counts = Counter(part["job_family"])
         domain_counts = Counter(part["jf_domain"])
@@ -164,7 +203,19 @@ def summarize_clusters(df: pd.DataFrame, vocab: list[str], X_binary, top_n: int)
                 "dominant_family_share": round(100 * dominant_n / len(part), 1),
                 "top_families": _fmt_counter(family_counts, len(part), top_n=5),
                 "top_domains": _fmt_counter(domain_counts, len(part), top_n=4),
-                "top_skills": top_skills,
+                # Per-cluster validity, so a weak cluster cannot be read as a finding. `mean_silhouette`
+                # near 0 means members are as close to another centroid as to their own;
+                # `mean_n_skills` near 1-2 means the "cluster" is really a group of thinly-tagged
+                # postings (L2-normalising sparse binary vectors makes a 1-skill posting a unit basis
+                # vector, so cosine k-means partitions by tag COUNT before it partitions by role).
+                "mean_silhouette": round(float(part["silhouette"].mean()), 3),
+                "pct_negative_silhouette": round(100 * float((part["silhouette"] < 0).mean()), 1),
+                "mean_n_skills": round(float(part["n_skills"].mean()), 2),
+                "quality_flag": ("low_confidence"
+                                 if part["silhouette"].mean() < 0.10 or part["n_skills"].mean() < 3
+                                 else "ok"),
+                "most_common_skills": most_common,
+                "most_distinctive_skills": most_distinctive,
             }
         )
     return pd.DataFrame(rows).sort_values("n_jobs", ascending=False).reset_index(drop=True)
@@ -214,9 +265,10 @@ def write_findings(
     best_k: int,
     k_scores: pd.DataFrame,
     summary: pd.DataFrame,
+    verdict: str,
 ) -> None:
     top_rows = "\n".join(
-        "| {cluster_id} | {n_jobs} | {pct_jobs} | `{dominant_family}` | {dominant_family_share} | {top_skills} |".format(
+        "| {cluster_id} | {n_jobs} | {pct_jobs} | `{dominant_family}` | {dominant_family_share} | {mean_silhouette} | {mean_n_skills} | {quality_flag} | {most_common_skills} | {most_distinctive_skills} |".format(
             **row
         )
         for row in summary.to_dict("records")
@@ -239,7 +291,12 @@ Do Vietnamese Data/AI job postings naturally separate into skill-profile cluster
 |---|---|
 | `silhouette_cosine` | Cluster separation on normalized skill vectors; higher is better |
 | `dominant_family_share` | Share of the largest `job_family` inside a cluster |
-| `top_skills` | Skills with high within-cluster share, with lift versus the overall clustered population |
+| `most_common_skills` | Highest within-cluster share — what these postings ask for |
+| `most_distinctive_skills` | Highest lift versus the whole clustered population (share >= 20% floor) — what makes the cluster different. A skill can be common WITHOUT being distinctive, and vice versa |
+| `mean_silhouette` | Cluster cohesion, cosine. Below ~0.10 the members sit as close to another centroid as to their own |
+| `pct_negative_silhouette` | % of members actually closer to a different cluster |
+| `mean_n_skills` | Mean tag count. Near 1-2 means the cluster is grouping thinly-tagged postings, not roles |
+| `quality_flag` | `low_confidence` when `mean_silhouette` < 0.10 or `mean_n_skills` < 3 — do not narrate these as market findings |
 
 ## Table
 
@@ -252,7 +309,12 @@ job_family IS NOT NULL
 AND job_family != 'OTHER'
 AND is_active
 AND is_duplicate_of IS NULL
+AND COALESCE(jf_review, 'resolved') NOT IN ('manual_review', 'domain_only')
 ```
+
+The last clause holds out postings the labeling engine could not settle. It currently excludes 0 rows
+(every posting was resolved, 30 of them via the stage-2 `refine` pass), but it is executed, so it is
+printed here — the filter shown must be the filter run.
 
 Feature input: `skills` only. `job_family` is used after clustering for interpretation, not as a feature.
 
@@ -272,7 +334,9 @@ Outputs:
 
 - Official analysis base: {base_n} jobs
 - Clustered jobs with usable skills after `min_skill_n={min_skill_n}`: {clustered_n}
-- Selected k: {best_k}
+- k used for this report: {best_k}
+
+> **How much structure is really there:** {verdict}
 
 ### K Selection
 
@@ -312,8 +376,17 @@ Use the cluster summary together with association rules:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Cluster Data/AI job skill profiles.")
     parser.add_argument("--min-skill-n", type=int, default=10, help="Minimum jobs for a skill to enter the vocabulary.")
-    parser.add_argument("--k-min", type=int, default=3)
-    parser.add_argument("--k-max", type=int, default=8)
+    # Search widened 3..8 -> 2..20 after an audit: silhouette was still RISING at the old upper bound
+    # (0.1653 at k=8, 0.2028 at k=18), so "k=8" was an artifact of where the search stopped, not an
+    # optimum. With the wider range the report must state which it is.
+    parser.add_argument("--k-min", type=int, default=2)
+    parser.add_argument("--k-max", type=int, default=20)
+    # The sweep and the REPORTED k are deliberately separate. The sweep (2..20) is the evidence about
+    # how much structure exists; --k is the granularity the write-up narrates. Chasing
+    # argmax(silhouette) gave k=18 over 715 postings — technically the maximum, useless as a market
+    # story, and inside a flat 0.13-0.20 band. Pass --k 0 to follow argmax instead.
+    parser.add_argument("--k", type=int, default=8,
+                        help="k to report (0 = use argmax silhouette from the sweep)")
     parser.add_argument("--top-n", type=int, default=6)
     args = parser.parse_args()
 
@@ -322,7 +395,15 @@ def main() -> None:
     skill_jobs = jobs[jobs["skill_list"].map(bool)].reset_index(drop=True)
     clustered, vocab, X = build_skill_matrix(skill_jobs, min_skill_n=args.min_skill_n)
 
-    best_k, k_scores, model = choose_k(X, args.k_min, args.k_max)
+    argmax_k, k_scores, argmax_model = choose_k(X, args.k_min, args.k_max)
+    verdict = structure_verdict(k_scores)
+    if args.k and args.k != argmax_k:
+        from sklearn.cluster import KMeans
+        best_k = int(args.k)
+        model = KMeans(n_clusters=best_k, random_state=SEED, n_init=20).fit(X)
+        verdict += f" This report uses k={best_k} for interpretability."
+    else:
+        best_k, model = argmax_k, argmax_model
     labels = model.predict(X)
 
     # Binary matrix after vocabulary filtering is easier to explain in cluster summaries.
@@ -338,6 +419,11 @@ def main() -> None:
 
     clustered = clustered.copy()
     clustered["cluster_id"] = labels.astype(int)
+    # Per-job silhouette, so cluster-level validity is reportable instead of hidden behind one global
+    # average. Cosine metric matches the L2-normalised space KMeans was fitted in.
+    from sklearn.metrics import silhouette_samples
+
+    clustered["silhouette"] = silhouette_samples(X, labels, metric="cosine").round(4)
     cluster_out = clustered[
         [
             "job_id",
@@ -368,6 +454,7 @@ def main() -> None:
         best_k=best_k,
         k_scores=k_scores,
         summary=summary,
+        verdict=verdict,
     )
 
     print(f"analysis_base {base_n}")

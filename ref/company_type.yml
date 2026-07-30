@@ -1,24 +1,138 @@
-# Heuristics -> company_type {bank_fintech, outsourcing, product, ecommerce, startup, other}.
-# Matched (PRIORITY order, first match wins) against lowercased company name + JD snippet.
-# Bilingual. Heuristic only — for diagnostic comparison, not ground truth.
-version: 1
+# Employer INDUSTRY classification -> company_type.
+#
+# Matched against the COMPANY NAME ONLY (priority order, first match wins).
+#
+# Two defects were fixed here on 2026-07-25:
+#
+# 1. The old version also matched the first 300 chars of the JOB DESCRIPTION. That let a word in the
+#    posting decide the employer's industry, and 217 of 442 classified postings (49%) were labelled from
+#    JD text alone. Measured false positives: `POLYTEX FAR EASTERN` (textiles) -> bank_fintech because
+#    the JD said "tài chính"; `Tập Đoàn Lộc Trời` (agriculture) -> bank_fintech; `DƯỢC PHẨM FPT LONG
+#    CHÂU` (pharmacy) -> ecommerce; `Dai-ichi Life` (insurance) -> outsourcing. An employer attribute
+#    must be derived from the employer, never from the vacancy text.
+#
+# 2. The old categories mixed two dimensions: `bank_fintech`/`ecommerce` are INDUSTRIES while
+#    `outsourcing`/`product`/`startup` are BUSINESS MODELS, so a company could belong to both and the
+#    buckets were not comparable. This version is a single dimension: industry.
+#
+# Still a heuristic over names, so unmatched employers stay `unknown` instead of being folded into a
+# real bucket — an honest denominator matters more than a full-looking pie chart.
+version: 2
 
 rules:
-  - type: bank_fintech
-    patterns: [bank, "ngân hàng", techcombank, vpbank, vietinbank, mbbank, "mb bank", acb,
-               vib, tpbank, sacombank, hdbank, fintech, "công nghệ tài chính", payment,
-               "thanh toán", momo, vnpay, zalopay, insurance, "bảo hiểm", securities,
-               "chứng khoán", "tài chính"]
-  - type: outsourcing
-    patterns: [outsourc, "software services", "software outsourcing", "gia công phần mềm",
-               consulting, "tư vấn", "fpt software", "fpt is", capgemini, "kms", "nashtech",
-               "tma", "global", solutions, "giải pháp", "system integration"]
-  - type: ecommerce
-    patterns: [e-commerce, ecommerce, "thương mại điện tử", shopee, lazada, tiki, sendo,
-               "sàn", retail, "bán lẻ", marketplace]
-  - type: product
-    patterns: [product, "sản phẩm", platform, "nền tảng", saas, "phần mềm"]
-  - type: startup
-    patterns: [startup, "khởi nghiệp"]
+  # --- staffing agencies first: the real employer is hidden, so no industry can be inferred ---
+  - type: recruitment_agency
+    patterns: [navigos, "'s client", "s client", manpower, adecco, talentnet, headhunt,
+               "recruitment agency", "recruitment consulting", "tuyển dụng và tư vấn", itviec,
+               staffing, reeracoen, persolkelly, "hr strategy",
+               "nhân sự", "tuyển dụng"]
 
-default: other
+  # --- banking / finance / insurance / securities ---
+  - type: bank_finance
+    patterns: [bank, "ngân hàng", techcombank, vpbank, vietinbank, vietcombank, mbbank, "mb bank",
+               msb, acb, vib, tpbank, sacombank, hdbank, ocb, seabank, shb, pvcombank,
+               agribank, bidv, "viet capital", shinhan, woori, hsbc, "standard chartered",
+               uob, "fe credit", "home credit", "mirae asset", "easy credit", mcredit,
+               fintech, momo, vnpay, zalopay, finhay, infina, timo,
+               insurance, "bảo hiểm", prudential, manulife, "dai-ichi", "aia", cathay,
+               securities, "chứng khoán", "quản lý quỹ", "fund management",
+               "credit", "tín dụng", "payment gateway", "công nghệ tài chính",
+               abbank, "money forward", vietbank, kienlongbank,
+               baovietbank, "an binh", "lien viet", lpbank, "nam a bank", "bac a", eximbank]
+    # Concatenated brands: word-boundary matching cannot see "bank" inside "ABBANK"/"PVCombank".
+    substrings: [bank, fintech, "chungkhoan", gotyme]
+
+  # --- telecom ---
+  # Bare "viettel" is NOT here: the group spans telecom, logistics (Viettel Post), cyber-security,
+  # semiconductors and construction, and a blanket match put 23 of 29 `telecom` postings there — a brand
+  # count masquerading as an industry measurement. Subsidiaries are matched by their own business words in
+  # the categories below; only the telecom arms are listed here.
+  - type: telecom
+    patterns: [vnpt, mobifone, vinaphone, "viễn thông", "viettel telecom", "viettel networks",
+               "star telecom", unitel]
+    substrings: [telecom]
+
+  # --- education (BEFORE tech_software: every edtech has "công nghệ" in its name, and
+  #     "MindX Technology School" / "Học viện Công nghệ BKACAD" are schools, not software houses) ---
+  - type: education
+    patterns: [education, "giáo dục", school, "trường", university, "đại học", academy, "học viện",
+               "đào tạo", "anh ngữ", ielts, vus, apollo, "vas", mindx, bkacad, onschool]
+
+  # --- technology / software / IT services (product + outsourcing: same industry) ---
+  - type: tech_software
+    patterns: [technology, technologies, "công nghệ", software, "phần mềm", digital,
+               "chuyển đổi số", "trí tuệ nhân tạo", "artificial intelligence",
+               cloud, cyber, "hệ thống thông tin", "information technology",
+               tech, "system integration", saas, "nền tảng", "gia công phần mềm",
+               "fpt software", "fpt is", "fpt smart", kms, nashtech, luxoft, sotatek,
+               "saigon technology", innotech, rikkei, vmo, smartosc, kyanon, katalon,
+               elcom, misa, "one mount", vng, vinai, zalo, "sky mavis", "got it", cinnamon,
+               mitek, stravo, peregrine, vinsmart, "airr labs", renesas, "nab innovation",
+               "r&d center", "innovation centre", "innovation center", neyu]
+    # `outsourc` and `gotyme` used to sit in `patterns`, where the word-boundary matcher can never see a
+    # stem inside a longer word ("Outsource Solutions", "GoTymeX" both failed). Stems belong here.
+    substrings: [software, outsourc]
+
+  # --- e-commerce / marketplace / online-first platforms ---
+  - type: ecommerce
+    patterns: [e-commerce, ecommerce, "thương mại điện tử", shopee, lazada, tiki, sendo, onpoint,
+               marketplace, "sàn thương mại", grab, "be group", gojek]
+
+  # --- bricks-and-mortar retail / consumer goods / F&B ---
+  - type: retail_consumer
+    patterns: [retail, "bán lẻ", "siêu thị", supermarket, winmart, "the coffee house",
+               highlands, "golden gate", "king food", "central retail", aeon, lotte,
+               unilever, "procter", nestle, heineken, sabeco, habeco, vinamilk,
+               masan, kido, pepsi, "coca-cola", suntory, fmcg, "hàng tiêu dùng",
+               "mỹ phẩm", cosmetics, "thế giới di động", "fpt retail", "long châu", pharmacity,
+               pnj, "vàng bạc", "đá quý", jewelry, "trang sức"]
+
+  # --- manufacturing / industrial / materials ---
+  - type: manufacturing
+    patterns: [manufacturing, "sản xuất", industrial, "công nghiệp", "nhà máy",
+               electronics, "điện tử", samsung, "lg electronics", foxconn, luxshare, intel,
+               "hoa sen", "hòa phát", "thép", steel, cement, "xi măng", insee, polytex,
+               textile, "dệt", "may mặc", garment, "cơ khí", "cơ điện", "nhựa", plastic,
+               automotive, vinfast, thaco, panasonic, hyundai, "avery dennison", wanek,
+               furniture, "aluminum", semiconductor, "bán dẫn", "hoa phat"]
+
+  # --- healthcare / pharma ---
+  - type: healthcare_pharma
+    patterns: [pharma, "dược", hospital, "bệnh viện", clinic, "phòng khám", medical, "y tế",
+               healthcare, vinmec, medlatec, diag, biotech, "xét nghiệm"]
+    substrings: [pharma]
+
+  # --- professional services / consulting / audit ---
+  - type: consulting_audit
+    patterns: [consulting, "tư vấn", advisory, audit, "kiểm toán", pwc, deloitte, kpmg,
+               "ernst & young", mckinsey, bain, "boston consulting", accenture,
+               socotec, tentamus, "inspection", "certification", "kiểm định"]
+
+  # --- logistics / transport ---
+  - type: logistics
+    patterns: [logistics, "vận tải", "giao nhận", shipping, freight, express, "chuyển phát",
+               "kho vận", "cảng", "hàng không", airlines, vietjet, "vietnam airlines",
+               "ninja van", "j&t", "viettel post", "bưu chính", "bưu điện", ghn, ghtk, ahamove,
+               "giao hàng"]
+    substrings: [logistics]
+
+  # --- real estate / construction ---
+  - type: real_estate_construction
+    patterns: ["bất động sản", "real estate", property, construction, "xây dựng",
+               vinhomes, novaland, "đất xanh", "hưng thịnh", coteccons, "địa ốc"]
+
+  # --- media / entertainment / gaming / advertising ---
+  - type: media_gaming
+    patterns: [media, "truyền thông", entertainment, "giải trí", advertising, "quảng cáo",
+               gaming, studio, vieon, galaxy, metub, yeah1]
+
+  # --- energy / utilities / agriculture ---
+  - type: energy_agri
+    patterns: ["năng lượng", energy, "điện lực", petro, "dầu khí", solar, "điện gió",
+               "nông nghiệp", agriculture, "lộc trời", "thủy sản", seafood, "chăn nuôi"]
+
+  # --- public sector ---
+  - type: public_sector
+    patterns: ["cơ quan", "nhà nước", ministry, "ủy ban", government]
+
+default: unknown

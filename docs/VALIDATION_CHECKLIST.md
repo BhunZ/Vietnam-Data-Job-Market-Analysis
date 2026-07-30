@@ -1,4 +1,28 @@
-# Validation Checklist
+# Validation checklist
+
+> ⚠️ **BẢNG PASS DƯỚI ĐÂY LÀ LỊCH SỬ, ĐỪNG ĐỌC NÓ NHƯ BẰNG CHỨNG.** Nó ghi 'PASS' cho analysis base
+> **852**. Một banner sửa lỗi trước đó (25/07/2026) đổi thành **752** — và banner đó **cũng đã stale**.
+> Đây chính là lý do không nên chép số vào file tay: nó đã sai ba lần liên tiếp (852 → 752 → 720).
+> **Bằng chứng validation hiện tại là output trực tiếp của `python analysis/validate_gold.py`**, không
+> phải bảng chép tay này.
+>
+> **Số đúng, kiểm 28/07/2026:** analysis_base **720** = `gold_market_share.SUM(n)` **720** ·
+> `gold_domain_share.SUM(n)` **720** · `SUM(pct)` **100.2** (market_share, làm tròn 1 chữ số) và
+> **100.0** (domain_share) · mọi duplicate-grain **0** trên cả 15 bảng · `excluded_unresolved` **0**.
+>
+> Kiểm mạnh hơn bảng dưới đây (chỉ so tổng): tính lại **từng dòng** từ `jobs_silver` cho
+> `gold_market_share` / `gold_seniority` / `gold_company` / `gold_domain_share` → lệch **0 dòng**;
+> `gold_family_skill` **0/683** dòng sai `n` hoặc `share_in_family`; `gold_skill_cooccurrence` **0** cặp
+> sai thứ tự, **0** self-pair, **0** cặp trùng hai chiều.
+>
+> Hai mẫu số **không** phải 720, và đó là chủ ý — đừng "sửa":
+> `gold_location.SUM(n)` = **653** (67 tin `city IS NULL` bị `dropna`; bảng không có cột `pct` nên không
+> sinh % sai) · `gold_jobs` = **1554 dòng, 834 = OTHER** (bảng gold duy nhất không lọc; đừng dùng làm mẫu số).
+
+---
+
+(lịch sử)
+
 
 Milestone 6 deliverable: validate the Family Gold tables before using them for
 EDA, insight, dashboard, or report writing.

@@ -12,7 +12,12 @@ Do Vietnamese Data/AI job postings naturally separate into skill-profile cluster
 |---|---|
 | `silhouette_cosine` | Cluster separation on normalized skill vectors; higher is better |
 | `dominant_family_share` | Share of the largest `job_family` inside a cluster |
-| `top_skills` | Skills with high within-cluster share, with lift versus the overall clustered population |
+| `most_common_skills` | Highest within-cluster share — what these postings ask for |
+| `most_distinctive_skills` | Highest lift versus the whole clustered population (share >= 20% floor) — what makes the cluster different. A skill can be common WITHOUT being distinctive, and vice versa |
+| `mean_silhouette` | Cluster cohesion, cosine. Below ~0.10 the members sit as close to another centroid as to their own |
+| `pct_negative_silhouette` | % of members actually closer to a different cluster |
+| `mean_n_skills` | Mean tag count. Near 1-2 means the cluster is grouping thinly-tagged postings, not roles |
+| `quality_flag` | `low_confidence` when `mean_silhouette` < 0.10 or `mean_n_skills` < 3 — do not narrate these as market findings |
 
 ## Table
 
@@ -25,7 +30,12 @@ job_family IS NOT NULL
 AND job_family != 'OTHER'
 AND is_active
 AND is_duplicate_of IS NULL
+AND COALESCE(jf_review, 'resolved') NOT IN ('manual_review', 'domain_only')
 ```
+
+The last clause holds out postings the labeling engine could not settle. It currently excludes 0 rows
+(every posting was resolved, 30 of them via the stage-2 `refine` pass), but it is executed, so it is
+printed here — the filter shown must be the filter run.
 
 Feature input: `skills` only. `job_family` is used after clustering for interpretation, not as a feature.
 
@@ -43,33 +53,48 @@ Outputs:
 
 ## Run Evidence
 
-- Official analysis base: 852 jobs
-- Clustered jobs with usable skills after `min_skill_n=10`: 806
-- Selected k: 8
+- Official analysis base: 720 jobs
+- Clustered jobs with usable skills after `min_skill_n=10`: 709
+- k used for this report: 8
+
+> **How much structure is really there:** Silhouette (cosine) stays within 0.125-0.174 across k=2..20 — conventionally **no substantial cluster structure**. argmax(silhouette) = k=20. argmax sits at the edge of the search range, so it reflects where the search stopped, not an optimum. Clusters below are therefore a descriptive summary of skill-tag co-occurrence, NOT evidence that the market separates into that many natural roles. This report uses k=8 for interpretability.
 
 ### K Selection
 
 | k | silhouette_cosine | calinski_harabasz | davies_bouldin |
 |---:|---:|---:|---:|
-| 3 | 0.1387 | 64.14 | 3.0509 |
-| 4 | 0.1534 | 59.87 | 2.9561 |
-| 5 | 0.1669 | 56.99 | 2.6739 |
-| 6 | 0.1835 | 53.61 | 2.6429 |
-| 7 | 0.1885 | 50.09 | 2.4693 |
-| 8 | 0.1905 | 47.68 | 2.3026 |
+| 2 | 0.1246 | 51.93 | 3.6785 |
+| 3 | 0.1488 | 51.26 | 3.0500 |
+| 4 | 0.1648 | 48.17 | 3.0639 |
+| 5 | 0.1585 | 42.54 | 2.8841 |
+| 6 | 0.1647 | 39.01 | 2.6758 |
+| 7 | 0.1609 | 35.51 | 2.5301 |
+| 8 | 0.1571 | 33.32 | 2.8431 |
+| 9 | 0.1580 | 32.21 | 2.8111 |
+| 10 | 0.1659 | 31.12 | 2.5811 |
+| 11 | 0.1559 | 29.08 | 2.5947 |
+| 12 | 0.1641 | 28.11 | 2.6772 |
+| 13 | 0.1678 | 27.26 | 2.5396 |
+| 14 | 0.1674 | 26.80 | 2.6392 |
+| 15 | 0.1687 | 25.86 | 2.5808 |
+| 16 | 0.1725 | 25.00 | 2.4841 |
+| 17 | 0.1661 | 23.86 | 2.5450 |
+| 18 | 0.1604 | 23.39 | 2.5395 |
+| 19 | 0.1740 | 22.87 | 2.4922 |
+| 20 | 0.1741 | 22.13 | 2.4576 |
 
 ### Cluster Summary
 
 | Cluster | Jobs | % | Dominant family | Dominant family share | Top skills |
 |---:|---:|---:|---|---:|---|
-| 2 | 192 | 23.8 | `DATA_ENGINEER` | 61.5 | SQL (71%, lift 1.5); Data Warehouse (53%, lift 2.9); Python (51%, lift 1.2); ETL (48%, lift 2.9); Big Data (39%, lift 2.4); Reporting (39%, lift 1.0) |
-| 4 | 180 | 22.3 | `AI_ENGINEER` | 61.7 | Machine Learning (75%, lift 2.6); Python (75%, lift 1.8); AI (73%, lift 3.7); LLM (59%, lift 4.0); English (41%, lift 1.1); Deep Learning (36%, lift 4.1) |
-| 3 | 159 | 19.7 | `DATA_ANALYST` | 40.3 | Power BI (84%, lift 3.4); SQL (81%, lift 1.7); Data Analysis (78%, lift 1.7); Reporting (73%, lift 1.9); Tableau (55%, lift 4.0); Python (52%, lift 1.2) |
-| 1 | 80 | 9.9 | `BUSINESS_ANALYST` | 43.8 | Excel (100%, lift 6.2); Data Analysis (65%, lift 1.4); Reporting (48%, lift 1.2); English (44%, lift 1.2); SQL (35%, lift 0.8); Power BI (34%, lift 1.4) |
-| 0 | 59 | 7.3 | `BUSINESS_ANALYST` | 30.5 | English (100%, lift 2.8); Data Analysis (44%, lift 1.0); Reporting (24%, lift 0.6); SQL (19%, lift 0.4); Python (14%, lift 0.3); Data Governance (7%, lift 0.7) |
-| 7 | 59 | 7.3 | `BUSINESS_ANALYST` | 47.5 | Data Analysis (100%, lift 2.2); Statistics (5%, lift 0.3); Business Intelligence (3%, lift 0.5); SQL (3%, lift 0.1); C++ (2%, lift 0.7); Data Governance (2%, lift 0.2) |
-| 6 | 40 | 5.0 | `BUSINESS_ANALYST` | 75.0 | Agile (100%, lift 10.6); English (75%, lift 2.1); SQL (35%, lift 0.8); Data Analysis (30%, lift 0.7); Azure (18%, lift 1.5); Reporting (15%, lift 0.4) |
-| 5 | 37 | 4.6 | `BUSINESS_ANALYST` | 40.5 | Reporting (100%, lift 2.6); Data Analysis (68%, lift 1.5); SQL (8%, lift 0.2); Data Governance (5%, lift 0.5); Oracle (5%, lift 0.5); Big Data (5%, lift 0.3) |
+| 5 | 144 | 20.3 | `DATA_ENGINEER` | 68.1 | 0.089 | 14.74 | low_confidence | SQL (77%); Data Warehouse (58%); Python (56%); Database (53%); ETL (53%); Data Management (51%) | dbt (22%, lift 4.2); Hadoop (22%, lift 4.1); Airflow (33%, lift 4.1); Kafka (27%, lift 4.0); Spark (44%, lift 3.9); ELT (34%, lift 3.8) |
+| 6 | 124 | 17.5 | `DATA_ANALYST` | 38.7 | 0.053 | 10.62 | low_confidence | SQL (80%); Power BI (77%); Reporting (73%); Data Analysis (69%); Python (55%); Statistics (50%) | Looker (21%, lift 4.0); Tableau (49%, lift 3.8); Data Visualization (40%, lift 3.7); Power BI (77%, lift 3.1); Statistics (50%, lift 3.0); Business Intelligence (20%, lift 2.5) |
+| 7 | 113 | 15.9 | `AI_ENGINEER` | 60.2 | 0.064 | 9.31 | low_confidence | AI (73%); LLM (67%); Python (66%); Machine Learning (65%); API (60%); Database (39%) | JavaScript (22%, lift 5.2); LLM (67%, lift 4.0); AI (73%, lift 3.5); NLP (21%, lift 3.1); API (60%, lift 3.1); Git (27%, lift 2.6) |
+| 0 | 93 | 13.1 | `BUSINESS_ANALYST` | 84.9 | 0.3 | 3.63 | ok | Business Analysis (88%); English (45%); Agile (38%); ERP (26%); SQL (25%); Data Analysis (20%) | Business Analysis (88%, lift 5.0); Agile (38%, lift 3.7); ERP (26%, lift 3.2); English (45%, lift 1.3); SQL (25%, lift 0.5); Data Analysis (20%, lift 0.5) |
+| 2 | 78 | 11.0 | `DATA_ANALYST` | 39.7 | 0.215 | 6.79 | ok | Excel (100%); Data Analysis (73%); Reporting (69%); Power BI (59%); SQL (56%); English (38%) | Excel (100%, lift 6.8); Power BI (59%, lift 2.4); Data Analysis (73%, lift 1.8); Reporting (69%, lift 1.8); Tableau (23%, lift 1.8); Statistics (22%, lift 1.3) |
+| 3 | 63 | 8.9 | `AI_ENGINEER` | 60.3 | 0.274 | 13.68 | ok | Python (97%); PyTorch (92%); TensorFlow (87%); Machine Learning (86%); AI (68%); Deep Learning (65%) | PyTorch (92%, lift 11.1); TensorFlow (87%, lift 10.9); scikit-learn (44%, lift 9.3); Computer Vision (48%, lift 7.3); Deep Learning (65%, lift 7.2); NLP (33%, lift 4.9) |
+| 1 | 55 | 7.8 | `BUSINESS_ANALYST` | 36.4 | 0.261 | 2.55 | low_confidence | Data Analysis (89%); Reporting (49%); English (22%); SQL (13%); Data Management (11%); Statistics (9%) | Data Analysis (89%, lift 2.2); Reporting (49%, lift 1.3); English (22%, lift 0.6) |
+| 4 | 39 | 5.5 | `DATA_GOVERNANCE` | 48.7 | 0.217 | 6.08 | ok | Data Governance (90%); Data Quality (54%); Data Analysis (49%); Data Science (33%); Data Management (31%); SQL (28%) | Data Governance (90%, lift 8.3); Data Quality (54%, lift 3.3); Data Science (33%, lift 1.6); Data Warehouse (26%, lift 1.3); Data Analysis (49%, lift 1.2); Data Management (31%, lift 1.1) |
 
 ## Interpretation
 

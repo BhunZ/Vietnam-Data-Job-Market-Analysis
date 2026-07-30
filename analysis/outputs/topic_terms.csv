@@ -1,51 +1,91 @@
 topic_id,rank,term,weight
-0,1,etl,0.575052
-0,2,data warehouse,0.571283
-0,3,warehouse,0.569469
-0,4,data engineer,0.528521
-0,5,sql,0.464645
-0,6,lake,0.448229
-0,7,spark,0.440819
-0,8,data lake,0.44018
-0,9,elt,0.438734
-0,10,modeling data,0.430158
-1,1,gia,0.279158
-1,2,ngan,0.27731
-1,3,te,0.274711
-1,4,vi,0.274594
-1,5,so,0.271347
-1,6,chi,0.262567
-1,7,hinh,0.261342
-1,8,quy,0.260003
-1,9,pham,0.247582
-1,10,hanh,0.242982
-2,1,ai,0.693055
-2,2,learning,0.590266
-2,3,machine learning,0.458607
-2,4,machine,0.457484
-2,5,llm,0.427196
-2,6,engineer ai,0.350681
-2,7,ai engineer,0.348254
-2,8,llm machine,0.347752
-2,9,python,0.330906
-2,10,pytorch,0.330462
-3,1,power bi,0.608871
-3,2,power,0.606633
-3,3,bi,0.579418
-3,4,reporting sql,0.531388
-3,5,reporting,0.503942
-3,6,data analysis,0.458629
-3,7,bi python,0.443694
-3,8,tableau,0.439769
-3,9,sql,0.437593
-3,10,analysis,0.428942
-4,1,business,0.493249
-4,2,analytics,0.255721
-4,3,development,0.235916
-4,4,analysis,0.226198
-4,5,systems,0.215607
-4,6,performance,0.215561
-4,7,science,0.20499
-4,8,product,0.198824
-4,9,across,0.197007
-4,10,technical,0.196587
+0,1,phap,0.595126
+0,2,thuat,0.527397
+0,3,tang,0.490365
+0,4,tao,0.488233
+0,5,huong,0.486227
+0,6,nhu,0.461349
+0,7,lap,0.459492
+0,8,cuu,0.458581
+0,9,nghien cuu,0.454433
+0,10,nghien,0.454433
+1,1,business,0.244313
+1,2,systems,0.23818
+1,3,technical,0.217706
+1,4,development,0.217652
+1,5,performance,0.212513
+1,6,across,0.205077
+1,7,ensure,0.203962
+1,8,design,0.201466
+1,9,solutions,0.197818
+1,10,communication,0.187802
+2,1,ai,0.619578
+2,2,learning,0.424599
+2,3,llm,0.385419
+2,4,machine,0.370077
+2,5,machine learning,0.364601
+2,6,python,0.326969
+2,7,engineer,0.305418
+2,8,ai engineer,0.27128
+2,9,vision,0.270367
+2,10,pytorch,0.266744
+3,1,lake,0.398939
+3,2,data warehouse,0.388411
+3,3,warehouse,0.386701
+3,4,data lake,0.374166
+3,5,etl,0.372973
+3,6,data engineer,0.348619
+3,7,elt,0.312444
+3,8,spark,0.303393
+3,9,lake data,0.280351
+3,10,airflow,0.277975
+4,1,business analyst,0.686005
+4,2,business,0.557751
+4,3,analyst,0.557481
+4,4,business analysis,0.545377
+4,5,agile,0.366983
+4,6,erp,0.291849
+4,7,analyst domain,0.252374
+4,8,expertise business,0.249324
+4,9,office business,0.22048
+4,10,agile business,0.210296
+5,1,rui,0.81472
+5,2,ngan,0.66338
+5,3,khoi,0.385573
+5,4,chung,0.34281
+5,5,tuan,0.272303
+5,6,soat,0.272216
+5,7,thieu,0.263799
+5,8,khoa,0.238553
+5,9,data science,0.235778
+5,10,risk,0.225746
+6,1,thoai,0.365861
+6,2,email,0.364615
+6,3,ngay,0.345853
+6,4,sinh gioi,0.243141
+6,5,chuong,0.240436
+6,6,ai trung,0.239822
+6,7,lich hen,0.234365
+6,8,hen,0.234365
+6,9,email truong,0.231245
+6,10,truong bat,0.231245
+7,1,bi,0.852126
+7,2,power bi,0.815394
+7,3,power,0.801168
+7,4,tableau,0.554654
+7,5,data analyst,0.482095
+7,6,excel,0.478925
+7,7,sql,0.413941
+7,8,analyst,0.413842
+7,9,dashboard,0.396402
+7,10,reporting,0.353952
+8,1,oracle,0.614202
+8,2,sql server,0.5191
+8,3,server,0.512405
+8,4,sql,0.368462
+8,5,mysql,0.348488
+8,6,postgresql,0.319133
+8,7,sql sql,0.281828
+8,8,database,0.257123
+8,9,etl,0.227354
+8,10,oracle postgresql,0.213562

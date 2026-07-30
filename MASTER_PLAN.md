@@ -1,4 +1,9 @@
-# MASTER PLAN — VN Data Job Market Analysis  (v1.1 Final)
+# MASTER PLAN — thiết kế gốc (đã đóng băng)
+
+> ⚠️ **File này là TÀI LIỆU THIẾT KẾ LỊCH SỬ (v1.1, 2026-06-20), KHÔNG phải trạng thái hiện tại.**
+> Trạng thái/roadmap đang chạy: **[PROJECT_STATUS.md](PROJECT_STATUS.md)**. Nhiều chi tiết ở đây đã bị
+> thay thế: P4/P5 đã xong, cấu trúc `job_family_engine/` khác bản phác thảo, Tier-1 chỉ đọc TITLE
+> (không đọc skills), không có domain `Platform`, và có thêm stage-2 `refine`. — VN Data Job Market Analysis  (v1.1 Final)
 > Authoritative roadmap. Updated 2026-06-20 (v1.1 after strict review). **NOT a salary project**
 > (dataset has no salary → all salary estimate/predict/forecast is OUT, permanently).
 > Centerpiece = a standalone, reusable **Job Family Labeling Engine**. No code until user approves.
@@ -169,7 +174,7 @@ for sampling/clustering; run commands in README. *(Makefile optional.)*
 **Docs (lean set):** `MASTER_PLAN.md`, `docs/DATA_DICTIONARY.md`, `docs/quality_report.md`,
 `docs/TAXONOMY.md`, `job_family_engine/README.md` (engine usage). Architecture/Pipeline live in MASTER_PLAN.
 
-**Testing (right-sized):** keep existing 21 pytest + add **unit tests for the engine's deterministic
+**Testing (right-sized):** keep existing 61 pytest + add **unit tests for the engine's deterministic
 parts** (rule matching, voting, taxonomy parse, metadata schema). No integration/e2e harness.
 
 **Dev workflow (per phase):** Design → Review → **Approval** → Implement → Validate → Document.

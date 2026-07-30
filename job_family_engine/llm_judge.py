@@ -29,7 +29,9 @@ from pipeline.dataset.llm_clients import JUDGES, _MIN_INTERVAL, _client, _thrott
 from .taxonomy import codes, families, prompt_catalog
 
 log = logging.getLogger("job_family_engine.llm")
-FAMILY_PROMPT_VERSION = "2"   # v2: compact prompt (TPM-safe), shorter JD window
+FAMILY_PROMPT_VERSION = "3"   # v3: responsibility-based OTHER rule (asymmetric: protect data titles,
+#                                    reserve OTHER for genuinely-general roles). Bumping the version
+#                                    invalidates v2 cache so the corpus is re-judged with the new prompt.
 CACHE_DIR = DATA_DIR / "labeling" / "llm_cache"
 
 
@@ -118,9 +120,25 @@ def provider_key_for(judge_name: str) -> str:
 def system_prompt() -> str:
     return (
         "You classify a Vietnamese/English job posting into EXACTLY ONE job-family CODE.\n\n"
-        "FAMILY CODES (pick one, or OTHER if not a data/AI role):\n"
+        "FAMILY CODES:\n"
         f"{prompt_catalog()}\n\n"
-        "Decide by the PRIMARY RESPONSIBILITIES (title + JD + skills), not the title alone.\n"
+        "Decide by the role's PRIMARY RESPONSIBILITIES (title + JD together), NOT by which skills are "
+        "listed or how familiar the title looks.\n"
+        "- If the TITLE clearly names a data/AI role (Data Engineer, Data Analyst, BI, Data Scientist, "
+        "ML/AI Engineer...), use that family EVEN IF the JD is brief or omits obvious skills like SQL "
+        "— assume core skills are implied. Never pick OTHER just because a skill is unmentioned.\n"
+        "- If the TITLE is unusual/unfamiliar but the JD's core work is data, analytics, reporting, BI, "
+        "ML/AI, data pipelines, databases, or statistics, classify into the BEST-FITTING data family. "
+        "Do NOT use OTHER merely because the title is unrecognized.\n"
+        "- Pick OTHER only with POSITIVE evidence the PRIMARY job is a general non-data role (sales, "
+        "marketing, merchandising, demand/production planning, general operations, HR, customer service, "
+        "general business strategy) — even if the title/JD contains 'analyst', 'business', or "
+        "'nghiệp vụ'.\n"
+        "- For a generic 'business analyst / analyst / phân tích' title, judge by the JD: "
+        "IT/systems/requirements/data/reporting work -> BUSINESS_ANALYST; general market/sales/strategy "
+        "work with no data/analytics -> OTHER.\n"
+        "- If you genuinely cannot decide between a data family and OTHER, pick the closest data family "
+        "and set confidence below 0.6 (do NOT default to OTHER).\n\n"
         'Return ONLY a JSON object: {"job_family": "<CODE>", "confidence": <0.0-1.0>, '
         '"reasoning": "<one short sentence>"}. Use a CODE exactly as written above.'
     )
@@ -183,6 +201,16 @@ def _read_cache(cpath) -> dict | None:
         except OSError:
             pass
         return None
+
+
+def cached_vote(judge_key: str, job: dict) -> dict | None:
+    """Cache probe for ONE judge with NO rate-limit side effects.
+
+    Exists so callers can check the cache *before* paying `_throttle` — that throttle holds a global
+    per-judge lock for up to 16s, so probing through `classify_once` made fully-cached reruns as slow
+    as live ones (the bug that made resumed runs take hours)."""
+    p = _cache_path(JUDGES[judge_key].name, job["content_hash"])
+    return _read_cache(p) if p.exists() else None
 
 
 def cached_any(job: dict) -> dict | None:

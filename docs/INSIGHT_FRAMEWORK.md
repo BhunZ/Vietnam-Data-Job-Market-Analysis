@@ -1,5 +1,11 @@
 # Khung Viết Insight
 
+> ⚠️ **Các con số minh hoạ trong file này thuộc lần gán nhãn 852-job và ĐÃ LỖI THỜI.**
+> Số đúng: analysis base **720**; **dẫn báo cáo bằng `gold_domain_share`** (Analytics 46,9% ·
+> AI/ML 24,9% · Data Engineering 20,1%) vì thứ hạng ở cấp family không ổn định khi đổi judge.
+> Khung 7 bước bên dưới vẫn dùng được — chỉ cần lấy số từ bảng Gold, đừng lấy từ file này.
+
+
 Deliverable của Milestone 8: chuyển kết quả EDA đã được validate thành insight có ý nghĩa kinh doanh cho
 người học/người tìm việc và nhà tuyển dụng.
 

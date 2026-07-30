@@ -11,7 +11,7 @@
 - **KHÔNG đổi** các quyết định đã khóa (PROJECT_STATUS §6): salary out, role taxonomy, OTHER bị
   loại khỏi model, lưu trữ DuckDB, dedup, v.v.
 - **KHÔNG forecasting** lương/tăng trưởng. Model: association rules + clustering là chính,
-  classifier chỉ để minh chứng kỹ thuật (PROJECT_STATUS §9).
+  KHÔNG train supervised classifier (PROJECT_STATUS §9).
 - Mỗi luồng = **một sản phẩm hoàn chỉnh, một người sở hữu** — không cắt giữa một sản phẩm.
 - Test + phần README/báo cáo đi kèm code của từng luồng.
 
@@ -39,14 +39,19 @@ Module **độc lập, tái dùng** `job_family_engine/` (`engine.predict(job)`)
 - [x] **B4** Tier-3 **LLM judge + dynamic failover** (provider module hóa; metadata lưu method/confidence/reasoning).
 - [x] **B5** **Confidence** + **reviewer status** (bất đồng/không chắc → manual_review nếu có);
       lưu metadata: domain/subdomain/job_family/confidence/labeling_method/llm_votes/reasoning/review_status.
-- [x] **B6** **KPI** engine (coverage, agreement, unknown rate, review rate, label dist, **spot-check accuracy**).
+- [x] **B6** **KPI** engine (coverage, agreement, unknown rate, review rate, label dist).
+- [x] **B6b** **face-validity check** — 30 job phân tầng, tác giả đọc và xác nhận mọi `reasoning` hợp lý
+      (`verdict=reasoning_ok`, 25/07/2026).
+- [ ] **B6c** **accuracy thật** — cần gán nhãn "mù" (không xem đáp án engine) rồi đối chiếu. Chưa làm.
+      Bằng chứng hiện tại = reliability (86,8% đồng thuận giữa judge) + face validity, KHÔNG phải accuracy.
+- [x] **B8** **refine** (stage-2: thu hẹp lựa chọn + JD đầy đủ + knockout nhị phân) → 30 nhãn tranh chấp.
 - [x] **B7** Tích hợp `job_family` vào `jobs_silver` → **re-Gold theo family** → bảng **% thị trường**.
 - **Bàn giao:** engine chạy được + `job_family` (+metadata) phủ toàn bộ job + báo cáo KPI labeling.
 
 ---
 
 ## 2. LUỒNG A — Data Engineering (Silver + Gold) → Bạn — ✅ HOÀN TẤT
-Silver (`jobs_silver`) + Gold (7 bảng) đã build, test (21 pytest) và verify. Việc còn lại của A
+Silver (`jobs_silver`) + Gold (7 bảng) đã build, test (61 pytest) và verify. Việc còn lại của A
 chỉ là **vận hành**: cron hằng tuần `scrape → enrich → load → silver → gold` (gồm bước TopCV qua
 Chrome) để tích lũy `trend`. **⚠️ Thứ tự BẮT BUỘC: enrich PHẢI chạy sau scrape** (nếu không JD
 của CareerViet/Glints sẽ rỗng — đã có guard carry-forward nhưng vẫn nên chạy enrich).

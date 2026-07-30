@@ -9,16 +9,16 @@ flowchart LR
     jobs["jobs\nGrain: source + source_job_id"]
     obs["job_observations\nGrain: source + source_job_id + snapshot_date"]
     silver["jobs_silver\nGrain: job_id"]
-    label["job_family.parquet\nGrain: job_id"]
+    label["job_family.parquet (engine.py tạo, refine.py cập nhật 30 dòng)\nGrain: job_id"]
     engine["Job Family Engine\nrule -> embedding -> LLM"]
     silver_family["jobs_silver + job_family columns\nGrain: job_id"]
 
-    legacy["Legacy Gold\nrole_category-based"]
+    legacy["Legacy Gold\njob_family-based"]
     skill_demand["skill_demand\nskill"]
-    role_skill["role_skill_matrix\nrole_category x skill"]
+    role_skill["role_skill_matrix\njob_family x skill"]
     seniority["seniority_progression\nseniority x skill"]
-    role_location["role_by_location\nrole_category x region x city"]
-    company_role["company_type_demand\ncompany_type x role_category"]
+    role_location["role_by_location\njob_family x region x city"]
+    company_role["company_type_demand\ncompany_type x job_family"]
     skill_cooc["skill_cooccurrence\nskill_a x skill_b"]
     trend["trend\nsnapshot_date x skill"]
 
@@ -67,5 +67,5 @@ flowchart LR
 - `jobs_silver` is created by `pipeline/transform/silver.py`.
 - Legacy Gold tables are created by `pipeline/transform/gold.py`.
 - Family Gold tables are created by `job_family_engine/integrate.py`.
-- `job_family.parquet` is created by `job_family_engine/engine.py`.
+- `job_family.parquet (engine.py tạo, refine.py cập nhật 30 dòng)` is created by `job_family_engine/engine.py`.
 

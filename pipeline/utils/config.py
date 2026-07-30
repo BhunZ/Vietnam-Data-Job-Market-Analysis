@@ -35,6 +35,16 @@ class Secrets:
     mistral_api_key: str | None = None
     openrouter_api_key: str | None = None
     gemini_api_key: str | None = None
+    # Optional extra free-tier judges — auto-activate when the key is present in .env.
+    nvidia_api_key: str | None = None
+    sambanova_api_key: str | None = None
+    github_models_token: str | None = None
+    # Cloudflare Workers AI: the OpenAI-compatible base_url embeds the account id, so both are needed.
+    cf_account_id: str | None = None
+    cf_api_token: str | None = None
+    # 9Router local proxy (unified OpenAI-compatible endpoint over many free providers).
+    ninerouter_base_url: str | None = None
+    ninerouter_api_key: str | None = None
 
     @property
     def keys(self) -> list[str]:
@@ -51,6 +61,13 @@ def get_secrets() -> Secrets:
         mistral_api_key=os.getenv("MISTRAL_API_KEY") or None,
         openrouter_api_key=os.getenv("OPENROUTER_API_KEY") or None,
         gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
+        nvidia_api_key=os.getenv("NVIDIA_API_KEY") or None,
+        sambanova_api_key=os.getenv("SAMBANOVA_API_KEY") or None,
+        github_models_token=os.getenv("GITHUB_MODELS_TOKEN") or None,
+        cf_account_id=os.getenv("CF_ACCOUNT_ID") or None,
+        cf_api_token=os.getenv("CF_API_TOKEN") or None,
+        ninerouter_base_url=os.getenv("NINEROUTER_BASE_URL") or None,
+        ninerouter_api_key=os.getenv("NINEROUTER_API_KEY") or None,
     )
 
 

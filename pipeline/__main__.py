@@ -56,7 +56,10 @@ def main(argv: list[str] | None = None) -> int:
     p_load = sub.add_parser("load", help="Incremental load Bronze → DuckDB warehouse (CDC upsert)")
     p_load.add_argument("--run-date", default=None, help="snapshot date YYYY-MM-DD (default today)")
 
-    sub.add_parser("silver", help="Normalize + dedup warehouse jobs → jobs_silver")
+    p_sil = sub.add_parser("silver", help="Normalize + dedup warehouse jobs → jobs_silver")
+    p_sil.add_argument("--force", action="store_true",
+                       help="rebuild even though it DROPs the labeling-engine columns (job_family, "
+                            "jf_*) — you must re-run label/integrate afterwards")
     sub.add_parser("gold", help="Build serving aggregates (7 tables) from jobs_silver")
 
     p_disc = sub.add_parser("discover",
@@ -64,6 +67,13 @@ def main(argv: list[str] | None = None) -> int:
     p_disc.add_argument("--model", default=None, help="sentence-transformers model name")
 
     sub.add_parser("label", help="Job Family Labeling Engine: label all jobs → job_family.parquet")
+    sub.add_parser("refine", help="Stage-2: settle disputed labels with a narrowed choice set + full JD")
+    p_ellm = sub.add_parser("enrich-llm",
+                            help="Fill seniority + employer industry where keyword rules gave up (LLM)")
+    p_ellm.add_argument("--all", action="store_true",
+                       help="also enrich rows outside the analysis base (slower)")
+    sub.add_parser("apply-manual",
+                   help="Apply hand-filled industries from data/labeling/company_industry_todo.csv")
     sub.add_parser("label-kpi", help="Engine KPI report + spot-check sample")
     sub.add_parser("integrate", help="Integrate job_family into jobs_silver + build family Gold")
 
@@ -100,7 +110,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "silver":
         from .transform.silver import run_silver
 
-        run_silver()
+        run_silver(force=args.force)
         return 0
 
     if args.command == "gold":
@@ -117,9 +127,30 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "label":
-        from job_family_engine.engine import run_corpus
+        # Consensus path: every tier-3 job needs >=2 judges to agree (3rd arbitrates). `run_corpus`
+        # (one judge per job) is kept in the engine for single-job/predict use, but the corpus run
+        # must not decide a label on one unchecked opinion.
+        from job_family_engine.engine import run_corpus_consensus
 
-        run_corpus()
+        run_corpus_consensus()
+        return 0
+
+    if args.command == "refine":
+        from job_family_engine.refine import refine_unresolved
+
+        refine_unresolved()
+        return 0
+
+    if args.command == "enrich-llm":
+        from pipeline.transform.enrich_llm import enrich
+
+        enrich(only_base=not args.all)
+        return 0
+
+    if args.command == "apply-manual":
+        from pipeline.transform.enrich_llm import apply_manual
+
+        apply_manual()
         return 0
 
     if args.command == "label-kpi":

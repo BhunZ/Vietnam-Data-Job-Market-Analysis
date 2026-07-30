@@ -99,6 +99,31 @@ skills:
   "Reporting": {category: data_concept, aliases: [reporting, "báo cáo", dashboard, "bảng điều khiển"]}
   "Data Quality": {category: data_concept, aliases: [data quality, "chất lượng dữ liệu"]}
 
+  # ---- Data concepts added 2026-07-28 ----
+  # Audit of data/quality/unmapped_skills.csv found these appearing 20+ times each while being counted
+  # NOWHERE — they were missing from every skill table, association rule and cluster. Rule applied:
+  # add a token only if it is unambiguously a SKILL and reaches 20+ occurrences after merging the
+  # Vietnamese and English variants. Deliberately still excluded: job titles that appear in skill fields
+  # ("Data Engineer" 54, "Consultant" 33, "Data Analyst" 22) and non-Data business functions
+  # ("Sales" 37, "Customer Service" 29, "Market Research" 24, "Digital Marketing" 21).
+  "Business Analysis": {category: data_concept, aliases: [business analysis, "phân tích kinh doanh", "phân tích nghiệp vụ", business analyst skills]}
+  "Data Management": {category: data_concept, aliases: [data management, "quản lý dữ liệu", data processing, "xử lý dữ liệu"]}
+  "Data Science": {category: data_concept, aliases: [data science, "khoa học dữ liệu"]}
+  "Database": {category: database, aliases: [database, databases, "cơ sở dữ liệu", "hệ quản trị cơ sở dữ liệu"]}
+  "Cloud": {category: cloud, aliases: [cloud, "cloud computing", "điện toán đám mây"]}
+  "API": {category: devops, aliases: [api, apis, "restful api", "rest api"]}
+  "ERP": {category: warehouse, aliases: [erp, "erp system", "hệ thống erp"]}
+
   # ---- Methodology / soft ----
   Agile: {category: method, aliases: [agile, scrum, "agile/scrum"]}
   "English": {category: language_human, aliases: ["tiếng anh", "english"]}
+
+  # NOT added, on purpose — generic dispositions, measured then rejected 2026-07-28.
+  # A dictionary entry is scanned against the FULL JD text, not just the structured skill tags, so these
+  # fire on recruiting boilerplate ("good communication skills", "tư duy phân tích"). Measured coverage
+  # if they were added: Communication 37.4% of the base · Analytical Skills 28.1% · Leadership 16.4% ·
+  # Project Management 7.6%. Association rules and clustering exist to find LEARNING PATHS, and a term
+  # that co-occurs with everything contributes no path — it just outranks real tools. A skill here has to
+  # be something a learner can go acquire and an employer can verify.
+  # (The 37.4% communication figure is still quotable as a standalone observation — it just must not
+  #  enter the skill tables, co-occurrence edges, or cluster features.)

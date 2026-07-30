@@ -323,7 +323,9 @@ def test_run_corpus_dedups_by_content_hash_and_fans_out(monkeypatch):
                                                 "confidence": 0.9}], "r", "resolved"))
 
     monkeypatch.setattr(engine, "_label_remainder", fake_label)
-    out = engine.run_corpus()
+    # Legacy single-judge path: it must be opted into explicitly now, because it writes the same
+    # parquet as the consensus run and would otherwise silently replace >=2-judge labels.
+    out = engine.run_corpus(allow_single_judge=True)
 
     assert len(out) == 5                                   # every posting present (coverage 100%)
     assert set(out["job_id"]) == {"a1", "a2", "b1", "c1", "c2"}

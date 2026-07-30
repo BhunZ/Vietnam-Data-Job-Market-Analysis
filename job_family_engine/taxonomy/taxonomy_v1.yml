@@ -32,8 +32,12 @@ domains:
              typical_skills: [SQL, Excel, Reporting, Agile, Stakeholder]}
           - {code: PRODUCT_ANALYST, name: Product Analyst, support_hint: 2, sparse: true,
              aliases: [product analyst, "phân tích sản phẩm"], typical_skills: [SQL, A/B Testing, Product Analytics]}
+          # Aliases trimmed 2026-07-25: dropped "rủi ro", "phân tích tài chính", credit risk, fraud —
+          # title-only regex at conf 0.9 pulled in generic banking/finance/ops roles (IT Risk
+          # Management, credit-risk policy, FP&A) with no data work. Those must fall through to the
+          # LLM tier, which reads the JD. Keep only phrases that name the analyst role itself.
           - {code: RISK_FRAUD_ANALYST, name: Risk / Fraud / Financial Analyst, support_hint: 39, sparse: false,
-             aliases: [risk analyst, fraud, "rủi ro", financial analyst, "phân tích tài chính", credit risk, aml],
+             aliases: [risk analyst, fraud analyst, financial analyst, credit risk analyst, aml analyst],
              typical_skills: [SQL, Statistics, Python, Data Analysis, Excel]}
   - code: DATA_ENGINEERING
     name: Data Engineering
@@ -65,8 +69,11 @@ domains:
           - {code: DATA_SCIENTIST, name: Data Scientist, support_hint: 30, sparse: false,
              aliases: [data scientist, "khoa học dữ liệu", decision scientist, applied scientist],
              typical_skills: [Python, Statistics, Machine Learning, SQL]}
+          # "nghiên cứu" dropped 2026-07-25: it matched market research / product R&D / partnership
+          # research roles (4 of 5 tier-1 hits were false positives).
           - {code: RESEARCH_SCIENTIST, name: Research Scientist, support_hint: 4, sparse: true,
-             aliases: [research scientist, "nghiên cứu"], typical_skills: [Deep Learning, Research, Python]}
+             aliases: [research scientist, "nghiên cứu viên khoa học dữ liệu", ai researcher],
+             typical_skills: [Deep Learning, Research, Python]}
       - code: ML_ENGINEERING
         name: ML Engineering
         families:

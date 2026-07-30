@@ -37,20 +37,32 @@ def _normalize_rows(jobs: list[dict]) -> tuple[list[dict], Counter]:
         position_label = extra.get("position_label") or extra.get("role_category_hint")
         work_model = extra.get("work_model") or extra.get("work_model_raw")
         city, region, remote = N.normalize_location(j.get("location_raw"), work_model)
+        # Some boards render brand-page cards without a company field; the URL slug still names the
+        # employer. Recovering it also makes those rows dedup-eligible (a NULL company_key never
+        # participates in the dedup grouping below).
+        company_name = j.get("company_raw") or N.company_from_url(j.get("url"))
+        seniority, seniority_src = N.derive_seniority_detail(
+            j.get("title_raw"), extra.get("seniority_label"), j.get("description_raw"), extra)
         out.append({
             "job_id": f"{j['source']}:{j['source_job_id']}",
             "source": j["source"], "source_job_id": j["source_job_id"],
             "title_clean": N.clean_title(j.get("title_raw")),
-            "company": j.get("company_raw"),
-            "company_key": N.clean_company(j.get("company_raw")),
+            "company": company_name,
+            "company_key": N.clean_company(company_name),
             "role_category": N.classify_role(j.get("title_raw"), position_label, skills),
-            # seniority from title + source level only (JD scan inflates Manager/Senior)
-            "seniority": N.derive_seniority(j.get("title_raw"), extra.get("seniority_label"), None),
+            # Level patterns are matched on title + source label only (JD prose inflates Manager/Senior:
+            # "quản lý dữ liệu" is a task, not a rank). The JD IS passed now, but `derive_seniority` uses
+            # it solely for the years-of-experience fallback — a stated requirement, not a task word.
+            # Passing None here meant that fallback never ran, leaving 55% of postings Unknown.
+            "seniority": seniority,
+            "seniority_source": seniority_src,
             "city": city, "region": region, "remote_flag": remote,
             "skills": skills, "n_skills": len(skills),
             "language_req": N.detect_language_req(j.get("description_raw"),
                                                   extra.get("language_req_raw")),
-            "company_type": N.company_type(j.get("company_raw"), j.get("description_raw")),
+            # Company NAME only — the JD used to be matched too, which classified the employer from the
+            # vacancy's wording (49% of classifications came from JD text alone).
+            "company_type": N.company_type(company_name),
             "posted_date": j.get("posted_date"), "effective_date": j.get("effective_date"),
             "date_source": j.get("date_source"), "first_seen_date": j.get("first_seen_date"),
             "last_seen_date": j.get("last_seen_date"), "is_active": j.get("is_active"),
@@ -88,8 +100,36 @@ def _dedup(rows: list[dict]) -> int:
     return n_dups
 
 
-def run_silver() -> None:
+def _refuse_if_it_would_destroy_labels(con, force: bool) -> None:
+    """`run_silver` rebuilds `jobs_silver` with DROP + CREATE, so it silently deletes every column the
+    labeling engine added — `job_family`, `jf_domain`, `jf_method`, `jf_review`, and the LLM-filled
+    `seniority`/`company_type` values. Nothing then fails loudly: `gold` leaves its old aggregates in
+    place and the figures regenerate from them. Labels cost LLM quota to rebuild, so make the caller say
+    so out loud.
+    """
+    try:
+        cols = {r[0] for r in con.execute("DESCRIBE jobs_silver").fetchall()}
+    except Exception:                       # noqa: BLE001 — table absent = first run, nothing to lose
+        return
+    at_risk = sorted(cols & {"job_family", "jf_domain", "jf_subdomain", "jf_confidence", "jf_method",
+                             "jf_review"})
+    if not at_risk or force:
+        return
+    n = con.execute("SELECT COUNT(*) FROM jobs_silver WHERE job_family IS NOT NULL").fetchone()[0]
+    con.close()
+    raise SystemExit(
+        f"refusing to rebuild jobs_silver: it carries {len(at_risk)} label column(s) "
+        f"({', '.join(at_risk)}) with {n} labeled postings, and a rebuild DROPs the table.\n"
+        f"  Re-running the labeling engine costs LLM quota, and `gold` would keep serving STALE "
+        f"aggregates in the meantime.\n"
+        f"  Intended order:  silver -> label -> refine -> enrich-llm -> integrate -> gold\n"
+        f"  If you really mean it:  python -m pipeline silver --force   "
+        f"(then re-run integrate before gold)")
+
+
+def run_silver(force: bool = False) -> None:
     con = duckdb.connect(str(DB_PATH))
+    _refuse_if_it_would_destroy_labels(con, force)
     dfj = con.execute("SELECT * FROM jobs").df()
     jobs = dfj.astype(object).where(pd.notnull(dfj), None).to_dict("records")  # NaN -> None
     rows, unmapped = _normalize_rows(jobs)

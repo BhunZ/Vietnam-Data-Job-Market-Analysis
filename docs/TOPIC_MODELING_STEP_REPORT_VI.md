@@ -1,5 +1,11 @@
 # Báo Cáo Bước Topic Modeling
 
+> ⚠️ **File viết tay — có thể lệch.** Nguồn số liệu chuẩn là các file TỰ SINH:
+> `docs/ASSOCIATION_RULES_FINDINGS.md`, `docs/SKILL_CLUSTERING_FINDINGS.md`,
+> `docs/TOPIC_MODELING_FINDINGS.md` (chạy lại script trong `analysis/` để TÁI SINH).
+> Nếu số ở đây khác các file đó, tin file tự sinh.
+
+
 Ngày cập nhật: 2026-07-11
 
 Phạm vi file này: chỉ báo cáo riêng bước **Topic Modeling** trong P5 Insight-ML. Không báo cáo lại Association Rules, Skill Clustering, EDA, Gold, salary, forecasting hay supervised classifier.
@@ -99,9 +105,11 @@ Lý do chọn NMF:
 
 | Metric | Giá trị |
 |---|---:|
-| Official analysis base | 852 job |
-| Job có text đủ dùng để model | 775 job |
-| Job bị loại vì text ngắn/thiếu | 77 job |
+| Official analysis base | **720** job |
+| Job có text đủ dùng để model | **720** job |
+| Job bị loại vì text ngắn/thiếu | **0** job |
+
+> Cập nhật 2026-07-28. Bảng trên trước đây giữ số của lần gán nhãn 852-job và không được đánh dấu là cũ. Số chuẩn luôn nằm ở file TỰ SINH tương ứng.
 | TF-IDF features | 2380 |
 | Số topic được chọn | 5 |
 

@@ -1,51 +1,62 @@
-# CSV Outputs Dễ Đọc
+# Cách đọc các file CSV kết quả phân tích (P5)
 
-Thư mục này là bản sao các CSV output từ `analysis/outputs/`, được gom theo từng bước để dễ đọc và gửi kèm báo cáo. Output gốc vẫn nằm ở `analysis/outputs/` để script/pipeline tiếp tục dùng.
+> **Không còn bản sao CSV trong `docs/`.** Thư mục này trước đây chứa 9 file CSV copy tay từ
+> `analysis/outputs/`. Vì không có bước tái sinh, chúng lệch dần: đến 2026-07-25 thì **7/9 file đã sai**
+> (ví dụ `association_rules.csv` giữ 1.834 dòng trong khi thực tế là 1.049; `skill_clusters.csv` giữ 806
+> dòng trong khi thực tế 715). Đã xoá để chỉ còn **một nguồn duy nhất**.
+>
+> **Nguồn thật: `analysis/outputs/*.csv`** — tái sinh bằng:
+>
+> ```bash
+> python analysis/association_rules.py
+> python analysis/skill_clustering.py
+> python analysis/topic_modeling.py
+> ```
 
-## 01 Association Rules
+Tài liệu này chỉ giữ phần hữu ích: **đọc từng file như thế nào**.
 
-Thư mục:
+## 1. Association rules — `analysis/outputs/association_rules.csv`
 
-```text
-docs/csv_outputs/01_association_rules/
-```
+Mỗi dòng là một luật "tin tuyển dụng yêu cầu A thì cũng yêu cầu B".
 
-| File | Đọc để làm gì |
+| Cột | Ý nghĩa |
 |---|---|
-| `association_rules.csv` | Các rule skill đi cùng nhau, ví dụ biết skill A thì thường gặp skill B |
+| `antecedent` / `consequent` | A (có thể 2 skill) → B (luôn 1 skill) |
+| `both_n` | Số tin có **cả** A và B. Đây là cột đáng tin nhất — sắp xếp mặc định theo nó |
+| `support_pct` | % trên **các tin có ≥2 skill**, KHÔNG phải trên toàn analysis base |
+| `confidence` | P(B \| A) |
+| `lift` | >1 nghĩa là A và B xuất hiện cùng nhau nhiều hơn mức ngẫu nhiên |
+| `p_value` | Fisher exact một phía |
+| `significant_bonferroni` | `True` = còn ý nghĩa sau hiệu chỉnh family-wise. **Chỉ nên trích dẫn các luật `True`** |
 
-Nên đọc khi cần viết phần learning path / skill bundle.
+⚠️ Đọc trước: `docs/ASSOCIATION_RULES_FINDINGS.md` (file này **tự sinh**, không sửa tay).
 
-## 02 Skill Clustering
+## 2. Skill clustering — `analysis/outputs/skill_cluster_*.csv`
 
-Thư mục:
+Đọc theo thứ tự: `skill_cluster_summary.csv` → `skill_cluster_k_selection.csv` → `skill_clusters.csv`.
 
-```text
-docs/csv_outputs/02_skill_clustering/
-```
-
-| File | Đọc để làm gì |
+| Cột quan trọng | Ý nghĩa |
 |---|---|
-| `skill_cluster_summary.csv` | Đọc đầu tiên: tóm tắt mỗi cluster, dominant family, top skills |
-| `skill_clusters.csv` | Drill-down từng job được gán cluster nào |
-| `skill_cluster_k_selection.csv` | Bằng chứng chọn số cluster k |
-| `skill_cluster_skill_share.csv` | Chi tiết skill share/lift trong từng cluster |
+| `most_common_skills` | Skill phổ biến nhất trong cụm — "họ tuyển gì" |
+| `most_distinctive_skills` | Skill có lift cao nhất — "cụm này **khác** ở đâu". Một skill có thể phổ biến mà không đặc trưng |
+| `mean_silhouette` | Độ chặt của cụm. **Dưới ~0,10 nghĩa là thành viên gần cụm khác ngang gần cụm của mình** |
+| `mean_n_skills` | Số tag trung bình. Gần 1–2 nghĩa là cụm đang gom *tin ít tag*, không phải gom nghề |
+| `quality_flag` | `low_confidence` → **không dùng làm kết luận thị trường** |
 
-Nên đọc khi cần viết phần các nhóm skill tự nhiên và so sánh với `job_family`.
+⚠️ `skill_cluster_k_selection.csv` cho thấy silhouette dao động **0,13–0,20 qua toàn bộ k=2..20** → theo
+quy ước là **không có cấu trúc cụm đáng kể**. k=8 được chọn để **dễ trình bày**, không phải vì tối ưu.
+Cluster ID **thay đổi giữa các lần chạy** — đừng trích dẫn theo số, hãy trích theo dominant family + skill.
 
-## 03 Topic Modeling
+## 3. Topic modeling — `analysis/outputs/topic_*.csv`
 
-Thư mục:
+Đọc theo thứ tự: `topic_summary.csv` → `topic_terms.csv` → `job_topics.csv`.
 
-```text
-docs/csv_outputs/03_topic_modeling/
-```
-
-| File | Đọc để làm gì |
+| Cột quan trọng | Ý nghĩa |
 |---|---|
-| `topic_summary.csv` | Đọc đầu tiên: tóm tắt mỗi topic, top terms, dominant family |
-| `topic_terms.csv` | Chi tiết top terms và weight của từng topic |
-| `job_topics.csv` | Drill-down từng job được gán dominant topic nào |
-| `topic_k_selection.csv` | Bằng chứng chọn số topic k |
+| `top_terms` | Term đại diện của topic |
+| `interpretable` | `False` = top terms **không chứa từ vựng chuyên môn nào** → là boilerplate còn sót (mẫu liên hệ của nhà tuyển dụng, syllable tiếng Việt bị bỏ dấu). **Loại khỏi phần diễn giải** |
+| `dominant_family_share` | % tin trong topic thuộc family áp đảo |
 
-Nên đọc khi cần viết phần chủ đề ẩn trong JD/free-text.
+⚠️ `topic_k_selection.csv` chọn k theo **NPMI coherence** (cao hơn là tốt hơn).
+`reconstruction_error` và `mean_dominant_topic_share` **giảm đơn điệu theo k về mặt toán học** nên chỉ để
+tham khảo, KHÔNG dùng làm tiêu chí chọn.
