@@ -291,6 +291,28 @@ def export_residual(con) -> Path:
     """).df()
     df["industry"] = ""                      # <- fill this in; leave blank to keep unknown
     out = DATA_DIR / "labeling" / "company_industry_todo.csv"
+
+    # NEVER discard hand-filled rows. Two ways this file destroys human work if written naively:
+    #   1. a re-run blanks the `industry` column someone spent an hour on;
+    #   2. once `apply_manual()` has run, those employers are no longer `unknown`, so the query above
+    #      does not return them at all and they silently vanish from the file — taking with them the
+    #      only record of WHICH employer was hand-classified as WHAT. That record is load-bearing:
+    #      `apply_manual()` reads this file, so after a `silver --force` (which resets company_type)
+    #      it is the only way to put the manual values back.
+    # So: carry every previously-filled row forward, and keep it even if it is no longer in the residual.
+    if out.exists():
+        try:
+            prev = pd.read_csv(out, encoding="utf-8-sig")
+        except Exception:                                        # noqa: BLE001
+            prev = None
+        if prev is not None and {"company_key", "industry"} <= set(prev.columns):
+            filled = prev[prev["industry"].astype(str).str.strip() != ""].copy()
+            if not filled.empty:
+                done = set(filled["company_key"])
+                df = pd.concat([filled, df[~df["company_key"].isin(done)]], ignore_index=True)
+                print(f"  carried forward {len(filled)} hand-filled employer(s)")
+
+    df = df.sort_values(["industry", "n_postings"], ascending=[True, False], kind="stable")
     df.to_csv(out, index=False, encoding="utf-8-sig")
     covered = int(df.head(30)["n_postings"].sum())
     print(f"\n  residual: {len(df)} employers -> {out.name}")
