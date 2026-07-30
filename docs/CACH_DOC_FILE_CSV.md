@@ -1,9 +1,9 @@
 # Cách đọc các file CSV kết quả phân tích (P5)
 
-> **Không còn bản sao CSV trong `docs/`.** Thư mục này trước đây chứa 9 file CSV copy tay từ
-> `analysis/outputs/`. Vì không có bước tái sinh, chúng lệch dần: đến 2026-07-25 thì **7/9 file đã sai**
-> (ví dụ `association_rules.csv` giữ 1.834 dòng trong khi thực tế là 1.049; `skill_clusters.csv` giữ 806
-> dòng trong khi thực tế 715). Đã xoá để chỉ còn **một nguồn duy nhất**.
+> **Không còn bản sao CSV trong `docs/`.** Trước đây có 9 file CSV copy tay từ `analysis/outputs/`. Vì
+> không có bước tái sinh, chúng lệch dần: đến 2026-07-25 thì **7/9 file đã sai** (ví dụ
+> `association_rules.csv` giữ 1.834 dòng trong khi bản thật lúc đó là 1.049). Đã xoá để chỉ còn **một
+> nguồn duy nhất**. Bài học: đừng bao giờ copy số liệu sang file thứ hai mà không có script sinh lại.
 >
 > **Nguồn thật: `analysis/outputs/*.csv`** — tái sinh bằng:
 >
@@ -27,7 +27,12 @@ Mỗi dòng là một luật "tin tuyển dụng yêu cầu A thì cũng yêu c�
 | `confidence` | P(B \| A) |
 | `lift` | >1 nghĩa là A và B xuất hiện cùng nhau nhiều hơn mức ngẫu nhiên |
 | `p_value` | Fisher exact một phía |
-| `significant_bonferroni` | `True` = còn ý nghĩa sau hiệu chỉnh family-wise. **Chỉ nên trích dẫn các luật `True`** |
+| `significant_bonferroni` | `True` = còn ý nghĩa sau hiệu chỉnh family-wise ở alpha = 0,05/**4060 giả thuyết đã test**. **Chỉ trích dẫn cột này** |
+| `significant_at_kept_alpha` | Ngưỡng CŨ, quá lỏng (0,05/số luật giữ lại). Giữ để so sánh — **đừng dùng để trích dẫn** |
+
+> **Số hiện tại (2026-07-28):** 663 transaction · 1649 luật · **1244 luật vượt Bonferroni**.
+> `support_pct` chia cho **663** tin có ≥2 kỹ năng, KHÔNG phải 720 — cao hơn share thật khoảng 1,09 lần.
+> Mỗi cặp 1-1 xuất hiện **hai chiều** (`Python→SQL` và `SQL→Python` là 2 dòng) nên số dòng ≠ số phát hiện.
 
 ⚠️ Đọc trước: `docs/ASSOCIATION_RULES_FINDINGS.md` (file này **tự sinh**, không sửa tay).
 

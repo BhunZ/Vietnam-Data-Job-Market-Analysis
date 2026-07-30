@@ -90,7 +90,120 @@ khó vào nhất** (Junior+Intern 14,5%), **AI/ML dễ vào nhất** (26,3%) —
 
 ---
 
-## 5. Một điều duy nhất cần nhớ khi chạy lệnh
+## 5. Hai file cần điền tay (mỗi người một file, làm song song được)
+
+### 5.1. `data/labeling/spot_check.csv` — 30 dòng, việc quan trọng nhất
+
+**Điền cái này thì báo cáo có thêm một con số mà hiện tại KHÔNG có: độ chính xác của nhãn nghề.**
+
+Chỉ điền **2 cột cuối**, 8 cột đầu là dữ liệu sẵn:
+
+| Cột | Điền gì |
+|---|---|
+| `human_family` | Nghề bạn tự cho là đúng, viết bằng **mã in hoa** (xem danh sách dưới) |
+| `verdict` | `agree` nếu trùng `job_family` · `disagree` nếu khác · `unclear` nếu tin quá mơ hồ |
+
+**Quy tắc quan trọng nhất — làm đúng thứ tự này, nếu không con số sẽ vô giá trị:**
+
+1. **Che 2 cột `job_family` và `reasoning` lại trước khi đọc.** Trong Excel: chọn cột C và D → chuột phải
+   → Hide. Nếu bạn nhìn đáp án của máy trước rồi mới quyết, bạn sẽ bị nó dẫn dắt, và kết quả không còn là
+   kiểm định độc lập nữa — nó chỉ là "tôi thấy máy nói cũng hợp lý".
+2. Đọc `title`, và tra `job_id` trong DB để xem mô tả công việc đầy đủ:
+   ```sql
+   SELECT title_raw, description_raw FROM jobs
+   WHERE source || ':' || source_job_id = 'careerviet:35C72622';
+   ```
+3. Tự quyết `human_family` → ghi vào.
+4. **Chỉ khi đã điền xong cả 30 dòng** mới bỏ ẩn cột `job_family` và điền `verdict`.
+
+**20 mã nghề hợp lệ** (`job_family_engine/taxonomy/taxonomy_v1.yml`):
+
+| Nhánh | Mã |
+|---|---|
+| Analytics | `DATA_ANALYST` · `BI` · `BUSINESS_ANALYST` · `PRODUCT_ANALYST` · `RISK_FRAUD_ANALYST` |
+| Data Engineering | `DATA_ENGINEER` · `ANALYTICS_ENGINEER` · `BIG_DATA_ENGINEER` · `DATAOPS` · `DBA_DATABASE` |
+| AI / Machine Learning | `DATA_SCIENTIST` · `RESEARCH_SCIENTIST` · `ML_ENGINEER` · `MLOPS` · `AI_ENGINEER` · `GENAI_LLM` · `CV_NLP` |
+| Governance & Architecture | `DATA_ARCHITECT` · `DATA_GOVERNANCE` |
+| Data Leadership | `DATA_LEADERSHIP` |
+| Không phải nghề data | `OTHER` |
+
+⚠️ **Ranh giới hay gây phân vân nhất — quyết theo *sản phẩm chính* của công việc:**
+* `DATA_ANALYST` vs `BUSINESS_ANALYST`: **ai đọc kết quả?** DA giao **con số/dashboard** cho người ra
+  quyết định. BA giao **tài liệu yêu cầu** (BRD/SRS/user story) cho đội lập trình. JD chỉ nói
+  "biết SQL là một lợi thế" → vẫn là BA.
+* `BUSINESS_ANALYST` vs `OTHER`: nếu JD toàn ERP/CRM/UAT/backlog/presales mà **không có việc dữ liệu nào**
+  → `OTHER`. Đây đúng là chỗ máy đang sai nhiều nhất (21% tin BA), nên đừng ngại chọn `OTHER`.
+* `AI_ENGINEER` vs `ML_ENGINEER` vs `DATA_SCIENTIST`: **ứng dụng model có sẵn** (LLM/API/GenAI) →
+  `AI_ENGINEER`. **Đưa model lên production, MLOps** → `ML_ENGINEER`. **Tự xây model, thống kê, thí
+  nghiệm** → `DATA_SCIENTIST`.
+* `DATA_ENGINEER` vs `DBA_DATABASE`: xây **pipeline/ETL/warehouse** → DE. Vận hành/tối ưu **một hệ CSDL**
+  (Oracle/SQL Server) → DBA.
+
+**Sau khi điền xong**, đếm: `agree / 30` = độ chính xác ước lượng. Ghi thẳng con số đó vào báo cáo kèm câu
+"mẫu 30 tin, phân tầng theo `stratum`, người gán nhãn không nhìn đáp án của engine".
+
+### 5.2. `data/labeling/company_industry_todo.csv` — 98 công ty
+
+Chỉ điền **1 cột `industry`**. Đây là 98 nhà tuyển dụng mà 2 LLM **không đồng thuận** được ngành, nên bị
+để `unknown`. Chúng chiếm **104/720 tin (14,4%)**.
+
+**16 giá trị hợp lệ — chỉ dùng đúng các chuỗi này, viết thường, có gạch dưới:**
+
+| Giá trị | Nghĩa | Đang có (base 720) |
+|---|---|--:|
+| `bank_finance` | Ngân hàng, chứng khoán, bảo hiểm, fintech | 199 |
+| `tech_software` | Công ty công nghệ, phần mềm, outsourcing IT | 176 |
+| `manufacturing` | Sản xuất, nhà máy, điện tử, dệt may | 58 |
+| `retail_consumer` | Bán lẻ, hàng tiêu dùng, F&B | 29 |
+| `logistics` | Vận tải, kho vận, giao nhận, bưu chính | 26 |
+| `recruitment_agency` | Công ty tuyển dụng, headhunt | 21 |
+| `real_estate_construction` | Bất động sản, xây dựng | 19 |
+| `consulting_audit` | Tư vấn, kiểm toán | 18 |
+| `education` | Giáo dục, đào tạo, edtech | 17 |
+| `telecom` | Viễn thông | 14 |
+| `ecommerce` | Thương mại điện tử, sàn TMĐT | 14 |
+| `media_gaming` | Truyền thông, quảng cáo, game | 10 |
+| `energy_agri` | Năng lượng, nông nghiệp | 9 |
+| `healthcare_pharma` | Y tế, dược, bệnh viện | 5 |
+| `public_sector` | Nhà nước, cơ quan công | 1 |
+| `unknown` | **Thật sự không tra được** — để nguyên | 104 |
+
+**Cách làm nhanh:** file đã sắp theo `n_postings` giảm dần. **Chỉ cần điền 30 dòng đầu là phủ ~35% phần
+còn thiếu** — hiệu quả nhất trên mỗi phút bỏ ra. Tra tên công ty ở cột `company` bằng Google; nếu 30 giây
+không ra thì để `unknown`, đừng đoán.
+
+⚠️ Phân loại theo **ngành của công ty**, KHÔNG theo nội dung tin tuyển dụng. Một công ty dệt may đăng tin
+"phân tích tài chính" vẫn là `manufacturing`. Đây đúng là lỗi bản đầu mắc phải.
+
+**Áp vào dữ liệu sau khi điền:**
+```bash
+python -m pipeline apply-manual
+python -m pipeline integrate
+python -m pipeline gold
+```
+
+### 5.3. `data/quality/unmapped_skills.csv` — KHÔNG phải file để điền
+
+File này là **báo cáo tự sinh**, mỗi lần chạy `silver` nó ghi đè. Nội dung: những chuỗi kỹ năng xuất hiện
+trong tin tuyển dụng mà `ref/skills_dictionary.yml` **chưa biết**, nên **không được đếm ở bất kỳ bảng nào**.
+
+Công dụng: nó cho biết **bảng kỹ năng đang thiếu gì**. Ngày 28/07 đọc file này đã phát hiện 7 kỹ năng bị bỏ
+sót hoàn toàn (Business Analysis, Database, Cloud, API, ERP, Data Management, Data Science) — thêm vào từ
+điển xong thì `Database` 28,1% và `Data Management` 27,9% lọt thẳng vào top 8.
+
+Muốn thêm kỹ năng: sửa `ref/skills_dictionary.yml` (không sửa file CSV), rồi chạy lại chuỗi ở §6.
+
+⚠️ **Không phải token nào cũng nên thêm.** 2.825 token còn lại phần lớn là:
+* **tên chức danh** lọt vào ô kỹ năng — `Data Engineer` (54), `Consultant` (33), `Data Analyst` (22);
+* **ngành nghề khác** — `Sales` (37), `Customer Service` (29), `Market Research` (24);
+* **kỹ năng mềm** — `Communication` (39+37), `Leadership` (30), `Project Management` (49). Nhóm này đã
+  được **cân nhắc và cố ý loại**: từ điển quét trên **toàn văn JD**, nên `Communication` sẽ phủ 37,4% chỉ
+  vì câu sáo rỗng "good communication skills", rồi ghép cặp vô nghĩa với mọi kỹ năng khác trong phân tích
+  lộ trình học. Lý do đã ghi ngay trong `ref/skills_dictionary.yml`.
+
+---
+
+## 6. Một điều duy nhất cần nhớ khi chạy lệnh
 
 Thứ tự đúng, và **đừng chạy `silver` một mình** — nó xoá nhãn nghề:
 
