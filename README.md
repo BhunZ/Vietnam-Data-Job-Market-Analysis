@@ -166,13 +166,26 @@ raw cache so nothing is re-fetched, and a credit guard on the paid proxy.
 ## 6. Repo layout
 
 ```
-pipeline/              crawlers, warehouse load, silver/gold transforms, CLI entry point
-job_family_engine/     the labeling cascade: rules, embeddings, LLM judges, refine, integrate
-ref/                   reference dictionaries — skills, seniority, company type, role keywords
-analysis/              market insight, association rules, clustering, topic modeling, validation
-docs/                  data dictionary, taxonomy, lineage, generated findings
-tests/                 pytest suite
-data/                  the shipped warehouse; raw crawl output and caches are gitignored
+.
+├── pipeline/              crawl → warehouse → silver → gold
+│   ├── ingest/            one scraper per job board
+│   ├── transform/         load (change tracking), silver, gold, LLM enrichment
+│   ├── dataset/           embeddings, clustering, LLM clients
+│   └── utils/             shared config and the single analysis-population filter
+├── job_family_engine/     the labeling cascade
+│   ├── rules.py           tier 1 — title aliases
+│   ├── embed_match.py     tier 2 — embedding similarity
+│   ├── llm_judge.py       tier 3 — LLM consensus
+│   ├── refine.py          stage 2 — settle disputed labels
+│   ├── engine.py          orchestrates the cascade
+│   └── integrate.py       write labels back and build the gold tables
+├── ref/                   reference dictionaries and the job-family taxonomy
+├── analysis/              market insight, association rules, clustering, topic modeling
+│   ├── figures/           generated charts
+│   └── outputs/           generated result tables
+├── docs/                  data dictionary, taxonomy, lineage, generated findings
+├── tests/                 pytest suite
+└── data/                  the shipped warehouse — raw crawl output and caches are gitignored
 ```
 
 ---
