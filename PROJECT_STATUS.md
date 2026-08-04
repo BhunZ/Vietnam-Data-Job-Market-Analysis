@@ -34,7 +34,7 @@ một báo cáo theo mạch **descriptive → diagnostic → prescriptive**, tro
 | P1. Silver (clean/standardize) | `jobs_silver`: skills/seniority/location/company + dedup | ✅ XONG |
 | **P2. ⭐ Job Family Labeling Engine** | taxonomy phân cấp + cascade 3 tầng (rule→embedding→LLM dynamic-failover) + metadata + `job_family` | ✅ **XONG** — 1701 job gán nhãn (100% resolved), tích hợp vào jobs_silver + 8 bảng family Gold (xem §13) |
 | P3. Feature/NLP | skill extraction/embedding/keyword; feature outputs | ◐ **NỀN ĐÃ CÓ** — `jobs_silver.skills`, `job_family`, text/embedding artifacts; chưa mở rộng NER/keyphrase mới |
-| P4. Market & Statistical Analysis | EDA + **% thị trường theo job_family** + so sánh geo/company/seniority | ◐ **ĐÃ CÓ MẪU + VALIDATION** — `analysis/market_insights.py`, figures/report mẫu, `docs/VALIDATION_CHECKLIST.md` |
+| P4. Market & Statistical Analysis | EDA + **% thị trường theo job_family** + so sánh geo/company/seniority | ◐ **ĐÃ CÓ MẪU + VALIDATION** — `analysis/market_insights.py`, `analysis/robustness_figures.py`, `analysis/career_map.py` |
 | P5. Insight-ML | association rules · clustering · topic modeling | ✅ **XONG** — Association Rules ✅; Clustering ✅; Topic Modeling ✅ |
 | P6. Recommendation | skill rec · similar-job (+ skill-gap) | ⬜ |
 | P7. Dashboard (Streamlit) | drill-down Domain→Sub-domain→Family | ⬜ |
@@ -152,31 +152,21 @@ Nhưng `skill_demand`, `seniority_progression`, `trend` **chỉ tồn tại ở 
 
 ### 8.2. Phân tích nâng cao (insight ML) — Teammate (xem §9): association rules + clustering + topic modeling (unsupervised). KHÔNG supervised classifier, KHÔNG LLM-benchmark.
 **Cập nhật 2026-07-11:** P5 Insight-ML đã được triển khai:
-- Script: `analysis/association_rules.py`
-- Output: `analysis/outputs/association_rules.csv`
-- Findings: `docs/ASSOCIATION_RULES_FINDINGS.md`
-- Kết quả chạy (2026-07-28, sau khi bổ sung 7 kỹ năng vào từ điển): **663 transactions** (tin có ≥2 skill;
-  57 tin bị loại ⇒ `support_pct` là share của 663, KHÔNG phải 720), **1649 rules**, **1244 vượt
-  Bonferroni** ở alpha = 0.05/**4060 giả thuyết đã test**. Cột `significant_at_kept_alpha` giữ ngưỡng cũ
-  0.05/1649 (quá lỏng, cho 1299 luật) để so được. Số luật distinct (bỏ trùng hai chiều) xem file findings.
-- Clustering skill profile đã triển khai:
-  - Script: `analysis/skill_clustering.py`
-  - Outputs: `analysis/outputs/skill_clusters.csv`, `analysis/outputs/skill_cluster_summary.csv`, `analysis/outputs/skill_cluster_k_selection.csv`
-  - Findings: `docs/SKILL_CLUSTERING_FINDINGS.md`
-  - Kết quả chạy (2026-07-28): **720 analysis base**, **709 clustered jobs** (11 tin không có skill bị
-    loại ⇒ % cụm chia cho 709), 78 skill trong vocab, **k=8 (chọn để dễ trình bày — silhouette phẳng qua
-    k=2..20 ⇒ KHÔNG có cụm tự nhiên; đừng kể 8 cụm như 8 nghề thật — xem file findings cho số mới nhất)**
-- Topic Modeling trên JD/text đã triển khai:
-  - Script: `analysis/topic_modeling.py`
-  - Outputs: `analysis/outputs/topic_terms.csv`, `analysis/outputs/job_topics.csv`, `analysis/outputs/topic_summary.csv`, `analysis/outputs/topic_k_selection.csv`
-  - Findings: `docs/TOPIC_MODELING_FINDINGS.md`
-  - Giải thích: `docs/TOPIC_MODELING_EXPLAINED_VI.md`
-  - Kết quả chạy (2026-07-28): **720 analysis base**, **720 modeled jobs** (0 job mất JD sau khi sửa lỗi
-    filter boilerplate xoá 47% JD), **9 topics** chọn theo NPMI coherence
-  - ⚠️ **6/9 topic tách theo NGÔN NGỮ hoặc NGUỒN, không theo nội dung**: topic 6 và 7 là 100% JD tiếng
-    Việt, topic 5 là 98%, topic 1 chỉ 10% (tức 90% tiếng Anh); topic 2 và 4 có một job board chiếm ≥50%.
-    Bảng `topic × ngôn ngữ × nguồn` giờ được sinh tự động trong `docs/TOPIC_MODELING_FINDINGS.md` —
-    **đọc bảng đó trước khi đặt tên cho bất kỳ topic nào**.
+- **Association rules · KMeans clustering · NMF topic modeling: ĐÃ CHẠY, ĐÃ BỎ khỏi báo cáo (2026-08-03).**
+  Cả ba đều không cho ra phát hiện đáng đưa vào một báo cáo phân tích:
+  * **KMeans** — silhouette chỉ 0,125–0,174 qua k=2..20 ⇒ *không có cấu trúc cụm*. Nguyên nhân chính là
+    một phát hiện thật: các nghề chia sẻ lõi kỹ năng chung quá mạnh nên mọi tin đều na ná nhau.
+  * **NMF topic modeling** — 6/9 chủ đề tách theo **ngôn ngữ** của tin hoặc theo job board, không theo nội dung.
+  * **Association rules** — hơn 1.200 luật vượt kiểm định nhưng các luật mạnh nhất đều hiển nhiên
+    (SQL đi với Python), lift chỉ ~1,2. Kết luận rút ra ("thị trường có lõi chung mạnh") đã được đưa vào
+    phần mô tả; phần luật chi tiết không cần.
+
+  Ba kỹ thuật này được gói lại thành **ba câu** trong phụ lục `docs/INSIGHTS_BRAINSTORM.md`. Script và
+  file findings đã xoá để repo khỏi phình.
+
+- **Phân tích thay thế, ĐANG DÙNG:** `analysis/career_map.py` (bản đồ chuyển nghề + bộ kỹ năng tối thiểu +
+  kiểm độ nhạy ngưỡng → `docs/CAREER_MAP_FINDINGS.md` tự sinh) và `analysis/robustness_figures.py`
+  (forest plot khoảng tin cậy, độ nhạy phép đo, cơ cấu theo job board).
 
 ### 8.3. Analyze (notebook) + Dashboard (Streamlit) — chia sau (xem WORK_DIVISION.md)
 ### 8.4. Report (báo cáo môn học) — xem §10
@@ -313,12 +303,17 @@ không cào lại từ đầu, không phình lưu trữ.
 > 28,8% · topdev 28,0%. Vì vnw chiếm 255/720 base, **"Analytics 46,9%" phần lớn là profile của
 > VietnamWorks pha loãng**, không phải cấu trúc thị trường VN. Báo cáo phải nói rõ điều này.
 >
-> ⚠️ **`BUSINESS_ANALYST` (top-1, 146 tin) không nên gọi là nghề data.** Đo trên cả 146 tin: **31 tin
-> (21%)** có 0 tín hiệu data-core và ≥2 tín hiệu BA-phần-mềm (BRD/SRS/user story/UAT/backlog/ERP/CRM/
-> presales); chỉ 55% có tín hiệu data ≥ tín hiệu phần mềm. Nhiễm khu trú đúng ở BA — DATA_ANALYST 0%,
-> BI 0%, RISK_FRAUD 0%. Nguồn nhiễm là tầng rule (31% sw_only) chứ không phải LLM (8%).
-> **Cách trình bày an toàn, không cần chạy lại gì:** tách hai dòng — "Analytics lõi (DA 105 + BI 43 +
-> RISK 38 = **186**)" và "BUSINESS_ANALYST **146**" — kèm câu 21% ở trên. Đừng viết "BA dẫn đầu nghề Data".
+> ⚠️ **`BUSINESS_ANALYST` (top-1, 146 tin) là family HỖN HỢP — và nó được gán ĐÚNG.**
+> **Đính chính 2026-08-03:** bản trước của mục này viết "không nên gọi là nghề data". Sai. Taxonomy đặt
+> BUSINESS_ANALYST trong domain **Analytics**, và prompt gán nhãn nói rõ *"IT/systems/**requirements**/
+> data/reporting work → BUSINESS_ANALYST; general market/sales/strategy → OTHER"*. Một BA phần mềm viết
+> BRD/SRS **là BA, gán đúng**. Phép đo cũ dùng tiêu chí riêng (phải có SQL/Python mới tính là data) —
+> tiêu chí mà project đã chủ động bác bỏ. Hệ quả "loại 31 tin thì DE thành #1" **không có cơ sở**.
+>
+> Điều đo được vẫn thật, chỉ khác cách hiểu: **family này không đồng nhất bên trong** — ~55% tin có công
+> cụ phân tích, ~21% chỉ có đặc tả/ERP/UAT, còn lại ở giữa. Đây là chuyện **phạm vi trình bày**, không
+> phải chất lượng nhãn: người đọc nghe "family data lớn nhất" sẽ tưởng người làm phân tích, nên phải chú
+> thích rằng rổ đó gồm cả người viết đặc tả cho lập trình viên.
 >
 > **Nhãn phụ thuộc judge nào còn quota.** Đo ghép cặp trên cache v3 (cùng tin, cùng prompt,
 > `temperature=0`), 293 tin có phiếu của cả 3 judge lớn: tỉ lệ gọi `OTHER` là cerebras **75,4%** ·

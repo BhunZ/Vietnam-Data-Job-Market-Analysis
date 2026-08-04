@@ -143,8 +143,12 @@ answer before deciding:
    level roll-ups are far more robust.
 3. **Composition is a property of the crawl.** Each board was queried with different keyword breadth, and
    the boards have very different role mixes — so a share describes *this corpus*, not the national market.
-4. **"Business Analyst" is not automatically a data role.** A meaningful slice of those postings is pure
-   software/requirements work; the other analytics families are clean. Report it separately.
+4. **The Business Analyst family is internally mixed, and that is by design.** The taxonomy places it
+   under Analytics, and the labelling rule sends *requirements work on IT systems* there on purpose —
+   `OTHER` is reserved for sales, marketing, HR and the like. So a BA who writes specs and never touches
+   SQL is labelled correctly. But roughly a fifth of the family shows no analytics tooling at all, so
+   "the largest data family" spans two quite different jobs. Say so when quoting it; do not silently let
+   a reader assume they all build reports.
 
 **Provenance on every derived field.** `jf_method`, `seniority_source` and `company_type_source` record
 which mechanism decided each value, so a number can be weighted by how it was produced instead of trusted

@@ -1,0 +1,9 @@
+﻿job_family,n_postings,n_core_skills,core_skills
+DATA_ENGINEER,125,6,SQL 78% · Python 65% · ETL 62% · Data Management 59% · Data Warehouse 57% · Database 51%
+DATA_SCIENTIST,31,6,Data Science 77% · Machine Learning 74% · Python 71% · Statistics 71% · SQL 55% · Data Analysis 52%
+AI_ENGINEER,110,5,Python 81% · AI 74% · Machine Learning 74% · LLM 69% · API 56%
+DATA_ANALYST,105,4,Data Analysis 80% · SQL 69% · Reporting 66% · Power BI 62%
+BI,43,4,Power BI 88% · Reporting 84% · SQL 72% · Data Analysis 67%
+DATA_GOVERNANCE,27,2,Data Governance 70% · Data Quality 56%
+RISK_FRAUD_ANALYST,38,1,Data Analysis 66%
+BUSINESS_ANALYST,146,1,Business Analysis 62%

@@ -179,3 +179,31 @@ Nếu cả bốn con số vẫn y như hôm nay (1 snapshot, 0, 0, 0) thì cache
   rẻ, nhưng **áp dụng** thì phải bump `FAMILY_PROMPT_VERSION` → 4, làm mất 3.694 phiếu cache v3 và phải chấm
   lại toàn bộ. Cái bẫy: cache key là `content_hash + version`, **không** hash nội dung prompt — sửa prompt mà
   quên bump version thì cache lặng lẽ trả phiếu chấm dưới prompt cũ.
+
+---
+
+## 8. Ý tưởng sản phẩm cho sau này: hệ thống GỢI Ý nghề theo kỹ năng
+
+*Ghi nhận 2026-08-03. Là sản phẩm, không thuộc phạm vi báo cáo môn học.*
+
+**Ý tưởng.** Người dùng tick các kỹ năng mình đang có → hệ thống **xếp hạng các nghề phù hợp**, kèm giải
+thích: *"bạn hợp Data Analyst (đã có 4/4 kỹ năng lõi) và BI (3/4, còn thiếu Business Intelligence)"*.
+
+**Vì sao là GỢI Ý chứ không phải ĐOÁN.** Ban đầu ý tưởng là huấn luyện bộ phân loại đoán nghề từ kỹ năng.
+Nhưng dữ liệu cho thấy Data Analyst / BI / Business Analyst / Risk-Fraud **chồng lấn nhau rất mạnh** — máy
+nhầm chúng qua lại 16–23%. Với bài toán *đoán*, đó là **lỗi**. Với bài toán *gợi ý*, đó lại là **thông tin
+đúng**: người dùng thật sự đủ điều kiện cho cả bốn, và nên chọn theo ngành mình thích chứ không theo kỹ năng.
+
+| | "Đoán nghề" | "Gợi ý nghề" |
+|---|---|---|
+| Đầu ra | một nhãn | xếp hạng vài nghề + lý do |
+| Khi model lưỡng lự | là lỗi | là thông tin đúng |
+| Ai dùng được | không ai | người đang chọn hướng học |
+
+**Nền tảng đã có sẵn, không cần model mới.** Chỉ cần hai thứ đã tính được từ `gold_family_skill`:
+bộ **kỹ năng lõi** của mỗi nghề (kỹ năng xuất hiện ở ≥50% tin), và phép so khớp tập hợp giữa kỹ năng người
+dùng với từng bộ đó. Phần "giải thích" chính là danh sách kỹ năng còn thiếu — thứ mà một mô hình học máy
+hộp đen **không** đưa ra được.
+
+**Việc cần làm khi triển khai:** kiểm độ nhạy của ngưỡng 50% (bộ kỹ năng lõi đổi bao nhiêu ở 40% và 60%),
+và xử lý trường hợp người dùng chưa có kỹ năng nào.

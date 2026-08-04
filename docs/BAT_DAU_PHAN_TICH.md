@@ -58,12 +58,15 @@ thuộc judge nào chấm.
 
 ## 3. Ba câu KHÔNG được viết
 
-**❌ "Business Analyst là nghề Data lớn nhất Việt Nam."**
-BA có 146 tin, nhưng **31 tin (21%)** trong đó không có một dấu hiệu công việc dữ liệu nào — chỉ có việc
-viết tài liệu yêu cầu cho đội phần mềm (BRD/SRS/user story/UAT/ERP/CRM/presales). Các nghề Analytics khác
-sạch hoàn toàn: Data Analyst 0%, BI 0%, Risk/Fraud 0%.
-✅ **Viết thế này:** *"Analytics lõi (Data Analyst 105 + BI 43 + Risk/Fraud 38 = 186 tin) là nhóm lớn nhất.
-Business Analyst có 146 tin nhưng khoảng 1/5 trong đó là BA phần mềm, nên không gộp thẳng vào nghề data."*
+**❌ "Business Analyst không phải nghề Data."**
+Sai. Taxonomy của project đặt `BUSINESS_ANALYST` trong **domain Analytics**, subdomain *Business / Domain
+Analysis*, và quy tắc gán nhãn **cố ý** đưa việc *requirements trên hệ thống IT* vào đây — `OTHER` chỉ
+dành cho sales/marketing/HR. Một BA viết đặc tả mà không đụng SQL vẫn là **BA, và được gán đúng**.
+Đừng dùng đầu ra thuật toán (không thấy SQL/Python) để bác bỏ một định nghĩa nghề.
+
+✅ **Điều đúng để viết:** *"BUSINESS_ANALYST là family lớn nhất, nhưng là một rổ **hỗn hợp**: khoảng 55%
+tin có công cụ phân tích, khoảng 1/5 chỉ có việc đặc tả/ERP/UAT. Nên 'family data lớn nhất' ở đây gồm hai
+kiểu công việc khá khác nhau — người đọc cần biết điều đó."*
 
 **❌ "Thị trường Data Việt Nam có 46,9% là Analytics."**
 Con số đó là của **720 tin đã thu thập**, không phải của Việt Nam. Tỉ lệ Analytics khác nhau rất xa theo
@@ -90,9 +93,22 @@ cơ sở. Tương tự: dữ liệu **không có trường lương**, nên khôn
 3. **Nhãn do LLM sinh ra thì phụ thuộc vào LLM nào.** Cùng 293 tin, cùng câu lệnh: tỉ lệ một model gọi
    "không phải nghề data" là 75,4% / 70,0% / 60,1% tuỳ model. Đây là lý do báo cáo không xếp hạng cấp nghề.
 
-**Kết luận bền nhất trong cả bộ dữ liệu** (không đổi qua mọi lần sửa cách đo): **Data Engineering là nhánh
-khó vào nhất** (Junior+Intern 14,5%), **AI/ML dễ vào nhất** (26,3%) — gần gấp đôi. Dùng cái này làm luận
-điểm chính thì an toàn.
+🛑 **Cửa vào nghề — KHÔNG dùng làm luận điểm. Câu phát biểu chuẩn, dùng nguyên văn:**
+
+> Tỉ lệ Junior+Intern quan sát được dao động 14,5% (Data Engineering) – 26,3% (AI/ML), nhưng kiểm định
+> χ² không đạt ý nghĩa thống kê (χ²(3) = 7,61; p = 0,055). Tỉ lệ này còn khác nhau theo **job board**
+> mạnh hơn theo nhánh nghề (p = 1,5e-07), và bản thân đại lượng đã dịch 5,6% → 20,0% qua bốn lần đổi
+> cách đo. **Không dùng làm luận điểm.**
+
+Hai bản trước của mục này lần lượt gọi đây là *"kết luận bền nhất trong cả bộ dữ liệu"* rồi *"kết luận bền
+nhất — nhưng phát biểu cho đúng mức"*. Cả hai đều nói quá: kiểm định **omnibus** (một phép duy nhất, không
+cần hiệu chỉnh) đã không đạt, nên chưa bao giờ có gì để hạ mức. Ba lớp bằng chứng ở
+`docs/INSIGHTS_BRAINSTORM.md` mục A3.
+
+**Vậy dùng gì làm luận điểm chính?** Thứ sống sót qua kiểm định là **cấu trúc stack kỹ năng**: đồ thị
+đồng xuất hiện kỹ năng có modularity Q = 0,319 so với null model (configuration model, 200 hoán vị)
+0,198 ± 0,010 → **z = 12,4**; và 6 stack trong đồ thị lõi **không nối với nhau**. Xem
+`docs/SKILL_NETWORK_FINDINGS.md`.
 
 ---
 
@@ -137,8 +153,10 @@ Chỉ điền **2 cột cuối**, 8 cột đầu là dữ liệu sẵn:
 * `DATA_ANALYST` vs `BUSINESS_ANALYST`: **ai đọc kết quả?** DA giao **con số/dashboard** cho người ra
   quyết định. BA giao **tài liệu yêu cầu** (BRD/SRS/user story) cho đội lập trình. JD chỉ nói
   "biết SQL là một lợi thế" → vẫn là BA.
-* `BUSINESS_ANALYST` vs `OTHER`: nếu JD toàn ERP/CRM/UAT/backlog/presales mà **không có việc dữ liệu nào**
-  → `OTHER`. Đây đúng là chỗ máy đang sai nhiều nhất (21% tin BA), nên đừng ngại chọn `OTHER`.
+* `BUSINESS_ANALYST` vs `OTHER`: **⚠️ hướng dẫn cũ ở đây SAI, đã sửa 2026-08-03.** Bản trước bảo
+  "JD toàn ERP/CRM/UAT thì chọn `OTHER`" — trái với quy tắc engine. Quy tắc đúng:
+  *IT/hệ thống/**requirements**/data/reporting → `BUSINESS_ANALYST`; chỉ chọn `OTHER` khi công việc CHÍNH
+  là sales/marketing/HR/vận hành chung.* Một BA viết BRD/SRS cho đội dev **vẫn là BA**.
 * `AI_ENGINEER` vs `ML_ENGINEER` vs `DATA_SCIENTIST`: **ứng dụng model có sẵn** (LLM/API/GenAI) →
   `AI_ENGINEER`. **Đưa model lên production, MLOps** → `ML_ENGINEER`. **Tự xây model, thống kê, thí
   nghiệm** → `DATA_SCIENTIST`.

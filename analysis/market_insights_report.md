@@ -47,16 +47,17 @@ board Việt Nam.*
    **Cloud 20,8%** — trước đó bốn kỹ năng này không được đếm ở đâu cả.
 3. **Mỗi nhánh có "dấu vân tay" kỹ năng riêng** (DA = Power BI/Reporting, DE = ETL/Warehouse,
    AI = ML/**LLM 69,1%**). Nhưng kỹ năng **không tạo thành cụm nghề tự nhiên**: silhouette chỉ 0,132–0,191
-   qua k=2..20 — 8 cụm trong báo cáo clustering là cách trình bày, không phải 8 nghề thật.
+   qua k=2..20 ⇒ **không có cụm nghề tự nhiên**. Nguyên nhân chính là một phát hiện thật: các nghề chia sẻ
+   lõi kỹ năng chung quá mạnh nên mọi tin đều na ná nhau.
 4. **Công nghệ/Phần mềm (29,3%, 211 tin) và Ngân hàng/Tài chính (28,5%, 205) tuyển ngang nhau** — chênh
-   0,8pt, không xếp hạng được. Nhưng **cơ cấu khác hẳn**: công nghệ tuyển AI Engineer nhiều gần gấp 3
-   (53 vs 19), còn ngân hàng độc chiếm Risk/Fraud (**29/38 tin**) và Data Governance (**14/27**).
-   Độ phủ ngành nay là **100%** — không còn nhóm "không xác định".
+   0,8pt, không xếp hạng được. Độ phủ ngành nay là **100%** — không còn nhóm "không xác định".
+   ⚠️ **Chênh lệch cơ cấu theo ngành phần lớn là hiệu ứng job board** (kiểm 2026-08-03): "công nghệ tuyển
+   AI Engineer nhiều gấp 3" có OR thô 2,08 (p = 1e-04) nhưng **OR Cochran–Mantel–Haenszel phân tầng theo
+   board chỉ còn 1,29 (p = 0,24)** — trên ITviec hiệu ứng là +0,7pt, trên TopCV **âm** (−10,3pt). Xem §4.
 5. **Thị trường cần kinh nghiệm: Mid 33,3% + Senior 30,0% = 63%; Junior 17,4% + Intern 2,6% = 20%.**
    Bản trước của báo cáo này ghi "54% Mid, ~5% Junior/Intern" — con số đó là **hiện vật của cách đo**, không
    phải sự thật thị trường: quy tắc cũ có `default: Mid` hút 45% corpus và không đọc số năm kinh nghiệm.
-   Cửa vào hẹp **không đều**: Data Engineering khó nhất (14,5%), AI/ML dễ nhất (26,3%) — thứ tự này bền qua
-   cả bốn lần sửa cách đo, nên nó là kết luận đáng tin nhất trong mục cấp bậc.
+   🛑 **Chênh lệch cửa vào giữa các nhánh thì KHÔNG dùng làm luận điểm** — xem §3.
 
 ---
 
@@ -71,11 +72,12 @@ Thị trường chia thành 5 domain: **Analytics 46,9% (338 tin)**, AI/ML 24,9%
 
 - **Phát hiện.** 4 family dẫn đầu (BA 146 · DE 125 · AIE 110 · DA 105) chiếm **67,8%** toàn thị trường;
   16 family còn lại chia nhau 1/3 — nhiều nhánh rất mỏng (dưới 30 tin thì **không báo cáo tỉ lệ %**).
-- ⚠️ **`BUSINESS_ANALYST` không nên gộp vào "nghề data".** Đo trên cả 146 tin: **31 tin (21%)** không có
-  một tín hiệu data nào trong JD mà chỉ có việc BA phần mềm (BRD/SRS/user story/UAT/backlog/ERP/CRM/
-  presales). Nhiễm khu trú đúng ở BA — DATA_ANALYST 0%, BI 0%, Risk/Fraud 0%. Vì vậy nên đọc thành hai
-  dòng: **Analytics lõi (DA 105 + BI 43 + Risk 38 = 186)** và **BUSINESS_ANALYST 146** — chứ không phải
-  "BA là nghề data lớn nhất". Nếu loại 31 tin đó, BA còn 115 và **DE 125 mới là family lớn nhất**.
+- **`BUSINESS_ANALYST` là family lớn nhất, và là một rổ HỖN HỢP.** Taxonomy đặt nó trong domain
+  Analytics, và quy tắc gán nhãn **cố ý** đưa việc *requirements trên hệ thống IT* vào đây — nên một BA
+  viết BRD/SRS mà không đụng SQL **vẫn được gán đúng**. Nhưng bên trong family này có hai kiểu công việc
+  khá khác nhau: khoảng **55%** tin có công cụ phân tích, khoảng **21%** chỉ có đặc tả/ERP/UAT.
+  Khi trích con số "family lớn nhất", phải nói kèm điều này — người đọc mặc định sẽ hình dung người làm
+  phân tích. Các family Analytics khác thì đồng nhất (Data Analyst, BI, Risk/Fraud đều 0% ở nhóm chỉ-đặc-tả).
 - **Ý nghĩa.** Cầu tập trung vào nhóm *dùng* dữ liệu để phục vụ nghiệp vụ (BA, DA, BI, Risk) hơn hẳn
   nhóm *xây mô hình* (DS/ML/Research cộng lại < 9%). "AI Engineer" (14%) là thật và đang lên, nhưng đó là
   **kỹ thuật-ứng-dụng-AI** (LLM/ML ứng dụng), không phải nghiên cứu khoa học.
@@ -106,8 +108,11 @@ Thị trường chia thành 5 domain: **Analytics 46,9% (338 tin)**, AI/ML 24,9%
     PyTorch 32% (x4,1) — ứng dụng GenAI rõ rệt.
   - **Data Engineer** = Data Pipeline 44% (x3,5) · Spark 42% (x3,8) · **ELT 39% (x4,4)** ·
     Data Lake 33% (x3,6) — thiên hạ tầng.
-  - **Business Analyst** = KHÔNG có skill đặc trưng nào (lift cao nhất chỉ x1,2 với Tiếng Anh) — đây là
-    nhánh được định nghĩa bằng *nghiệp vụ*, không bằng công cụ.
+  - **Business Analyst** = **Business Analysis 62% (x3,6)** · ERP (x2,3) · Agile (x2,2) — và **lift ÂM
+    trên công cụ dữ liệu**: SQL x0,60 · Python x0,13. Tức BA có dấu vân tay rất rõ, nhưng là dấu vân tay
+    của *một loại công việc khác*.
+    *(Bản trước ghi "BA không có dấu vân tay, lift cao nhất x1,2" — con số đó tính khi kỹ năng
+    `Business Analysis` chưa có trong từ điển. Sau khi bổ sung từ điển thì phát hiện đảo chiều.)*
 - **Ý nghĩa.** Các cụm kỹ năng tách bạch → nhãn nghề phản ánh khác biệt thật, không phải gán ngẫu nhiên.
 - **Hàm ý.** Lộ trình học khác nhau theo đích đến: muốn vào DA → SQL + Power BI + Reporting; muốn vào
   AI Engineer → Python + ML + **LLM/GenAI**; muốn vào DE → SQL + Python + ETL + Data Warehouse.
@@ -121,10 +126,27 @@ Thị trường chia thành 5 domain: **Analytics 46,9% (338 tin)**, AI/ML 24,9%
 ![Cấp bậc](figures/seniority_share.png)
 
 - **Công nghệ/Phần mềm 211 tin (29,3%) và Ngân hàng/Tài chính 205 tin (28,5%) ngang nhau** — chênh 0,8pt.
-  Sản xuất thứ ba (75 tin, 10,4%). Cơ cấu tuyển khác hẳn: công nghệ dẫn đầu bằng **AI Engineer 53**, ngân
+  Sản xuất thứ ba (75 tin, 10,4%). Cơ cấu tuyển khác nhau: công nghệ dẫn đầu bằng **AI Engineer 53**, ngân
   hàng bằng **Business Analyst 38** và độc chiếm **Risk/Fraud 29/38 tin** cùng **Data Governance 14/27**.
   ⚠️ Bản trước xếp ngân hàng trên công nghệ (199 vs 176) — kết luận đó **đã bị lật** khi 14,4% tin chưa
   phân loại được ngành cuối cùng lệch mạnh về phía công nghệ.
+
+- 🛑 **Kiểm biến gây nhiễu "job board" cho liên hệ ngành × nhánh (2026-08-03).** Job board liên hệ rất
+  mạnh với **cả hai** biến (source × company_type: χ² = 241,0 · p = 1,2e-20), nên nó là confounder kinh
+  điển. Cochran–Mantel–Haenszel phân tầng theo board:
+
+  | Liên hệ | OR thô | p thô | **OR_MH** | **p_CMH** | Nhất quán trong board | Phán quyết |
+  |---|--:|--:|--:|--:|---|---|
+  | tech_software → AI/ML | 2,08 | 1e-04 | **1,29** | **0,243** | ITviec +0,7pt · TopCV **−10,3pt** | 🛑 **BỎ** |
+  | tech_software → ít Analytics | 0,56 | 6e-04 | **0,80** | **0,262** | — | 🛑 **BỎ** |
+  | manufacturing → Analytics | 2,48 | 4e-04 | 1,85 | 0,028 | **3/3 board cùng hướng** | ⚠️ giữ, nêu kèm cỡ mẫu |
+  | manufacturing → ít Data Engineering | 0,32 | 0,004 | 0,38 | 0,041 | 3/3 board cùng hướng | ⚠️ giữ, nêu kèm |
+  | bank_finance → Governance | 2,40 | 0,011 | 1,98 | 0,042 | chỉ **2/4** board, do ITviec (+15,3pt) | 🛑 **BỎ** |
+
+  Bảng chéo tổng: sau khi gộp 10 ngành < 30 tin (bảng gốc 15×5 có **57% ô expected < 5** — vi phạm giả
+  định χ²), bảng 6×5 cho χ² = 50,9 · dof = 20 · p = 1,66e-04 · **Cramér's V = 0,133** (không phải 0,194).
+  Liên hệ **yếu**. Phần dư chuẩn hoá điều chỉnh vượt Bonferroni (|z| > 2,99) chỉ còn 3 ô — và cả 3 đều
+  liên quan tới `tech_software`/`manufacturing`, tức là chính các ô vừa bị CMH đánh sập hoặc làm yếu đi.
 - **14,4% (104 tin) không xác định được ngành.** Nhóm này giữ nguyên thành một mục riêng, **không** chia
   lại vào các nhóm khác — nên mọi % ngành bên trên đều tính trên mẫu số 720 đầy đủ.
 - **Cấp bậc: Mid 33,3% (240) + Senior 30,0% (216) = 63%**; Junior 17,4% (125) + Intern 2,6% (19) = **20%**;
@@ -135,12 +157,20 @@ Thị trường chia thành 5 domain: **Analytics 46,9% (338 tin)**, AI/ML 24,9%
 - **Kiểm định mù cho cấp bậc:** 86,2% đúng bậc, 96,9% lệch ≤1 bậc (n=65, hai auditor độc lập chỉ thấy
   title+JD). Tầng yếu nhất là trường "số năm kinh nghiệm" do site tự khai (72,7%) — nó là **sàn**, không
   phải yêu cầu thật.
-- **Ý nghĩa.** Doanh nghiệp muốn người *làm được ngay*; cửa vào nghề hẹp nhưng **không đều**: Data
-  Engineering 14,5% Junior+Intern, AI/ML 26,3%.
+- 🛑 **Chênh lệch cửa vào giữa các nhánh — KHÔNG dùng làm luận điểm. Câu phát biểu chuẩn:**
+
+  > Tỉ lệ Junior+Intern quan sát được dao động 14,5% (Data Engineering) – 26,3% (AI/ML), nhưng kiểm định
+  > χ² không đạt ý nghĩa thống kê (χ²(3) = 7,61; p = 0,055). Tỉ lệ này còn khác nhau theo **job board**
+  > mạnh hơn theo nhánh nghề (p = 1,5e-07), và bản thân đại lượng đã dịch 5,6% → 20,0% qua bốn lần đổi
+  > cách đo. **Không dùng làm luận điểm.**
+
+  Chi tiết ba lớp bằng chứng: `docs/INSIGHTS_BRAINSTORM.md` mục A3.
+
+- **Ý nghĩa (phần còn đứng vững).** Cơ cấu cấp bậc của **toàn tập** nghiêng hẳn về người có kinh nghiệm:
+  Mid+Senior 63% so với Junior+Intern 20%. Đây là phát biểu ở mức tổng, không so sánh giữa các nhánh.
 - **Hàm ý.**
-  - *Người tìm việc mới:* cửa dễ vào nhất là **AI/ML** (26,3%), không phải nhánh nghe "cơ bản" — có thể vì
-    đây là mảng mới, doanh nghiệp chấp nhận tuyển người trẻ rồi đào tạo.
-  - *Muốn vào ngành tài chính:* đầu tư mảng Risk/Fraud + SQL — đó là nơi ngân hàng tuyển tập trung nhất.
+  - *Người tìm việc mới:* số chỗ Junior/Intern ít hơn Mid/Senior khoảng 3 lần trên toàn tập. **Không có
+    bằng chứng** cho việc nhánh nào dễ vào hơn nhánh nào.
   - *Nhà tuyển dụng:* Junior chỉ 17,4% trong khi Mid+Senior 63% — chương trình đào tạo nội bộ có thể lấp
     khoảng trống mà thị trường đang bỏ ngỏ.
 
@@ -167,7 +197,7 @@ Phân tích đồng-xuất-hiện kỹ năng (skill co-occurrence) cho thấy c�
 - **1244/1649 luật** vượt hiệu chỉnh Bonferroni ở alpha = 0,05/**4060 giả thuyết đã test**; chỉ trích dẫn
   nhóm này (cột `significant_bonferroni`, KHÔNG dùng `significant_at_kept_alpha`). Lưu ý hai điều:
   (a) mỗi cặp 1-1 được tính **cả hai chiều** (`Python→SQL` và `SQL→Python` là 2 dòng) nên số dòng không
-  phải số phát hiện — con số quan hệ distinct ghi trong `docs/ASSOCIATION_RULES_FINDINGS.md`;
+  phải số phát hiện;
   (b) `support_pct` chia cho **663** tin có ≥2 kỹ năng, không phải 720 — cao hơn share thật của toàn base
   khoảng 1,09 lần.
 - **Hàm ý (lộ trình gợi ý).** Nền tảng **SQL + Python** trước; rẽ nhánh theo đích: thêm **Power BI +
