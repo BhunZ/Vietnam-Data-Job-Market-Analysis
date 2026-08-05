@@ -172,9 +172,21 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     m.round(1).to_csv(OUT / "career_map_matrix.csv", encoding="utf-8-sig")
     sens.to_csv(OUT / "career_map_sensitivity.csv", index=False, encoding="utf-8-sig")
-    pd.DataFrame([{"job_family": f, "n_postings": fam_n[f], "n_core_skills": len(core[f]),
-                   "core_skills": " · ".join(f"{s} {v:.0f}%" for s, v in core_detail[f])}
+
+    # HAI file danh sach ky nang, HAI nguong khac nhau. Truoc day chi xuat file 50% nen ma tran
+    # KHONG tai lap duoc tu output — nguoi doc thu tinh lai se ra so khac han (vi du DA->BI ra 100%
+    # thay vi 77.8%). Moi file nay deu mang cot `threshold_pct` va tu noi no dung de lam gi.
+    pd.DataFrame([{"job_family": f, "threshold_pct": args.core_threshold,
+                   "dung_de": "bo ky nang toi thieu de ung tuyen (KHONG dung tinh ma tran)",
+                   "n_postings": fam_n[f], "n_skills": len(core[f]),
+                   "skills": " · ".join(f"{s} {v:.0f}%" for s, v in core_detail[f])}
                   for f in m.index]).to_csv(OUT / "career_map_core_skills.csv",
+                                            index=False, encoding="utf-8-sig")
+    pd.DataFrame([{"job_family": f, "threshold_pct": args.profile_threshold,
+                   "dung_de": "HO SO de tinh ma tran chuyen nghe",
+                   "n_postings": fam_n[f], "n_skills": len(prof[f]),
+                   "skills": " · ".join(sorted(prof[f]))}
+                  for f in m.index]).to_csv(OUT / "career_map_profiles.csv",
                                             index=False, encoding="utf-8-sig")
 
     note = (f"Nguồn: {base_n} tin Data/AI · hồ sơ kỹ năng = xuất hiện ở ≥{args.profile_threshold:.0f}% "
@@ -265,6 +277,16 @@ File này trả lời câu đó bằng cách so sánh **bộ kỹ năng lõi** g
 {rows_md}
 
 ![Bản đồ chuyển nghề](../analysis/figures/career_map.png)
+
+> **Muốn tự kiểm ô trong bảng?** Dùng `analysis/outputs/career_map_profiles.csv` (ngưỡng
+> {args.profile_threshold:.0f}%), **KHÔNG** dùng `career_map_core_skills.csv` (ngưỡng
+> {args.core_threshold:.0f}%, phục vụ bảng "vào nghề cần gì" bên dưới). Hai file dùng hai ngưỡng khác
+> nhau nên tính nhầm file sẽ ra số khác hẳn.
+>
+> Ví dụ ô `Data Analyst → BI`: hồ sơ BI có 9 kỹ năng, Data Analyst đã có sẵn 7 trong đó
+> (thiếu Business Intelligence và Data Modeling) ⇒ 7/9 = 77,8%. Chiều ngược lại dùng **cùng 7 kỹ năng
+> chung** nhưng chia cho 12 (số kỹ năng của Data Analyst) ⇒ 58,3%. Tử số giống nhau, mẫu số đổi — đó là
+> lý do bảng bất đối xứng.
 
 ## Bộ kỹ năng tối thiểu để vào nghề
 

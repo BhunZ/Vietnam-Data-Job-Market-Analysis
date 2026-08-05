@@ -38,6 +38,16 @@ File này trả lời câu đó bằng cách so sánh **bộ kỹ năng lõi** g
 
 ![Bản đồ chuyển nghề](../analysis/figures/career_map.png)
 
+> **Muốn tự kiểm ô trong bảng?** Dùng `analysis/outputs/career_map_profiles.csv` (ngưỡng
+> 25%), **KHÔNG** dùng `career_map_core_skills.csv` (ngưỡng
+> 50%, phục vụ bảng "vào nghề cần gì" bên dưới). Hai file dùng hai ngưỡng khác
+> nhau nên tính nhầm file sẽ ra số khác hẳn.
+>
+> Ví dụ ô `Data Analyst → BI`: hồ sơ BI có 9 kỹ năng, Data Analyst đã có sẵn 7 trong đó
+> (thiếu Business Intelligence và Data Modeling) ⇒ 7/9 = 77,8%. Chiều ngược lại dùng **cùng 7 kỹ năng
+> chung** nhưng chia cho 12 (số kỹ năng của Data Analyst) ⇒ 58,3%. Tử số giống nhau, mẫu số đổi — đó là
+> lý do bảng bất đối xứng.
+
 ## Bộ kỹ năng tối thiểu để vào nghề
 
 | Nghề | Số tin | Số kỹ năng lõi | Kỹ năng lõi (% tin của nghề đó yêu cầu) |

@@ -1,0 +1,9 @@
+﻿job_family,threshold_pct,dung_de,n_postings,n_skills,skills
+DATA_ENGINEER,25.0,HO SO de tinh ma tran chuyen nghe,125,24,API · AWS · Airflow · Big Data · CI/CD · Cloud · Data Analysis · Data Engineering · Data Lake · Data Management · Data Modeling · Data Pipeline · Data Quality · Data Warehouse · Database · ELT · ETL · English · Kafka · Machine Learning · Python · Reporting · SQL · Spark
+DATA_SCIENTIST,25.0,HO SO de tinh ma tran chuyen nghe,31,21,A/B Testing · AI · AWS · Azure · Cloud · Data Analysis · Data Management · Data Science · Deep Learning · GCP · LLM · Machine Learning · Power BI · Python · Reporting · SQL · Spark · Statistics · Tableau · TensorFlow · scikit-learn
+AI_ENGINEER,25.0,HO SO de tinh ma tran chuyen nghe,110,16,AI · API · AWS · Cloud · Computer Vision · Database · Deep Learning · Docker · English · LLM · Machine Learning · NLP · PyTorch · Python · SQL · TensorFlow
+DATA_ANALYST,25.0,HO SO de tinh ma tran chuyen nghe,105,12,Data Analysis · Data Management · Data Visualization · Database · English · Excel · Power BI · Python · Reporting · SQL · Statistics · Tableau
+BI,25.0,HO SO de tinh ma tran chuyen nghe,43,9,Business Intelligence · Data Analysis · Data Modeling · Excel · Power BI · Python · Reporting · SQL · Tableau
+DATA_GOVERNANCE,25.0,HO SO de tinh ma tran chuyen nghe,27,8,Data Analysis · Data Governance · Data Management · Data Quality · Data Science · Data Warehouse · Reporting · SQL
+RISK_FRAUD_ANALYST,25.0,HO SO de tinh ma tran chuyen nghe,38,6,Data Analysis · Data Science · English · Python · SQL · Statistics
+BUSINESS_ANALYST,25.0,HO SO de tinh ma tran chuyen nghe,146,5,Business Analysis · Data Analysis · English · Reporting · SQL
