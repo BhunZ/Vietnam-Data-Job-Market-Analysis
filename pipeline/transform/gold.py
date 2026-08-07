@@ -9,7 +9,7 @@ all. Anyone joining `skill_cooccurrence` against `gold_market_share` silently mi
 Analysis base mirrors `integrate.py` exactly: labeled, non-OTHER, resolved, active, non-duplicate.
 Requires `python -m pipeline label && python -m pipeline integrate` to have run first.
 
-All tables are descriptive — NO salary, NO forecasting (see PROJECT_STATUS §9/§11).
+All tables are descriptive — NO salary, NO forecasting: both are out of scope for this project.
 `trend` is descriptive over accumulated snapshots (from `job_observations`), not a forecast.
 
 Run:  python -m pipeline gold

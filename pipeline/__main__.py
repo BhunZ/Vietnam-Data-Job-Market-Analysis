@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("label-kpi", help="Engine KPI report + spot-check sample")
     sub.add_parser("integrate", help="Integrate job_family into jobs_silver + build family Gold")
 
-    sub.add_parser("all", help="(chưa triển khai — xem PROJECT_STATUS §8)")
+    sub.add_parser("all", help="(chưa triển khai)")
 
     args = parser.parse_args(argv)
     _setup_logging(args.verbose)

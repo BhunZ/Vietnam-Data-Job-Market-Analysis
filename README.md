@@ -184,10 +184,15 @@ raw cache so nothing is re-fetched, and a credit guard on the paid proxy.
 │   ├── engine.py          orchestrates the cascade
 │   └── integrate.py       write labels back and build the gold tables
 ├── ref/                   reference dictionaries and the job-family taxonomy
-├── analysis/              market insight, association rules, clustering, topic modeling
+├── analysis/              descriptive analysis on top of the gold tables
+│   ├── market_insights.py market structure: family, domain, industry, seniority, location
+│   ├── career_map.py      skill-coverage matrix between families
+│   ├── audit_seniority.py blind re-check of the seniority field
+│   ├── validate_gold.py   gate: the analysis base must match every gold table
+│   ├── explore.py         browse the warehouse without writing code
 │   ├── figures/           generated charts
 │   └── outputs/           generated result tables
-├── docs/                  data dictionary, taxonomy, lineage, generated findings
+├── docs/                  data dictionary, taxonomy, lineage
 ├── tests/                 pytest suite
 └── data/                  the shipped warehouse — raw crawl output and caches are gitignored
 ```

@@ -47,6 +47,8 @@ SURFACE = "#fcfcfb"
 INK, MUTED, GRID = "#1a1a18", "#6b6b66", "#e6e6e2"
 SEQ = ["#f7f7f5", "#d6e4f0", "#a8c8e4", "#6fa8d6", "#3d7fb8", "#1f4e79"]
 
+FIG_W, FIG_H = 900, 560   # cung KHUNG voi cac hinh khac, xem analysis/market_insights.py
+
 # `.title()` bien AI_ENGINEER thanh "Ai Engineer" va BI thanh "Bi" — viet tay cho dung.
 DISPLAY = {"AI_ENGINEER": "AI Engineer", "BI": "BI", "DATA_ANALYST": "Data Analyst",
            "DATA_ENGINEER": "Data Engineer", "DATA_SCIENTIST": "Data Scientist",
@@ -88,26 +90,25 @@ def overlap_matrix(core: dict[str, set[str]]) -> pd.DataFrame:
     return m
 
 
-def fig_matrix(m: pd.DataFrame, note: str, threshold: float) -> None:
+def fig_matrix(m: pd.DataFrame, threshold: float) -> None:
+    r"""Ma trận chuyển nghề. Không vẽ tiêu đề và không vẽ dòng nguồn lên hình — trong LaTeX thì
+    `\caption{}` lo phần đó; nhúng vào ảnh chỉ tạo hai tiêu đề chồng nhau."""
     short = [disp(f) for f in m.index]
     z = m.values.astype(float)
     text = [["—" if pd.isna(v) else f"{v:.0f}%" for v in row] for row in z]
     fig = go.Figure(go.Heatmap(
         z=z, x=short, y=short, text=text, texttemplate="%{text}",
+        textfont=dict(size=15),
         colorscale=[[0, SEQ[0]], [0.35, SEQ[2]], [0.7, SEQ[4]], [1, SEQ[5]]],
         showscale=False, xgap=2, ygap=2, hoverongaps=False))
     fig.update_layout(
-        title=dict(text=f"Người làm nghề ở HÀNG đã có sẵn bao nhiêu %<br>"
-                        f"kỹ năng lõi của nghề ở CỘT",
-                   font=dict(size=17, color=INK), x=0, xanchor="left", y=0.96),
-        paper_bgcolor=SURFACE, plot_bgcolor=SURFACE, height=560, width=880,
-        margin=dict(l=170, r=40, t=100, b=110),
-        xaxis=dict(side="top", tickfont=dict(size=11, color=MUTED), showgrid=False),
-        yaxis=dict(autorange="reversed", tickfont=dict(size=11, color=INK), showgrid=False),
-        annotations=[dict(text=note, x=0, y=-0.16, xref="paper", yref="paper",
-                          showarrow=False, font=dict(size=10, color=MUTED), xanchor="left")])
+        paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
+        height=FIG_H, width=FIG_W, margin=dict(l=175, r=20, t=95, b=15),
+        font=dict(size=16),
+        xaxis=dict(side="top", tickfont=dict(size=15, color=INK), showgrid=False, tickangle=-30),
+        yaxis=dict(autorange="reversed", tickfont=dict(size=15, color=INK), showgrid=False))
     FIG.mkdir(parents=True, exist_ok=True)
-    fig.write_image(str(FIG / "career_map.png"), scale=2)
+    fig.write_image(str(FIG / "career_map.png"), width=FIG_W, height=FIG_H, scale=2)
     fig.write_html(str(FIG / "career_map.html"), include_plotlyjs="cdn", full_html=True)
     print("  -> figures/career_map.png + .html")
 
@@ -158,14 +159,6 @@ def main() -> None:
             [fam, args.core_threshold]).fetchall()
         core_detail[fam] = [(s, float(v)) for s, v in rows]
 
-    # thang kỹ năng theo cấp bậc
-    ladder = con.execute(f"""
-        SELECT seniority, COUNT(*) n, ROUND(AVG(n_skills),1) mean_skills, MEDIAN(n_skills) med
-        FROM jobs_silver WHERE {ANALYSIS_BASE_WHERE} GROUP BY 1""").df()
-    order = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager", "Unknown"]
-    ladder["_o"] = ladder.seniority.map({v: i for i, v in enumerate(order)}).fillna(99)
-    ladder = ladder.sort_values("_o").drop(columns="_o")
-
     sens = sensitivity(con, [20.0, args.profile_threshold, 30.0], args.min_family_n)
     con.close()
 
@@ -189,164 +182,11 @@ def main() -> None:
                   for f in m.index]).to_csv(OUT / "career_map_profiles.csv",
                                             index=False, encoding="utf-8-sig")
 
-    note = (f"Nguồn: {base_n} tin Data/AI · hồ sơ kỹ năng = xuất hiện ở ≥{args.profile_threshold:.0f}% "
-            f"tin của nghề · chỉ nghề có ≥{args.min_family_n} tin · 1 snapshot ⇒ không suy ra xu hướng")
-    fig_matrix(m, note, args.profile_threshold)
-    write_findings(m=m, core_detail=core_detail, prof_sets=prof, fam_n=fam_n, ladder=ladder,
-                   sens=sens, base_n=base_n, args=args)
+    fig_matrix(m, args.profile_threshold)
 
     print(f"analysis_base {base_n}")
     print(f"families {len(m.index)} | core {args.core_threshold}% | profile {args.profile_threshold}%")
     print(m.round(0).to_string())
-
-
-def write_findings(*, m, core_detail, prof_sets, fam_n, ladder, sens, base_n, args) -> None:
-    """Sinh doc TỪ số liệu. Không gõ tay con số nào vào đây."""
-    fams = list(m.index)
-    hdr = " | ".join(f.replace("_", " ").title()[:14] for f in fams)
-    rows_md = "\n".join(
-        "| **" + a.replace("_", " ").title() + "** | "
-        + " | ".join("—" if a == b else f"{m.loc[a, b]:.0f}%" for b in fams) + " |"
-        for a in fams)
-
-    core_md = "\n".join(
-        f"| {disp(f)} | {fam_n[f]} | {len(core_detail[f])} | "
-        + (" · ".join(f"{s} {v:.0f}%" for s, v in core_detail[f]) or "*(không kỹ năng nào vượt ngưỡng)*")
-        + " |" for f in fams)
-
-    # từ nghề đông tin nhất, phải học thêm gì
-    anchor = args.anchor if args.anchor in fams else max(fams, key=lambda f: fam_n[f])
-    core_sets_map = prof_sets  # danh sách "học thêm" dùng HỒ SƠ, cùng thang với ma trận
-    learn_md = "\n".join(
-        f"| {disp(b)} | **{len(core_sets_map[b] - core_sets_map[anchor])}** | "
-        + (", ".join(sorted(core_sets_map[b] - core_sets_map[anchor])) or "*(không thiếu gì)*") + " |"
-        for b in sorted(fams, key=lambda x: len(core_sets_map[x] - core_sets_map[anchor]))
-        if b != anchor)
-
-    ladder_md = "\n".join(
-        f"| {r.seniority} | {r.n} | {r.mean_skills} | {r.med:.0f} |"
-        for r in ladder.itertuples(index=False))
-
-    # độ nhạy: cặp nào đảo chiều khi đổi ngưỡng
-    piv = sens.pivot_table(index=["from_family", "to_family"], columns="threshold",
-                           values="overlap_pct")
-    flips = piv.dropna()
-    swing = (flips.max(axis=1) - flips.min(axis=1)).sort_values(ascending=False)
-    swing_md = "\n".join(
-        f"| {disp(a)} → {disp(b)} | "
-        + " | ".join(f"{flips.loc[(a, b), c]:.0f}%" for c in flips.columns)
-        + f" | **{swing.loc[(a, b)]:.0f}pt** |"
-        for (a, b) in swing.head(8).index)
-    th_cols = " | ".join(f"{c:.0f}%" for c in flips.columns)
-    stable = swing[swing <= 15]
-    stable_md = "\n".join(
-        f"| {disp(a)} → {disp(b)} | "
-        + " | ".join(f"{flips.loc[(a, b), c]:.0f}%" for c in flips.columns)
-        + f" | {swing.loc[(a, b)]:.0f}pt |"
-        for (a, b) in stable.head(12).index) or "| *(không cặp nào đủ bền)* | | | | |"
-
-    doc = f"""# Bản đồ chuyển nghề — Findings
-
-*Sinh tự động bởi `python analysis/career_map.py`. Đừng sửa tay; chạy lại để cập nhật.*
-
-## Câu hỏi
-
-Bảng thị phần nói *nghề nào nhiều tin*. Nó không nói **"tôi nên học gì, và từ đây đi được đâu"**.
-File này trả lời câu đó bằng cách so sánh **bộ kỹ năng lõi** giữa các nghề.
-
-## Cách đo
-
-**Hai ngưỡng, hai mục đích — đây là chỗ dễ nhầm nhất:**
-
-| Ngưỡng | Dùng cho | Vì sao |
-|---|---|---|
-| **≥{args.core_threshold:.0f}%** | Bảng *"vào nghề cần gì"* | Thứ phần lớn tin tuyển dụng đòi. Danh sách ngắn, dứt khoát |
-| **≥{args.profile_threshold:.0f}%** | *Ma trận so sánh nghề* | Ở mức {args.core_threshold:.0f}% hồ sơ co lại còn 1–6 kỹ năng và ma trận thành vô nghĩa — Business Analyst chỉ còn 1 kỹ năng vượt ngưỡng nên mọi ô liên quan hoá 0% hoặc 100% |
-
-- **Độ phủ** (hàng A, cột B) = *người làm A đã có sẵn bao nhiêu % hồ sơ kỹ năng của B*.
-  Công thức: `|profile(A) ∩ profile(B)| / |profile(B)|`.
-- Phép này **bất đối xứng có chủ ý** — và chính sự bất đối xứng là phát hiện chính.
-- Chỉ xét nghề có **≥{args.min_family_n} tin**. Tập phân tích: **{base_n}** tin.
-
-## Bản đồ chuyển nghề
-
-Đọc: *người đang làm nghề ở **hàng** đã có sẵn bao nhiêu % kỹ năng lõi của nghề ở **cột***.
-
-| Từ ↓ / Sang → | {hdr} |
-|---|{'---|' * len(fams)}
-{rows_md}
-
-![Bản đồ chuyển nghề](../analysis/figures/career_map.png)
-
-> **Muốn tự kiểm ô trong bảng?** Dùng `analysis/outputs/career_map_profiles.csv` (ngưỡng
-> {args.profile_threshold:.0f}%), **KHÔNG** dùng `career_map_core_skills.csv` (ngưỡng
-> {args.core_threshold:.0f}%, phục vụ bảng "vào nghề cần gì" bên dưới). Hai file dùng hai ngưỡng khác
-> nhau nên tính nhầm file sẽ ra số khác hẳn.
->
-> Ví dụ ô `Data Analyst → BI`: hồ sơ BI có 9 kỹ năng, Data Analyst đã có sẵn 7 trong đó
-> (thiếu Business Intelligence và Data Modeling) ⇒ 7/9 = 77,8%. Chiều ngược lại dùng **cùng 7 kỹ năng
-> chung** nhưng chia cho 12 (số kỹ năng của Data Analyst) ⇒ 58,3%. Tử số giống nhau, mẫu số đổi — đó là
-> lý do bảng bất đối xứng.
-
-## Bộ kỹ năng tối thiểu để vào nghề
-
-| Nghề | Số tin | Số kỹ năng lõi | Kỹ năng lõi (% tin của nghề đó yêu cầu) |
-|---|--:|--:|---|
-{core_md}
-
-## Xuất phát từ `{disp(anchor)}` thì phải học thêm gì
-
-| Sang nghề | Số kỹ năng phải học thêm | Là những gì |
-|---|--:|---|
-{learn_md}
-
-## Thang kỹ năng theo cấp bậc
-
-| Cấp bậc | Số tin | Số kỹ năng trung bình | Trung vị |
-|---|--:|--:|--:|
-{ladder_md}
-
-## Kiểm độ nhạy của ngưỡng — phần chống tự lừa mình
-
-Ngưỡng {args.profile_threshold:.0f}% là một lựa chọn, không phải hằng số. Bảng dưới cho biết độ phủ đổi
-bao nhiêu khi dùng 20% / {args.profile_threshold:.0f}% / 30%. **Cặp nào dao động lớn thì đừng đưa vào báo cáo
-như một con số cụ thể** — chỉ nói theo hướng ("dễ / khó"), không nói theo số.
-
-| Cặp | {th_cols} | Dao động |
-|---|{'---|' * len(flips.columns)}---|
-{swing_md}
-
-### Cặp nào BỀN — chỉ những cặp này mới được trích số cụ thể
-
-Dao động ≤ 15 điểm phần trăm qua cả ba ngưỡng:
-
-| Cặp | {th_cols} | Dao động |
-|---|{'---|' * len(flips.columns)}---|
-{stable_md}
-
-Các cặp còn lại **chỉ nói theo hướng** ("gần / xa", "dễ / khó"), tuyệt đối không trích con số.
-
-Bảng đầy đủ: `analysis/outputs/career_map_sensitivity.csv`.
-
-## Cách đọc — và cách KHÔNG được đọc
-
-- ✅ *"Người làm A đã có sẵn phần lớn kỹ năng lõi của B"* — đúng với phép đo.
-- ❌ *"Nghề A dễ hơn nghề B"* — bộ kỹ năng lõi không đo độ khó, không đo chiều sâu, không đo kinh nghiệm.
-- ❌ *"Chỉ cần học N kỹ năng này là chuyển được nghề"* — đây là **danh sách kỹ năng tin tuyển dụng viết ra**,
-  không phải chương trình đào tạo. Số N là *hàng rào tối thiểu*, không phải *đủ điều kiện*.
-- Bảng chỉ phản ánh **những gì tin tuyển dụng viết**, không phải công việc thực tế.
-
-## Giới hạn
-
-- Một lát cắt duy nhất ⇒ không có phát ngôn xu hướng.
-- Không có trường lương ⇒ không có phát ngôn về thu nhập.
-- Tỉ lệ mô tả **tập dữ liệu này**, không phải thị trường Việt Nam — mỗi job board được truy vấn với độ
-  rộng từ khoá khác nhau.
-- Kỹ năng lấy từ từ điển chuẩn hoá; kỹ năng chưa có trong từ điển thì không được đếm
-  (xem `data/quality/unmapped_skills.csv`).
-"""
-    (ROOT / "docs" / "CAREER_MAP_FINDINGS.md").write_text(doc, encoding="utf-8")
-    print("  -> docs/CAREER_MAP_FINDINGS.md")
 
 
 if __name__ == "__main__":

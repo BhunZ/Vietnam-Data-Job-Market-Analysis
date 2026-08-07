@@ -23,7 +23,7 @@ result = predict(job)
 Label a whole corpus (`data/dataset/text/jobs_text.parquet`):
 ```bash
 python -m pipeline label        # → data/labeling/job_family.parquet
-python -m pipeline label-kpi    # → docs/labeling_kpi.md + spot_check.csv
+python -m pipeline label-kpi    # → docs/labeling_kpi.md + spot_check.csv (KPI report is gitignored)
 python -m pipeline integrate    # → jobs_silver.job_family + family Gold tables
 ```
 
@@ -45,4 +45,4 @@ coverage, method mix, manual-review rate, inter-LLM agreement, confidence distri
 distribution, and emits a spot-check sample for human accuracy verification.
 
 > This engine produces LABELS for analysis. It is **not** a trained classifier (no train/test/macro-F1)
-> — that is intentionally out of scope (Data Analytics project). See `MASTER_PLAN.md`.
+> — that is intentionally out of scope for this Data Analytics project.

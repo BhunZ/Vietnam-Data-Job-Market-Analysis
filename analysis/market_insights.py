@@ -1,11 +1,12 @@
 """Report-grade market-insight figures for the VN Data job market (Plotly).
 
 Reads the shipped DuckDB warehouse (`gold_*`, built by the Job Family Engine) and renders each figure as
-PNG + interactive HTML into `analysis/figures/`.
+PNG + interactive HTML into `analysis/figures/`. Only the PNGs are committed; the HTML is a local
+convenience (hover tooltips) and is gitignored.
 
-Design rules applied (see the repo's chart notes in docs/INSIGHT_FRAMEWORK.md):
-  * ONE message per figure. The previous version crammed KPI cards and a 20-row bar chart into one
-    subplot grid, so labels collided and nothing was legible.
+Design rules applied:
+  * ONE message per figure, and every figure shares the same 900x560 canvas so a single `width=` in
+    LaTeX renders them all at the same size.
   * Horizontal bars whenever category names are long — vertical bars force rotated, overlapping ticks.
   * Every bar carries a DIRECT value label; three palette slots sit below 3:1 contrast on the light
     surface, and a visible label is the required relief.
@@ -45,6 +46,17 @@ S1, S2, S3, S4, S5 = "#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"
 NEUTRAL = "#c3c2b7"          # for "unknown"/unclassified — never a highlight colour
 FONT = "Segoe UI, system-ui, sans-serif"
 
+# MOI hinh dung CHUNG mot chieu rong. Trong LaTeX ta luon dat cung mot `width=` cho tat ca, nen chieu
+# rong bang nhau => co chu sau khi thu nho la bang nhau. Chieu cao thi de thay doi theo so dong du lieu.
+FIG_W = 900
+# ...va CUNG mot chieu cao. Truoc day moi hinh cao mot kieu theo so dong du lieu, nen khi dat cung
+# `width=` trong LaTeX thi hinh nay cao gap ruoi hinh kia — nhin rat lech. Gio khung la co dinh; hinh
+# it dong thi bar day hon (chinh bang `bargap`), chu khung khong doi.
+FIG_H = 560
+# Co chu tinh theo ti le voi FIG_W: 17/900 ~ 1.9% chieu rong, thu nho ve ~14cm trong LaTeX van ~8.5pt,
+# tuc xap xi co chu than bai (10pt). Ban cu de 11-13 nen khi dua vao Overleaf bi nho kho doc.
+FS_BASE, FS_TICK, FS_LABEL, FS_CAT = 17, 15, 16, 16
+
 # Domain keeps ONE hue across every figure (colour follows the entity).
 DOMAIN_COLORS = {
     "Analytics": S1,
@@ -72,68 +84,39 @@ INDUSTRY_VI = {
     "media_gaming": "Truyền thông / Game", "education": "Giáo dục",
     "healthcare_pharma": "Y tế / Dược", "real_estate_construction": "BĐS / Xây dựng",
     "energy_agri": "Năng lượng / Nông nghiệp", "public_sector": "Khu vực công",
-    "recruitment_agency": "Công ty tuyển dụng (ẩn NTD thật)", "unknown": "Chưa phân loại được",
+    "recruitment_agency": "Công ty tuyển dụng", "unknown": "Chưa phân loại được",
 }
 SEN_VI = {"Intern": "Intern", "Junior": "Junior", "Mid": "Mid", "Senior": "Senior",
           "Lead": "Lead", "Manager": "Manager", "Unknown": "Không xác định"}
 
 
-def _shell(fig, title, note, h, subtitle=None):
-    """Common chrome: recessive grid/axes, ink-token text, one short source line.
+def _shell(fig, h=FIG_H):
+    r"""Khung chung cho mọi hình.
 
-    Titles are DESCRIPTIVE, never editorial: the chart states what is measured and the reader draws the
-    conclusion. Interpretation ("cửa vào nghề rất hẹp", "chỉ 1/9 thị trường") belongs in the report prose
-    beside the figure, not stamped on every chart — repeated on five figures it became noise and competed
-    with the data for attention. `subtitle` exists only for a caveat the numbers cannot carry themselves.
+    KHÔNG vẽ tiêu đề và KHÔNG vẽ dòng "Nguồn: ..." lên hình. Lý do: hình được đưa vào LaTeX, nơi
+    `\caption{}` đã làm đúng việc của tiêu đề, còn phần nguồn/ghi chú thuộc về phần chữ của báo cáo.
+    Nhúng chúng vào ảnh chỉ tạo ra hai tiêu đề chồng nhau và một dòng chữ nhỏ không ai đọc.
+
+    Cỡ chữ đặt lớn hơn mặc định của Plotly, vì ảnh sẽ bị thu nhỏ khi chèn vào trang A4.
     """
     fig.update_layout(
-        template="plotly_white", font=dict(family=FONT, size=13, color=INK),
+        template="plotly_white", font=dict(family=FONT, size=FS_BASE, color=INK),
         paper_bgcolor=SURFACE, plot_bgcolor=SURFACE,
         height=h, showlegend=False,
-        title=dict(text=f"<b>{title}</b>", x=0.01, y=0.97, xanchor="left",
-                   font=dict(size=20, color=INK)),
+        title=None,
+        margin=dict(l=10, r=30, t=20, b=40),
     )
-    # Anchor the subtitle to its BOTTOM edge so extra lines grow upward into the margin instead of down
-    # into the plot (a 2-line subtitle anchored at its middle overlapped the first bar), and anchor the
-    # source note to its TOP edge so it grows downward, away from the x-axis title.
-    if subtitle:
-        fig.add_annotation(text=subtitle, xref="paper", yref="paper", x=0.01, y=1.02,
-                           showarrow=False, xanchor="left", yanchor="bottom", align="left",
-                           font=dict(size=12, color=INK2))
-    fig.add_annotation(text=note, xref="paper", yref="paper", x=0.01, y=-0.20,
-                       showarrow=False, xanchor="left", yanchor="top", align="left",
-                       font=dict(size=10, color=MUTED))
     fig.update_xaxes(gridcolor=GRID, linecolor=AXIS, zerolinecolor=AXIS,
-                     tickfont=dict(size=11, color=INK2))
+                     tickfont=dict(size=FS_TICK, color=INK2))
     fig.update_yaxes(gridcolor=GRID, linecolor=AXIS, zerolinecolor=AXIS,
-                     tickfont=dict(size=11, color=INK2))
+                     tickfont=dict(size=FS_TICK, color=INK2))
     return fig
 
 
-def _save(fig, name, w, h):
-    fig.write_image(str(OUT / f"{name}.png"), width=w, height=h, scale=2)
+def _save(fig, name, h=FIG_H):
+    fig.write_image(str(OUT / f"{name}.png"), width=FIG_W, height=h, scale=2)
     fig.write_html(str(OUT / f"{name}.html"), include_plotlyjs="cdn", full_html=True)
     print(f"  -> figures/{name}.png + .html")
-
-
-def _source(con) -> str:
-    """Provenance note stamped on every figure.
-
-    It used to read "≥2 LLM judge đồng thuận", which was true of a minority of the rows: the cascade
-    settles most postings at the title-rule tier and those never reach a judge. The mix is read from the
-    data instead of asserted, so the note cannot drift away from what actually produced the labels.
-    """
-    n = con.execute("SELECT SUM(n) FROM gold_market_share").fetchone()[0]
-    mix = con.execute(f"""SELECT
-            SUM(CASE WHEN jf_method = 'rule' THEN 1 ELSE 0 END),
-            SUM(CASE WHEN jf_method LIKE 'vote%' THEN 1 ELSE 0 END),
-            SUM(CASE WHEN jf_method LIKE 'refine%' THEN 1 ELSE 0 END)
-        FROM jobs_silver WHERE {ANALYSIS_BASE_WHERE}""").fetchone()
-    rule, vote, refine = (int(x or 0) for x in mix)
-    tot = max(rule + vote + refine, 1)
-    return (f"Nguồn: {int(n)} tin Data/AI (6 job board VN, 1 snapshot 06/2026) · nhãn nghề: "
-            f"rule tiêu đề {100*rule/tot:.0f}% · LLM đồng thuận {100*(vote+refine)/tot:.0f}% · "
-            f"1 snapshot ⇒ không suy ra xu hướng")
 
 
 # --- 1. Domain share — the headline, and the only level a ranking survives at --
@@ -145,104 +128,96 @@ def fig_domain(con):
         marker=dict(color=[DOMAIN_COLORS.get(x, NEUTRAL) for x in labels],
                     line=dict(color=SURFACE, width=2)),   # 2px surface gap between adjacent fills
         text=[f"<b>{p:.1f}%</b>  ({int(n)} tin)" for p, n in zip(d["pct"], d["n"])],
-        textposition="outside", textfont=dict(size=12.5, color=INK), cliponaxis=False,
+        textposition="outside", textfont=dict(size=FS_LABEL, color=INK), cliponaxis=False,
         hovertemplate="%{y}<br>%{x:.1f}% · %{customdata} tin<extra></extra>", customdata=d["n"],
     ))
     fig.update_xaxes(range=[0, 60], ticksuffix="%")
-    fig.update_layout(margin=dict(l=200, r=110, t=95, b=105))
-    _shell(fig, "Thị phần tuyển dụng Data theo nhánh (domain)", _source(con), 460)
-    _save(fig, "domain_share", 1100, 460)
+    fig.update_layout(margin=dict(l=200, r=110, t=25, b=55), bargap=0.42)
+    _shell(fig)
+    _save(fig, "domain_share")
 
 
 # --- 2. Family detail — explicitly NOT a ranking ------------------------------
+TOP_FAMILIES = 10   # 10 nhanh dau da chiem 91.1% so tin; 10 nhanh con lai deu duoi 2%.
+
+
 def fig_family(con):
+    """Thi phan theo nhanh nghe — CHI ve TOP_FAMILIES nhanh dau.
+
+    Ve du 20 nhanh thi hinh cao gap doi va nua duoi la nhung thanh gan nhu vo hinh (2-13 tin),
+    khong doc duoc gi ma lai an het cho trong bao cao. Nhung cat bot ma im lang thi doc gia
+    tuong 10 nhanh nay la toan bo thi truong, nen phan duoi duoc GOP thanh mot thanh xam co ghi
+    ro so nhanh va so tin — hinh van cong du 100%, khong giau gi.
+    """
     d = con.execute("SELECT job_family, jf_domain, n, pct FROM gold_market_share "
-                    "ORDER BY n").df()
-    labels = [PRETTY.get(c, c) for c in d["job_family"]]
+                    "ORDER BY n DESC").df()
+    top, tail = d.head(TOP_FAMILIES), d.tail(len(d) - TOP_FAMILIES)
+
+    labels = [PRETTY.get(c, c) for c in top["job_family"]]
+    pcts = list(top["pct"])
+    ns = [int(v) for v in top["n"]]
+    colors = [DOMAIN_COLORS.get(x, NEUTRAL) for x in top["jf_domain"]]
+    if len(tail):
+        labels.append(f"<i>{len(tail)} nhánh còn lại</i>")
+        pcts.append(float(tail["pct"].sum()))
+        ns.append(int(tail["n"].sum()))
+        colors.append(NEUTRAL)
+    # Plotly ve tu duoi len, nen dao nguoc de nhanh lon nhat nam tren cung.
+    labels, pcts, ns, colors = labels[::-1], pcts[::-1], ns[::-1], colors[::-1]
+
     fig = go.Figure(go.Bar(
-        y=labels, x=d["pct"], orientation="h",
-        marker=dict(color=[DOMAIN_COLORS.get(x, NEUTRAL) for x in d["jf_domain"]],
-                    line=dict(color=SURFACE, width=1.5)),
-        text=[f"{p:.1f}%" for p in d["pct"]], textposition="outside",
-        textfont=dict(size=11, color=INK2), cliponaxis=False,
-        hovertemplate="%{y}<br>%{x:.1f}% · %{customdata} tin<extra></extra>", customdata=d["n"],
+        y=labels, x=pcts, orientation="h",
+        marker=dict(color=colors, line=dict(color=SURFACE, width=1.5)),
+        text=[f"{p:.1f}%  ({n})" for p, n in zip(pcts, ns)], textposition="outside",
+        textfont=dict(size=FS_LABEL, color=INK2), cliponaxis=False,
+        hovertemplate="%{y}<br>%{x:.1f}% · %{customdata} tin<extra></extra>", customdata=ns,
     ))
-    fig.update_xaxes(range=[0, 24], ticksuffix="%")
-    fig.update_layout(margin=dict(l=195, r=80, t=95, b=125))
+    fig.update_xaxes(range=[0, 26], ticksuffix="%")
+    fig.update_layout(margin=dict(l=205, r=80, t=20, b=55), bargap=0.22)
     # Legend: colour = domain, so identity is never carried by colour alone in the caption either.
-    chips = "  ".join(f"<span style='color:{c}'>■</span> {n}" for n, c in DOMAIN_COLORS.items())
-    fig.add_annotation(text=chips, xref="paper", yref="paper", x=0.01, y=-0.075,
-                       showarrow=False, xanchor="left", font=dict(size=10.5, color=INK2))
-    _shell(fig, "Thị phần tuyển dụng theo 20 nhánh nghề (job family)", _source(con), 720)
-    _save(fig, "family_share", 1100, 720)
+    # Dat BEN TRONG khung ve, o goc duoi-phai: cac nhanh nho nen vung do trong hoan toan. Truoc day
+    # de duoi truc x thi Plotly cat mat dong chu vi no nam ngoai vung giay.
+    chips = "<br>".join(f"<span style='color:{c}'>■</span> {n}" for n, c in DOMAIN_COLORS.items())
+    fig.add_annotation(text=chips, xref="paper", yref="paper", x=0.47, y=0.34,
+                       showarrow=False, xanchor="left", yanchor="top",
+                       align="left", font=dict(size=FS_TICK, color=INK2))
+    _shell(fig)
+    _save(fig, "family_share")
 
 
-# --- 3. Skill fingerprint: what a family asks for vs what makes it distinctive -
-def fig_skill_dna(con):
-    fams = con.execute("SELECT job_family FROM gold_market_share ORDER BY n DESC LIMIT 8"
-                       ).df()["job_family"].tolist()
-    skills = con.execute("SELECT skill, SUM(n) t FROM gold_family_skill GROUP BY 1 "
-                         "ORDER BY 2 DESC LIMIT 11").df()["skill"].tolist()
-    fs = con.execute("SELECT job_family, skill, share_in_family FROM gold_family_skill").df()
-    piv = (fs[fs["job_family"].isin(fams) & fs["skill"].isin(skills)]
-           .pivot_table(index="job_family", columns="skill", values="share_in_family", fill_value=0)
-           .reindex(index=fams, columns=skills))
-    z = piv.values
-    fig = go.Figure(go.Heatmap(
-        z=z, x=skills, y=[PRETTY.get(c, c) for c in piv.index],
-        # Sequential = ONE hue, light->dark. The old version used a rainbow-ish scale.
-        colorscale=[[0.0, "#f2f7fd"], [0.25, "#9ec5f4"], [0.5, "#5598e7"],
-                    [0.75, "#256abf"], [1.0, "#0d366b"]],
-        zmin=0, zmax=85, xgap=2, ygap=2,      # 2px surface gap between cells
-        colorbar=dict(title=dict(text="% tin trong<br>nhánh", font=dict(size=10.5, color=INK2)),
-                      thickness=12, len=0.62, tickfont=dict(size=10, color=INK2), outlinewidth=0),
-        hovertemplate="<b>%{y}</b><br>%{x}: %{z:.0f}% số tin trong nhánh<extra></extra>",
-    ))
-    # Per-cell value labels drawn as annotations, because a heatmap's `textfont` takes ONE colour for the
-    # whole grid: dark ink on the dark high-value cells was unreadable (77, 81, 89 all disappeared).
-    # Text on a coloured fill must flip with the fill's lightness.
-    for iy, fam in enumerate(piv.index):
-        for ix, sk in enumerate(piv.columns):
-            v = z[iy][ix]
-            if v < 5:
-                continue
-            fig.add_annotation(
-                x=sk, y=PRETTY.get(fam, fam), text=f"{v:.0f}", showarrow=False,
-                font=dict(size=10.5, color="#eaf2fd" if v >= 45 else INK2),
-            )
-    fig.update_yaxes(autorange="reversed", tickfont=dict(size=11.5, color=INK))
-    # Horizontal tick labels at the BOTTOM: rotated top labels were the main collision source.
-    fig.update_xaxes(side="bottom", tickangle=0, tickfont=dict(size=10.5, color=INK2))
-    fig.update_layout(margin=dict(l=180, r=115, t=95, b=105))
-    _shell(fig, "% tin trong mỗi nhánh có yêu cầu kỹ năng", _source(con), 580)
-    _save(fig, "skill_dna", 1150, 580)
+# --- 3. Who hires — industry --------------------------------------------------
+TINT = "#9ec5f4"     # nen: moi nganh khong-top-3 deu dung dung mau nay
 
 
-# --- 4. Who hires — industry, with `unknown` shown honestly -------------------
 def fig_industry(con):
+    """Nganh cua nha tuyen dung.
+
+    Mau CHI dung de tach top 3 khoi phan con lai. Truoc day moi nganh mot kieu (xanh cho ngan hang,
+    luc cho cong nghe, xam cho "cong ty tuyen dung") khien nguoi doc di tim y nghia trong tung mau
+    trong khi khong co y nghia nao ca. Top 3 dam, 11 nganh con lai cung mot mau nhat: mat doc thang
+    vao dieu duy nhat hinh muon noi.
+    """
     d = con.execute("SELECT company_type, SUM(n) n FROM gold_company GROUP BY 1 "
                     "ORDER BY n").df()
     d = d[d["n"] >= 3]
     labels = [INDUSTRY_VI.get(t, t) for t in d["company_type"]]
     total = con.execute("SELECT SUM(n) FROM gold_market_share").fetchone()[0]
-    colors = []
-    for t in d["company_type"]:
-        colors.append(NEUTRAL if t in ("unknown", "recruitment_agency")
-                      else S1 if t == "bank_finance" else S3 if t == "tech_software" else "#9ec5f4")
+    top3 = set(d.nlargest(3, "n")["company_type"])
+    colors = [S1 if t in top3 else TINT for t in d["company_type"]]
     fig = go.Figure(go.Bar(
         y=labels, x=d["n"], orientation="h",
         marker=dict(color=colors, line=dict(color=SURFACE, width=2)),
         text=[f"<b>{int(n)}</b>  ({100*n/total:.1f}%)" for n in d["n"]],
-        textposition="outside", textfont=dict(size=11.5, color=INK), cliponaxis=False,
+        textposition="outside", textfont=dict(size=FS_LABEL, color=INK), cliponaxis=False,
         hovertemplate="%{y}: %{x} tin<extra></extra>",
     ))
     fig.update_xaxes(range=[0, max(d["n"]) * 1.28])
-    fig.update_layout(margin=dict(l=255, r=95, t=95, b=115))
-    _shell(fig, "Số tin tuyển dụng Data theo ngành của nhà tuyển dụng", _source(con), 600)
-    _save(fig, "industry_share", 1100, 600)
+    fig.update_layout(margin=dict(l=250, r=95, t=20, b=55), bargap=0.22)
+    _shell(fig)
+    _save(fig, "industry_share")
 
 
-# --- 5. Seniority — with the honest Unknown bucket ---------------------------
+# --- 4. Seniority — with the honest Unknown bucket ---------------------------
 def fig_seniority(con):
     d = con.execute("SELECT seniority, SUM(n) n FROM gold_seniority GROUP BY 1").df()
     order = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager", "Unknown"]
@@ -253,13 +228,45 @@ def fig_seniority(con):
         x=[SEN_VI.get(s, s) for s in d["seniority"]], y=d["n"],
         marker=dict(color=colors, line=dict(color=SURFACE, width=2)),
         text=[f"<b>{int(n)}</b><br>{100*n/total:.1f}%" for n in d["n"]],
-        textposition="outside", textfont=dict(size=11.5, color=INK), cliponaxis=False,
+        textposition="outside", textfont=dict(size=FS_LABEL, color=INK), cliponaxis=False,
         hovertemplate="%{x}: %{y} tin<extra></extra>",
     ))
     fig.update_yaxes(range=[0, max(d["n"]) * 1.30])
-    fig.update_layout(margin=dict(l=85, r=55, t=95, b=120))
-    _shell(fig, "Số tin tuyển dụng Data theo cấp bậc", _source(con), 500)
-    _save(fig, "seniority_share", 1000, 500)
+    fig.update_layout(margin=dict(l=85, r=55, t=25, b=70), bargap=0.38)
+    _shell(fig)
+    _save(fig, "seniority_share")
+
+
+# --- 5. Dia diem tuyen dung --------------------------------------------------
+def fig_location(con):
+    """Tin tuyen theo tinh/thanh.
+
+    Ve tung tinh RIENG chu khong gop thanh "cac tinh khac": ca cai duoi cong lai chi 25 tin, va
+    chinh viec nhin thay Da Nang = 1 tin moi noi len dieu can noi. Gop lai thanh mot thanh 25 tin
+    se lam no trong nhu mot phan thi truong that su.
+
+    Nhom tin KHONG ghi thanh pho duoc ve rieng bang mau xam, khong bo di va khong nhap vao dau:
+    day la du lieu thieu, khong phai mot dia phuong.
+    """
+    d = con.execute(f"""
+        SELECT COALESCE(NULLIF(TRIM(city), ''), '(không ghi thành phố)') AS city, COUNT(*) AS n
+        FROM jobs_silver WHERE {ANALYSIS_BASE_WHERE}
+        GROUP BY 1 ORDER BY n
+    """).df()
+    total = int(d["n"].sum())
+    hubs = {"Hà Nội", "Hồ Chí Minh"}
+    colors = [NEUTRAL if c.startswith("(") else S1 if c in hubs else "#9ec5f4" for c in d["city"]]
+    fig = go.Figure(go.Bar(
+        y=list(d["city"]), x=d["n"], orientation="h",
+        marker=dict(color=colors, line=dict(color=SURFACE, width=2)),
+        text=[f"<b>{int(n)}</b>  ({100*n/total:.1f}%)" for n in d["n"]],
+        textposition="outside", textfont=dict(size=FS_LABEL, color=INK), cliponaxis=False,
+        hovertemplate="%{y}: %{x} tin<extra></extra>",
+    ))
+    fig.update_xaxes(range=[0, max(d["n"]) * 1.25])
+    fig.update_layout(margin=dict(l=225, r=95, t=20, b=60), bargap=0.22)
+    _shell(fig)
+    _save(fig, "location_share")
 
 
 def main():
@@ -267,9 +274,9 @@ def main():
     print("Rendering figures → analysis/figures/")
     fig_domain(con)
     fig_family(con)
-    fig_skill_dna(con)
     fig_industry(con)
     fig_seniority(con)
+    fig_location(con)
     con.close()
     print("Done.")
 

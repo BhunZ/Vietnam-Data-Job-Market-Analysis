@@ -53,7 +53,7 @@ family-level numbers with a caveat.
    title+JD+skills → majority vote; disagreement → `review_status = manual_review`.
 
 Each job carries `confidence_score`, `labeling_method`, `llm_votes`, `reasoning`, `review_status`.
-Quality KPIs: `docs/labeling_kpi.md`.
+Quality KPIs: run `python -m pipeline label-kpi` (writes `docs/labeling_kpi.md`, gitignored).
 
 ## Notes for analysts
 - Use `job_family` (not the legacy `role_category`) as the role key.
