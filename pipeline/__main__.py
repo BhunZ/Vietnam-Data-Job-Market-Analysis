@@ -1,12 +1,18 @@
 """CLI entrypoint:  python -m pipeline <command> [options]
 
-Commands (per PROJECT_SPEC §4):
-  inspect   Phase 1 spike — sample one source, persist raw, print data shape + volume.
-  ingest    Fetch + persist raw for enabled sources.        (Phase 2)
-  bronze    Parse raw -> typed Bronze.                       (Phase 2)
-  silver    Normalize + dedup -> Silver.                     (Phase 3)
-  gold      Build serving aggregates -> Gold.                (Phase 4)
-  all       Run ingest -> bronze -> silver -> gold.          (Phase 4)
+Run `python -m pipeline --help` for the full list; the summary that used to live here
+advertised an `ingest` and a `bronze` command that were never written.
+
+The chain `all` runs, in order:
+
+    scrape -> load -> gate -> silver -> label -> refine -> enrich-llm
+           -> integrate -> gold -> validate
+
+`gate` sits between load and label on purpose. Labeling is the step that costs LLM quota,
+so the check for "did a parser break and hand us several hundred fake postings" has to
+happen before it, not after.
+
+Every step records itself in `pipeline_runs`; `python -m pipeline runs` prints the history.
 """
 
 from __future__ import annotations
@@ -78,7 +84,18 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("label-kpi", help="Engine KPI report + spot-check sample")
     sub.add_parser("integrate", help="Integrate job_family into jobs_silver + build family Gold")
 
-    sub.add_parser("all", help="(chưa triển khai)")
+    p_all = sub.add_parser("all", help="Run the whole chain: scrape → … → validate")
+    p_all.add_argument("--from", dest="from_step", default=None, metavar="STEP",
+                       help="resume the chain from this step (skip everything before it)")
+    p_all.add_argument("--skip", nargs="*", default=[], metavar="STEP",
+                       help="steps to leave out")
+    p_all.add_argument("--dry-run", action="store_true",
+                       help="print the steps that would run, then stop")
+    p_all.add_argument("--allow-large-delta", action="store_true",
+                       help="let the ingest gate pass even when the new-posting share is over "
+                            "its allowance (use after checking the postings are real)")
+    p_all.add_argument("--run-date", default=None, help="run date YYYY-MM-DD (default: today)")
+    p_all.add_argument("--jd-limit", type=int, default=25)
 
     p_runs = sub.add_parser("runs", help="Show recent pipeline step history (pipeline_runs)")
     p_runs.add_argument("--limit", type=int, default=20)
@@ -93,11 +110,122 @@ def main(argv: list[str] | None = None) -> int:
         print_recent(limit=args.limit)
         return 0
 
-    # Every other command is one pipeline step: time it, count it, record how it ended.
     from .utils import runlog
 
+    # `all` tracks each of its steps individually; tracking the wrapper too would double-count.
+    if args.command == "all":
+        return _run_all(args)
+
+    # Every other command is one pipeline step: time it, count it, record how it ended.
     with runlog.track(args.command):
         return _dispatch(args)
+
+
+#: The chain, in the only order that works. `gate` is not a standalone command — it is the
+#: check that stands between loading and paying for labels.
+ALL_STEPS = ["scrape", "load", "gate", "silver", "label", "refine",
+             "enrich-llm", "integrate", "gold", "validate"]
+
+
+def _run_all(args) -> int:
+    """Run the chain, sharing one run_id so `pipeline_runs` groups it as a single execution."""
+    import os
+    from datetime import date
+
+    from .utils import runlog
+
+    run_date = (date.fromisoformat(args.run_date) if args.run_date else date.today())
+
+    steps = ALL_STEPS
+    if args.from_step:
+        if args.from_step not in ALL_STEPS:
+            print(f"Unknown step {args.from_step!r}. Known steps: {', '.join(ALL_STEPS)}")
+            return 1
+        steps = steps[ALL_STEPS.index(args.from_step):]
+    unknown = [s for s in args.skip if s not in ALL_STEPS]
+    if unknown:
+        print(f"Unknown step(s) to skip: {unknown}. Known steps: {', '.join(ALL_STEPS)}")
+        return 1
+    steps = [s for s in steps if s not in args.skip]
+
+    if args.dry_run:
+        print(f"Would run for run_date={run_date}:")
+        for i, s in enumerate(steps, 1):
+            print(f"  {i}. {s}")
+        return 0
+
+    # One id for the whole chain. runlog reads this, so every step joins the same run.
+    os.environ[runlog.RUN_ID_ENV] = runlog.new_run_id()
+    run_id = runlog.current_run_id()
+    print(f"\n{'#'*72}\n# PIPELINE ALL  run_id={run_id}  run_date={run_date}\n"
+          f"# steps: {' -> '.join(steps)}\n{'#'*72}")
+
+    for i, step in enumerate(steps, 1):
+        print(f"\n{'#'*72}\n# [{i}/{len(steps)}] {step}\n{'#'*72}")
+        try:
+            with runlog.track(step):
+                code = _run_one(step, args, run_date)
+        except Exception as exc:  # noqa: BLE001 — report and stop the chain, do not traceback
+            print(f"\nSTOPPED at step {step!r}: {type(exc).__name__}: {exc}")
+            print(f"Resume with:  python -m pipeline all --from {step}")
+            return 1
+        if code != 0:
+            print(f"\nSTOPPED at step {step!r} (exit {code}).")
+            print(f"Resume with:  python -m pipeline all --from {step}")
+            return code
+
+    print(f"\n{'#'*72}\n# DONE — all {len(steps)} steps passed (run_id={run_id})\n{'#'*72}")
+    return 0
+
+
+def _run_one(step: str, args, run_date) -> int:
+    """Run a single chain step. Raises or returns non-zero to stop the chain."""
+    if step == "scrape":
+        from .scrape import run_scrape
+
+        run_scrape(jd_limit=args.jd_limit, run_date=run_date.isoformat())
+        return 0
+
+    if step == "load":
+        from .transform.load import run_load
+
+        run_load(run_date_str=run_date.isoformat())
+        return 0
+
+    if step == "gate":
+        from .gates import check_ingest_delta, print_report, stale_sources
+
+        delta = check_ingest_delta(run_date, allow_large=args.allow_large_delta)
+        print_report(run_date, delta, stale_sources(run_date))
+        return 0
+
+    if step == "silver":
+        from .transform.silver import run_silver
+
+        # The chain rebuilds labels immediately afterwards (label -> refine -> integrate),
+        # and the label cache is keyed on content_hash so unchanged postings cost nothing to
+        # re-decide. Outside the chain `silver` still refuses without --force.
+        run_silver(force=True)
+        return 0
+
+    if step == "validate":
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        script = Path(__file__).resolve().parents[1] / "analysis" / "validate_gold.py"
+        return subprocess.run([sys.executable, str(script)]).returncode
+
+    # The remaining steps take no arguments and share the plain dispatch path.
+    simple = {"label": ("job_family_engine.engine", "run_corpus_consensus"),
+              "refine": ("job_family_engine.refine", "refine_unresolved"),
+              "enrich-llm": ("pipeline.transform.enrich_llm", "enrich"),
+              "integrate": ("job_family_engine.integrate", "integrate"),
+              "gold": ("pipeline.transform.gold", "run_gold")}
+    module_name, func_name = simple[step]
+    module = __import__(module_name, fromlist=[func_name])
+    getattr(module, func_name)()
+    return 0
 
 
 def _dispatch(args) -> int:
@@ -184,7 +312,8 @@ def _dispatch(args) -> int:
         integrate()
         return 0
 
-    print(f"Command '{args.command}' is not implemented yet (Phase 1 ships 'inspect' only).")
+    print(f"Command '{args.command}' has no handler — this is a bug in __main__.py, "
+          f"not a missing feature.")
     return 1
 
 

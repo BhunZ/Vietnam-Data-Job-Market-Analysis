@@ -31,7 +31,13 @@ def dup_grain(con: duckdb.DuckDBPyConnection, table: str, cols: list[str]) -> in
     return sum(1 for n in counts.values() if n > 1)
 
 
-def main() -> None:
+def main() -> int:
+    """Print the evidence, then return an exit code so this can gate a pipeline run.
+
+    It used to only print. A check nobody can fail is a report, not a check: `pipeline all`
+    would have happily finished on a warehouse whose Gold tables disagreed with each other.
+    """
+    failures: list[str] = []
     con = duckdb.connect(str(DB), read_only=True)
 
     # Must mirror job_family_engine/integrate.py exactly, including the jf_review exclusion — jobs no
@@ -63,12 +69,28 @@ def main() -> None:
         "gold_skill_cooccurrence": ["skill_a", "skill_b"],
     }
     for table, cols in checks.items():
-        print(f"{table}_duplicate_grain", dup_grain(con, table, cols))
+        n_dup = dup_grain(con, table, cols)
+        print(f"{table}_duplicate_grain", n_dup)
+        if n_dup:
+            failures.append(f"{table}: {n_dup} rows break the declared grain {cols}")
 
     cooc = con.execute(
         "SELECT skill_a, skill_b FROM gold_skill_cooccurrence"
     ).fetchall()
-    print("gold_skill_cooccurrence_bad_pair_order", sum(1 for a, b in cooc if a >= b))
+    bad_order = sum(1 for a, b in cooc if a >= b)
+    print("gold_skill_cooccurrence_bad_pair_order", bad_order)
+    if bad_order:
+        failures.append(f"gold_skill_cooccurrence: {bad_order} pairs not stored as skill_a < skill_b, "
+                        "so the same pair can appear twice")
+
+    # Gold must describe the analysis base and nothing else. When these drift apart it is
+    # normally because one writer filters on a different column than another — a bug this
+    # project has actually shipped before (see pipeline/utils/analysis_base.py).
+    if market_total[0] is not None and market_total[0] != analysis_base:
+        failures.append(f"gold_market_share sums to {market_total[0]} but the analysis base holds "
+                        f"{analysis_base} postings — the two describe different corpora")
+    if market_total[1] is not None and abs(market_total[1] - 100.0) > 0.5:
+        failures.append(f"gold_market_share percentages sum to {market_total[1]}, not 100")
 
     print("top5_market_share")
     for row in con.execute(
@@ -78,7 +100,15 @@ def main() -> None:
 
     con.close()
 
+    if failures:
+        print(f"\nVALIDATION FAILED ({len(failures)}):")
+        for f in failures:
+            print(f"  - {f}")
+        return 1
+    print("\nVALIDATION OK")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
 
