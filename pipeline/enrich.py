@@ -13,24 +13,24 @@ from pathlib import Path
 
 from .ingest import CONNECTORS
 from .models import BronzeJob
-from .utils.config import DATA_DIR
+from .utils import bronze
 
 log = logging.getLogger("pipeline.enrich")
 
 
-def _write(rows: list[BronzeJob], path: Path) -> None:
-    with path.open("w", encoding="utf-8") as fh:
-        for r in rows:
-            fh.write(r.model_dump_json() + "\n")
+def _write(rows: list[BronzeJob], source: str) -> Path:
+    # Fills JD on the newest snapshot in place: these are the same observations with
+    # more detail, not a new run. See pipeline/utils/bronze.py.
+    return bronze.rewrite_latest(source, (r.model_dump_json() for r in rows))
 
 
 def run_enrich(source: str, delay: float | None = None, limit: int | None = None,
                max_live_fetches: int = 1000, flush_every: int = 25) -> None:
-    path = DATA_DIR / "bronze" / source / "latest.jsonl"
-    if not path.exists():
-        print(f"No bronze file for {source} ({path}).")
+    path = bronze.latest_path(source)
+    if path is None:
+        print(f"No bronze snapshot for {source} ({bronze.source_dir(source)}).")
         return
-    rows = [BronzeJob.model_validate(json.loads(l)) for l in path.open(encoding="utf-8")]
+    rows = [BronzeJob.model_validate(r) for r in bronze.iter_rows(path)]
     conn = CONNECTORS[source]()
     conn.client.max_live_fetches = max_live_fetches
     if delay is not None:  # shorter, still-polite delay for bulk detail fetching
@@ -53,9 +53,9 @@ def run_enrich(source: str, delay: float | None = None, limit: int | None = None
         if r.description_raw and not before:
             done += 1
         if done and done % flush_every == 0:
-            _write(rows, path)
+            _write(rows, source)
             print(f"  ... {done}/{len(todo)} enriched (flushed)")
-    _write(rows, path)
+    path = _write(rows, source)
 
     have = sum(1 for r in rows if r.description_raw)
     print(f"DONE {source}: JD coverage {have}/{len(rows)} "

@@ -15,7 +15,7 @@ import json
 import os
 import sys
 
-from .utils.config import DATA_DIR
+from .utils import bronze
 
 def main(argv: list[str] | None = None) -> int:
     argv = argv or sys.argv[1:]
@@ -27,8 +27,11 @@ def main(argv: list[str] | None = None) -> int:
     jd = json.load(open(files[0], encoding="utf-8"))
     print(f"Loaded {len(jd)} JD entries from {files[0]}")
 
-    path = DATA_DIR / "bronze" / "topcv" / "latest.jsonl"
-    rows = [json.loads(l) for l in path.open(encoding="utf-8")]
+    path = bronze.latest_path("topcv")
+    if path is None:
+        print("No bronze snapshot for topcv — run `python -m pipeline scrape` first.")
+        return 1
+    rows = list(bronze.iter_rows(path))
 
     filled = 0
     for r in rows:
@@ -46,9 +49,8 @@ def main(argv: list[str] | None = None) -> int:
         r["extra"]["experience_req"] = info.get("exp")
         r["extra"]["occupational_category"] = info.get("cat")
 
-    with path.open("w", encoding="utf-8") as fh:
-        for r in rows:
-            fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+    path = bronze.rewrite_latest(
+        "topcv", (json.dumps(r, ensure_ascii=False) for r in rows))
     have = sum(1 for r in rows if r.get("description_raw"))
     print(f"Merged: +{filled} JD this run. Coverage {have}/{len(rows)}. Bronze: {path}")
     return 0

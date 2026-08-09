@@ -10,7 +10,6 @@ Run:  python -m pipeline scrape [--jd-limit 25]
 
 from __future__ import annotations
 
-import json
 import logging
 from collections import Counter
 from datetime import date
@@ -20,7 +19,8 @@ import requests
 
 from .ingest import CONNECTORS
 from .models import BronzeJob
-from .utils.config import DATA_DIR, get_secrets, load_sources_config
+from .utils import bronze
+from .utils.config import get_secrets, load_sources_config
 from .utils.http import ScrapeClient
 
 log = logging.getLogger("pipeline.scrape")
@@ -42,24 +42,17 @@ def _credits_left() -> int | None:
     return None
 
 
-def _persist(rows: list[BronzeJob], source: str) -> Path:
-    # Flat, overwritten each run — the current snapshot. History lives in the DuckDB
-    # warehouse (run `python -m pipeline load` after scraping), not in dated folders.
-    out = DATA_DIR / "bronze" / source
-    out.mkdir(parents=True, exist_ok=True)
-    path = out / "latest.jsonl"
+def _persist(rows: list[BronzeJob], source: str, run_date: str) -> Path:
+    # One dated snapshot per run, never rewritten by a later run, so the warehouse
+    # stays rebuildable from raw and a failed scrape cannot destroy the previous run.
+    # See pipeline/utils/bronze.py for the layout.
 
     # Carry-forward guard: a listing-only re-scrape must NOT wipe JD/skills that `enrich`
     # (or a prior detail fetch) already added. Restore description_raw / skills_raw from the
-    # previous latest.jsonl for the same source_job_id when this run's value is empty.
+    # previous snapshot for the same source_job_id when this run's value is empty.
     prev: dict[str, dict] = {}
-    if path.exists():
-        for line in path.open(encoding="utf-8"):
-            try:
-                d = json.loads(line)
-                prev[str(d.get("source_job_id"))] = d
-            except Exception:  # noqa: BLE001
-                pass
+    for d in bronze.read_latest(source):
+        prev[str(d.get("source_job_id"))] = d
     if prev:
         for r in rows:
             old = prev.get(str(r.source_job_id))
@@ -70,10 +63,7 @@ def _persist(rows: list[BronzeJob], source: str) -> Path:
             if not r.skills_raw and old.get("skills_raw"):
                 r.skills_raw = old["skills_raw"]
 
-    with path.open("w", encoding="utf-8") as fh:
-        for r in rows:
-            fh.write(r.model_dump_json() + "\n")
-    return path
+    return bronze.write_snapshot(source, run_date, (r.model_dump_json() for r in rows))
 
 
 def _enabled_sources() -> list[str]:
@@ -113,7 +103,7 @@ def run_scrape(jd_limit: int = 25, max_live_fetches: int = 40,
             print(f"  FAILED: {exc}")
             results[src] = {"status": "FAILED", "error": str(exc)}
             continue
-        path = _persist(rows, src)
+        path = _persist(rows, src, run_date)
         # JD coverage: rows with a non-empty description.
         with_desc = sum(1 for r in rows if r.description_raw)
         cities = Counter(c for r in rows for c in [r.extra.get("city")] if c) \

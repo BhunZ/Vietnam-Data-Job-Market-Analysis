@@ -10,15 +10,16 @@ from datetime import date
 import duckdb
 
 import pipeline.transform.load as L
+import pipeline.utils.bronze as B
 
 
-def _put(base, source, ids):
-    d = base / "bronze" / source
-    d.mkdir(parents=True, exist_ok=True)
-    (d / "latest.jsonl").write_text(
-        "\n".join(json.dumps({"source": source, "source_job_id": i, "title_raw": f"job {i}",
-                              "skills_raw": [], "posted_date_raw": None}) for i in ids),
-        encoding="utf-8")
+def _put(base, source, ids, run_date="2026-01-01"):
+    """Write one dated Bronze snapshot, the way `scrape` does."""
+    B.write_snapshot(
+        source, run_date,
+        (json.dumps({"source": source, "source_job_id": i, "title_raw": f"job {i}",
+                     "skills_raw": [], "posted_date_raw": None}) for i in ids),
+    )
 
 
 def _val(db, sql):
@@ -30,19 +31,20 @@ def _val(db, sql):
 
 def test_cdc_new_removed_idempotent(tmp_path, monkeypatch):
     monkeypatch.setattr(L, "DB_PATH", tmp_path / "wh.duckdb")
+    monkeypatch.setattr(B, "BRONZE_DIR", tmp_path / "bronze")
     monkeypatch.setattr(L, "BRONZE", tmp_path / "bronze")
     db = tmp_path / "wh.duckdb"
 
     # day 1: itviec {a,b} (full_scan), topdev {x,y} (miss-streak)
-    _put(tmp_path, "itviec", ["a", "b"])
-    _put(tmp_path, "topdev", ["x", "y"])
+    _put(tmp_path, "itviec", ["a", "b"], "2026-01-01")
+    _put(tmp_path, "topdev", ["x", "y"], "2026-01-01")
     L.upsert_run(date(2026, 1, 1))
     assert _val(db, "SELECT count(*) FROM jobs") == 4
     assert _val(db, "SELECT count(*) FILTER(WHERE is_active) FROM jobs") == 4
 
     # day 2: itviec drops b + adds c; topdev drops y
-    _put(tmp_path, "itviec", ["a", "c"])
-    _put(tmp_path, "topdev", ["x"])
+    _put(tmp_path, "itviec", ["a", "c"], "2026-01-02")
+    _put(tmp_path, "topdev", ["x"], "2026-01-02")
     L.upsert_run(date(2026, 1, 2))
     # full_scan source: b removed immediately
     assert _val(db, "SELECT is_active FROM jobs WHERE source='itviec' AND source_job_id='b'") is False
@@ -58,6 +60,13 @@ def test_cdc_new_removed_idempotent(tmp_path, monkeypatch):
     assert _val(db, "SELECT miss_streak FROM jobs WHERE source='topdev' AND source_job_id='y'") == 1
 
     # day 3: y still missing -> 2nd miss -> removed
-    _put(tmp_path, "topdev", ["x"])
+    _put(tmp_path, "topdev", ["x"], "2026-01-03")
     L.upsert_run(date(2026, 1, 3))
     assert _val(db, "SELECT is_active FROM jobs WHERE source='topdev' AND source_job_id='y'") is False
+
+    # Every run left its own snapshot behind — the point of dating Bronze. The day-1
+    # file must still hold day-1 content, or the warehouse is not rebuildable from raw.
+    assert [p.name for p in B.list_snapshots("topdev")] == [
+        "2026-01-01.jsonl.gz", "2026-01-02.jsonl.gz", "2026-01-03.jsonl.gz"]
+    day1 = {r["source_job_id"] for r in B.iter_rows(B.snapshot_path("topdev", "2026-01-01"))}
+    assert day1 == {"x", "y"}

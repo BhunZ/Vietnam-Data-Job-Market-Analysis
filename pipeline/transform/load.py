@@ -1,4 +1,4 @@
-"""Incremental load: Bronze (`data/bronze/<source>/latest.jsonl`) → DuckDB warehouse.
+"""Incremental load: Bronze (`data/bronze/<source>/<run_date>.jsonl.gz`) → DuckDB warehouse.
 
 Master `jobs` table (one row per source+id) tracks state across runs via UPSERT (CDC):
 new ids inserted (first_seen=run_date), seen ids refreshed (last_seen=run_date), and ids
@@ -13,17 +13,19 @@ from __future__ import annotations
 import json
 import logging
 from datetime import date, datetime
+from pathlib import Path
 
 import duckdb
 import pandas as pd
 
+from ..utils import bronze, runlog
 from ..utils.config import DATA_DIR
 from .dates import parse_posted_date
 
 log = logging.getLogger("pipeline.load")
 
 DB_PATH = DATA_DIR / "warehouse.duckdb"
-BRONZE = DATA_DIR / "bronze"
+BRONZE = bronze.BRONZE_DIR
 MISS_STREAK_REMOVE = 2  # for coverage-limited sources, mark removed after K consecutive misses
 
 # Sources we scan completely each run → a missing id means truly removed (mark immediately).
@@ -50,16 +52,16 @@ CREATE TABLE IF NOT EXISTS job_observations (
 
 
 def _available_sources() -> list[str]:
-    if not BRONZE.exists():
-        return []
-    return sorted(s.name for s in BRONZE.glob("*")
-                  if s.is_dir() and (s / "latest.jsonl").exists())
+    return bronze.available_sources()
 
 
-def _staging_df(source: str, run_date: date) -> pd.DataFrame:
+def _staging_df(source: str, run_date: date, snapshot: Path | None = None) -> pd.DataFrame:
+    """Stage one Bronze snapshot. Defaults to the newest; pass `snapshot` to replay an older one."""
+    path = snapshot or bronze.latest_path(source)
+    if path is None:
+        return pd.DataFrame()
     rows = []
-    for line in (BRONZE / source / "latest.jsonl").open(encoding="utf-8"):
-        r = json.loads(line)
+    for r in bronze.iter_rows(path):
         rows.append({
             "source": r["source"], "source_job_id": str(r["source_job_id"]),
             "url": r.get("url"), "title_raw": r.get("title_raw"),
@@ -142,7 +144,9 @@ def upsert_run(run_date: date | None = None, sources: list[str] | None = None) -
     con.execute("""UPDATE jobs SET
         effective_date = COALESCE(posted_date, first_seen_date),
         date_source = CASE WHEN posted_date IS NOT NULL THEN 'site' ELSE 'first_seen' END""")
+    n_jobs = con.execute("SELECT count(*) FROM jobs").fetchone()[0]
     con.close()
+    runlog.set_rows(rows_in=sum(r["seen"] for r in report.values()), rows_out=n_jobs)
     return {"run_date": str(run_date), "per_source": report}
 
 
