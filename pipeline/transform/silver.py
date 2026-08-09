@@ -18,6 +18,7 @@ import duckdb
 import pandas as pd
 from rapidfuzz import fuzz
 
+from ..utils import runlog
 from ..utils.config import DATA_DIR
 from . import normalize as N
 
@@ -152,6 +153,7 @@ def run_silver(force: bool = False) -> None:
     # ---- report ----
     total = len(rows)
     uniq = total - n_dups
+    runlog.set_rows(rows_in=len(jobs), rows_out=total)
     print(f"\n{'='*64}\nSILVER → jobs_silver  ({total} rows, {uniq} unique sau dedup)\n{'='*64}")
     print("role_category:", dict(Counter(r["role_category"] for r in rows).most_common()))
     non_other = [r for r in rows if r["role_category"] != "OTHER"]

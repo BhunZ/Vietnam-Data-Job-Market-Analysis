@@ -79,9 +79,27 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("all", help="(chưa triển khai)")
 
+    p_runs = sub.add_parser("runs", help="Show recent pipeline step history (pipeline_runs)")
+    p_runs.add_argument("--limit", type=int, default=20)
+
     args = parser.parse_args(argv)
     _setup_logging(args.verbose)
 
+    # `runs` only reads the log, so it must not write a row of its own.
+    if args.command == "runs":
+        from .utils.runlog import print_recent
+
+        print_recent(limit=args.limit)
+        return 0
+
+    # Every other command is one pipeline step: time it, count it, record how it ended.
+    from .utils import runlog
+
+    with runlog.track(args.command):
+        return _dispatch(args)
+
+
+def _dispatch(args) -> int:
     if args.command == "inspect":
         from .inspect import run_inspect
 

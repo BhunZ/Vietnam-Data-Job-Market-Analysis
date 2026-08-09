@@ -25,6 +25,7 @@ from itertools import combinations
 import duckdb
 import pandas as pd
 
+from ..utils import runlog
 from ..utils.config import DATA_DIR
 
 log = logging.getLogger("pipeline.gold")
@@ -126,5 +127,10 @@ def run_gold() -> None:
     print("\nTop learning-path edges (skill_cooccurrence):")
     for a, b, c in con.execute("SELECT skill_a,skill_b,n FROM skill_cooccurrence LIMIT 6").fetchall():
         print(f"  {c:3d}  {a} + {b}")
+    total_gold = sum(con.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
+                     for t in ["skill_demand", "role_skill_matrix", "seniority_progression",
+                               "role_by_location", "company_type_demand",
+                               "skill_cooccurrence", "trend"])
     con.close()
+    runlog.set_rows(rows_in=n, rows_out=total_gold)
     print(f"\nDone. 7 Gold tables in {DB_PATH}")
