@@ -313,7 +313,7 @@ def test_run_corpus_dedups_by_content_hash_and_fans_out(monkeypatch):
     monkeypatch.setattr(engine.pd, "read_parquet", lambda *a, **k: jobs)
     monkeypatch.setattr(engine.embed_match, "_prototypes", lambda: None)
     monkeypatch.setattr(engine.embed_match, "_job_vectors", lambda: None)
-    monkeypatch.setattr(engine, "_tier12", lambda job: None)             # force all to the LLM tier
+    monkeypatch.setattr(engine, "_tier012", lambda job: None)            # force all to the LLM tier
     monkeypatch.setattr(engine._io, "write_parquet", lambda df, *a, **k: df)
 
     def fake_label(reps, rep_results, nn):

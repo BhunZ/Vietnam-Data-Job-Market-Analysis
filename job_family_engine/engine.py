@@ -33,7 +33,7 @@ from pipeline.dataset import _io
 from pipeline.dataset.llm_clients import JUDGES
 from pipeline.utils.config import DATA_DIR, get_secrets
 
-from . import embed_match, llm_judge, rules
+from . import embed_match, llm_judge, prefilter, rules
 from .taxonomy import TAXONOMY_VERSION, meta
 
 log = logging.getLogger("job_family_engine.engine")
@@ -84,8 +84,18 @@ def _result(job, code, conf, method, votes, reasoning, review) -> dict:
     }
 
 
-def _tier12(job: dict) -> dict | None:
-    """Local, free tiers. Returns a result or None (→ needs LLM)."""
+def _tier012(job: dict) -> dict | None:
+    """Local, free tiers. Returns a result or None (→ needs LLM).
+
+    Tier 0 runs first and only ever rules a posting *out*: keyword search on these boards
+    returns sales roles that advertise a lead list as "data", and paying an LLM to read
+    them is waste. See job_family_engine/prefilter.py.
+    """
+    not_data, rule_name = prefilter.classify(job.get("title"))
+    if not_data:
+        return _result(job, "OTHER", prefilter.TIER0_CONFIDENCE, prefilter.TIER0_METHOD,
+                       None, prefilter.reason(rule_name), "resolved")
+
     c, conf, alias = rules.tier1(job.get("title"))
     if c and conf >= RULE_MIN_CONF:
         return _result(job, c, conf, "rule", None, f"title alias '{alias}'", "resolved")
@@ -110,7 +120,7 @@ def _tier3(job: dict, provider: str = "groq8b") -> dict:
 
 
 def predict(job: dict, llm_provider: str = "groq8b") -> dict:
-    return _tier12(job) or _tier3(job, llm_provider)
+    return _tier012(job) or _tier3(job, llm_provider)
 
 
 def _active_states() -> list[_PState]:
@@ -281,7 +291,7 @@ def run_corpus(*, allow_single_judge: bool = False) -> pd.DataFrame:
     # Pass 1: local tiers (rule + embedding)
     results, remainder = [], []
     for job in jobs:
-        r = _tier12(job)
+        r = _tier012(job)
         (results.append(r) if r else remainder.append(job))
     print(f"  tier1+tier2 resolved {len(results)}/{n}; LLM remainder {len(remainder)}", flush=True)
 
@@ -460,7 +470,7 @@ def run_corpus_consensus(max_workers: int = 10) -> pd.DataFrame:
     # Pass 1: local tiers (rule + embedding) — unchanged, free.
     results, remainder = [], []
     for job in jobs:
-        r = _tier12(job)
+        r = _tier012(job)
         (results.append(r) if r else remainder.append(job))
     print(f"  tier1+tier2 resolved {len(results)}/{n}; LLM remainder {len(remainder)}", flush=True)
 
