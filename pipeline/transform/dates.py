@@ -42,7 +42,8 @@ def parse_posted_date(source: str, posted_date_raw: str | None, run_date: date) 
     if not posted_date_raw:
         return None
     s = posted_date_raw.strip()
-    if source in ("vietnamworks", "glints", "topcv"):
+    # vieclam24h converts its unix `created_at` to ISO in the connector, so it lands here.
+    if source in ("vietnamworks", "glints", "vieclam24h"):
         return _from_iso(s)
     if source == "careerviet":
         m = _CV_UPDATE.search(s)

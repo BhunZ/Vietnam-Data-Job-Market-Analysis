@@ -58,11 +58,14 @@ flowchart LR
 
 ## 3. The labeling engine
 
-Three tiers: cheap and narrow first, expensive only for the genuinely ambiguous remainder.
+Four tiers: cheap and narrow first, expensive only for the genuinely ambiguous remainder.
 
 ```mermaid
 flowchart TD
-    T[Posting: title + JD + skills] --> R[Tier 1 · curated title alias]
+    T[Posting: title + JD + skills] --> Z[Tier 0 · obvious non-Data role]
+    Z --> ZC{sales / HR / ops title,<br/>no Data role named?}
+    ZC -- yes --> OTH([✓ OTHER — no judge spent])
+    ZC -- no --> R[Tier 1 · curated title alias]
     R --> RC{specific alias matched?}
     RC -- yes --> DONE([✓ family + provenance])
     RC -- no --> E[Tier 2 · embedding similarity]
@@ -79,6 +82,19 @@ flowchart TD
     RF --> KO[binary knockout if still split]
     KO --> DONE
 ```
+
+**Tier 0 — rule out the obvious.** Keyword search on these boards returns a specific false positive: in a
+Vietnamese advert *data* usually means the lead list handed to a salesperson — *"Data Nóng Từ MKT"*, *"Data
+Sẵn"* — so a search for `data` returns sales roles. On TopCV the generic category measured **74% sales**.
+Those postings match no alias, and tier 2 accepts nothing, so each one was read by a paid judge purely to
+be told it was OTHER. Tier 0 settles them on the role head, and only when the title names no Data role at
+all. Measured against the labelled corpus it settles **121 postings with no false positives**.
+
+Note the trap it had to be designed around: those titles *contain* the word data, so a filter keyed on the
+noun catches none of them — the first version keyed on it and was blind to exactly the postings it existed
+for. **Tier 0 may only ever rule a posting out, never assign it a family.** Two further rule groups were
+measured at 96.8% and 95.8% and deliberately left out: they would have saved about 84 more calls at the
+cost of three real Data postings, and a posting dropped here leaves the analysis silently and for good.
 
 **Tier 1 — title aliases.** Matches a hand-curated list of unambiguous title phrases. It never reads the
 job description, so it is the weakest tier by construction and the alias list is kept deliberately narrow —
@@ -194,11 +210,18 @@ raw cache so nothing is re-fetched, and a credit guard on the paid proxy.
 ```
 .
 ├── pipeline/              crawl → warehouse → silver → gold
+│   ├── __main__.py        the CLI, and the `all` chain with its resume/skip handling
+│   ├── gates.py           quality gates: ingest delta, and sources that went dark
 │   ├── ingest/            one scraper per job board
 │   ├── transform/         load (change tracking), silver, gold, LLM enrichment
 │   ├── dataset/           embeddings, clustering, LLM clients
-│   └── utils/             shared config and the single analysis-population filter
+│   └── utils/
+│       ├── bronze.py      dated, gzipped, atomically written raw snapshots
+│       ├── runlog.py      one row per step in `pipeline_runs`
+│       ├── http.py        polite fetching; listing pages volatile, detail pages permanent
+│       └── analysis_base.py  the single analysis-population filter
 ├── job_family_engine/     the labeling cascade
+│   ├── prefilter.py       tier 0 — rule out obvious non-Data roles before any judge
 │   ├── rules.py           tier 1 — title aliases
 │   ├── embed_match.py     tier 2 — embedding similarity
 │   ├── llm_judge.py       tier 3 — LLM consensus
@@ -249,21 +272,32 @@ Only needed to re-crawl or re-label; requires API keys in `.env`.
 python -m pip install -e ".[dataset]"
 cp .env.example .env
 
-python -m pipeline scrape        # crawl → bronze
-python -m pipeline load          # bronze → warehouse (incremental, idempotent)
-python -m pipeline silver        # normalize + dedup
-python -m pipeline discover      # embeddings + clusters (feeds tier 2)
-python -m pipeline label         # ⭐ labeling engine (resumable, disk-cached)
-python -m pipeline refine        # stage 2 for disputed labels
-python -m pipeline enrich-llm    # fill seniority + industry where rules gave up
-python -m pipeline integrate     # labels → jobs_silver + gold tables
-python -m pipeline gold          # skill aggregate tables
-python analysis/validate_gold.py # gate: base count must match every gold table
+python -m pipeline all           # the whole chain, in order, behind a quality gate
+python -m pipeline all --dry-run # print the steps without running them
+python -m pipeline runs          # what ran, when, how long, how many rows, and whether it failed
 ```
 
+`all` runs `scrape → load → gate → silver → label → refine → enrich-llm → integrate → gold → validate`.
+Every step is recorded in `pipeline_runs`, all of them under one `run_id`, so a run is one row group
+rather than scattered console output. A failure stops the chain and prints the `--from` that resumes it;
+`--skip` leaves steps out.
+
+Each step is still runnable on its own — `python -m pipeline silver`, and so on — and records itself the
+same way.
+
+**The gate sits between `load` and `label` on purpose.** Labelling is the step that spends quota, so the
+check for "did a board change its HTML and hand us several hundred plausible-looking ids" has to happen
+before it, not after. It compares new postings against the corpus that preceded them, with an allowance
+that scales with the gap between runs — a fixed threshold would flag eight weeks of ordinary churn as a
+broken parser, which is precisely what happened when it was first tried. It also reports any source
+nobody has re-observed lately, since a source that quietly went dark is not the same as one with no
+openings. Override with `--allow-large-delta` once the postings have been eyeballed.
+
 **Order matters.** `silver` rebuilds `jobs_silver` from scratch and would drop the label columns, so it
-refuses to run when they are present unless given `--force`; `gold` exits non-zero rather than leaving
-stale aggregates behind. Both guards exist because the silent-failure path was hit for real.
+refuses to run when they are present unless given `--force` (which `all` passes, because it relabels
+immediately afterwards); `gold` exits non-zero rather than leaving stale aggregates behind, and
+`validate_gold` returns an exit code so it can gate rather than merely narrate. Each guard exists because
+the silent-failure path was hit for real.
 
 ---
 
