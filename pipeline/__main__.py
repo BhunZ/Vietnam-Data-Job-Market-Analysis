@@ -67,6 +67,9 @@ def main(argv: list[str] | None = None) -> int:
     p_sil.add_argument("--force", action="store_true",
                        help="rebuild even though it DROPs the labeling-engine columns (job_family, "
                             "jf_*) — you must re-run label/integrate afterwards")
+    sub.add_parser("build-text",
+                   help="Rebuild data/dataset/text/jobs_text.parquet from jobs_silver — the "
+                        "labeling engine's input. Cheap; no embeddings.")
     sub.add_parser("gold", help="Build serving aggregates (7 tables) from jobs_silver")
 
     p_disc = sub.add_parser("discover",
@@ -124,7 +127,14 @@ def main(argv: list[str] | None = None) -> int:
 
 #: The chain, in the only order that works. `gate` is not a standalone command — it is the
 #: check that stands between loading and paying for labels.
-ALL_STEPS = ["scrape", "load", "gate", "silver", "label", "refine",
+#:
+#: `build-text` regenerates `data/dataset/text/jobs_text.parquet`, which is what the labeling
+#: engine reads. It is here because leaving it out is a silent-wrong-answer bug, not a missing
+#: feature: the file was only ever written by `discover`, so on 2026-08-09 it still held the
+#: 1,701 rows built on 2026-06-19 while the warehouse had grown to 3,951. Labelling would have
+#: quietly re-labelled June and never seen a single new posting. It reads `jobs_silver` and
+#: assembles text — no embeddings — so it costs a second, unlike the full `discover`.
+ALL_STEPS = ["scrape", "load", "gate", "silver", "build-text", "label", "refine",
              "enrich-llm", "integrate", "gold", "validate"]
 
 
@@ -200,6 +210,15 @@ def _run_one(step: str, args, run_date) -> int:
         print_report(run_date, delta, stale_sources(run_date))
         return 0
 
+    if step == "build-text":
+        from .dataset.text import run_build_text
+        from .utils import runlog as _runlog
+
+        df = run_build_text()
+        _runlog.set_rows(rows_out=len(df))
+        print(f"jobs_text.parquet rebuilt: {len(df)} rows")
+        return 0
+
     if step == "silver":
         from .transform.silver import run_silver
 
@@ -230,6 +249,15 @@ def _run_one(step: str, args, run_date) -> int:
 
 
 def _dispatch(args) -> int:
+    if args.command == "build-text":
+        from .dataset.text import run_build_text
+        from .utils import runlog as _runlog
+
+        df = run_build_text()
+        _runlog.set_rows(rows_out=len(df))
+        print(f"jobs_text.parquet rebuilt: {len(df)} rows")
+        return 0
+
     if args.command == "inspect":
         from .inspect import run_inspect
 

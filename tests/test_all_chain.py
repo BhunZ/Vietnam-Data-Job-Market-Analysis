@@ -113,3 +113,15 @@ def test_all_steps_share_one_run_id(monkeypatch):
     # One id covering the whole chain is what makes `GROUP BY run_id` mean "one execution".
     assert len(run_ids) == 1
     assert n_steps == len(M.ALL_STEPS) - 1
+
+
+def test_the_labeling_input_is_rebuilt_before_labelling():
+    """`label` reads jobs_text.parquet, which only `discover` used to write.
+
+    On 2026-08-09 that file still held the 1,701 rows built on 2026-06-19 while the
+    warehouse had grown to 3,951. A chain without this step relabels a stale corpus and
+    never sees a new posting — wrong answers, no error.
+    """
+    steps = M.ALL_STEPS
+    assert "build-text" in steps
+    assert steps.index("silver") < steps.index("build-text") < steps.index("label")
