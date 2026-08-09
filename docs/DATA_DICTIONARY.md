@@ -7,7 +7,7 @@ Schema of the tables the teammate's analysis consumes (in `data/warehouse.duckdb
 | Field | Type | Null | Src | Description |
 |---|---|---|---|---|
 | job_id | VARCHAR | no | derived | `source:source_job_id` (primary key) |
-| source | VARCHAR | no | raw | vietnamworks/careerviet/itviec/topcv/topdev/glints |
+| source | VARCHAR | no | raw | vietnamworks/careerviet/itviec/topdev/glints/vieclam24h (topcv retired 2026-08-09) |
 | title_clean | VARCHAR | no | derived | title, bracket-noise stripped |
 | company / company_key | VARCHAR | 1% | raw/derived | company; legal-suffix-stripped key (dedup) |
 | **job_family** | VARCHAR | no* | derived | ⭐ Job Family Engine label (e.g. DATA_ENGINEER); `OTHER` = not a data role |
@@ -50,3 +50,47 @@ Schema of the tables the teammate's analysis consumes (in `data/warehouse.duckdb
 
 ## Taxonomy: `job_family_engine/taxonomy/taxonomy_v1.yml`
 Hierarchical Domain → Sub-domain → Family (21 families). See `docs/TAXONOMY.md`.
+
+---
+
+## How long a board keeps a posting visible
+
+Every board drops old postings, and they disagree sharply about how long "old" is. This is a
+property of the sources, not of the pipeline, and it governs how often the crawl has to run.
+
+Measured on the 2026-08-09 snapshot as days between `posted_date` and the observation date:
+
+| Source | Median age | p95 | Oldest still listed |
+|---|---:|---:|---:|
+| ITviec | 6 | 27 | **33** |
+| TopDev | 12 | 27 | **31** |
+| CareerViet | 0 | 55 | 62 |
+| VietnamWorks | 17 | 55 | 547 |
+| Vieclam24h | 11 | 142 | 299 |
+| Glints | 34 | **725** | **1122** |
+
+### What follows from it
+
+**The crawl has to run more often than the shortest window — under 30 days, and weekly in
+practice.** Two runs 54 days apart shared *no* postings at all on ITviec and TopDev: their
+listings had turned over completely, twice. Nothing was broken; the overlap was mathematically
+required to be zero. The ranking of these windows is exactly the ranking of how much two
+snapshots overlapped, which is the clearest evidence that this is what drives churn.
+
+**`first_seen_date` means "first seen by us", not "first published".** A posting that existed
+in June but was never returned by any of our keywords is stamped with the date we finally
+matched it, not its real age. Compare against `posted_date` when age matters.
+
+**`trend` only means something at a short cadence.** It is a per-snapshot skill count, so
+comparing two snapshots taken more than a month apart on ITviec or TopDev compares two
+populations with no members in common — a difference, but not a trend. At a weekly cadence
+the populations overlap and the comparison is meaningful.
+
+**`removed_date` conflates two things.** A posting can leave a listing because it was filled,
+because it expired, or because the employer re-posted it under a fresh id. Matching
+`(title, company)` across the two 2026 snapshots showed roughly **10%** of removals were
+re-posts — highest on TopDev at 39 of 82. Treat removals as *left the listing*, not *filled*.
+
+**Glints is the outlier and should be read differently.** With postings up to three years old
+it accumulates rather than turns over, so its share of any long-lived corpus grows for reasons
+that have nothing to do with hiring activity.
