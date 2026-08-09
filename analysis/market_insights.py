@@ -29,7 +29,10 @@ import plotly.graph_objects as go
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))                     # so `analysis/x.py` runs standalone, not just -m
 
-from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE   # noqa: E402
+from pipeline.utils.analysis_base import (  # noqa: E402
+    ANALYSIS_BASE_WHERE,
+    force_utf8_stdout,
+)
 
 DB = ROOT / "data" / "warehouse.duckdb"
 OUT = Path(__file__).resolve().parent / "figures"
@@ -270,6 +273,7 @@ def fig_location(con):
 
 
 def main():
+    force_utf8_stdout()
     con = duckdb.connect(str(DB), read_only=True)
     print("Rendering figures → analysis/figures/")
     fig_domain(con)

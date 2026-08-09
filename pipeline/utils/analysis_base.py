@@ -20,6 +20,25 @@ Rules encoded here:
 
 from __future__ import annotations
 
+import sys
+
+
+def force_utf8_stdout() -> None:
+    """Print Vietnamese to a Windows console without crashing.
+
+    A default Windows console is cp1252, which cannot encode `→` or any Vietnamese
+    diacritic. `market_insights.py` died on exactly that — one arrow in a progress line,
+    after all the work was done — and every one of these scripts prints company names and
+    cities straight from the corpus, so it was luck rather than design that the others
+    survived. `pipeline/__main__.py` does the same thing for the CLI; the standalone
+    scripts under analysis/ never went through it.
+    """
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+    except Exception:  # noqa: BLE001 — a console that refuses is not worth failing over
+        pass
+
+
 _RESOLVED = "COALESCE(jf_review, 'resolved') NOT IN ('manual_review', 'domain_only')"
 _CORE = ("job_family IS NOT NULL AND job_family != 'OTHER' AND is_active "
          "AND is_duplicate_of IS NULL")

@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE
+from pipeline.utils.analysis_base import force_utf8_stdout, ANALYSIS_BASE_WHERE
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +37,7 @@ def main() -> int:
     It used to only print. A check nobody can fail is a report, not a check: `pipeline all`
     would have happily finished on a warehouse whose Gold tables disagreed with each other.
     """
+    force_utf8_stdout()
     failures: list[str] = []
     con = duckdb.connect(str(DB), read_only=True)
 

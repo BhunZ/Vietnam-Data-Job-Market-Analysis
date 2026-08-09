@@ -36,7 +36,7 @@ import plotly.graph_objects as go
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE  # noqa: E402
+from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE, force_utf8_stdout  # noqa: E402
 
 DB = ROOT / "data" / "warehouse.duckdb"
 OUT = ROOT / "analysis" / "outputs"
@@ -129,6 +129,7 @@ def sensitivity(con, thresholds: list[float], min_n: int) -> pd.DataFrame:
 
 
 def main() -> None:
+    force_utf8_stdout()
     ap = argparse.ArgumentParser(description="Bản đồ chuyển nghề theo kỹ năng lõi.")
     ap.add_argument("--core-threshold", type=float, default=50.0,
                     help="Bộ kỹ năng TỐI THIỂU để vào nghề: xuất hiện ở >= X%% tin.")

@@ -16,6 +16,10 @@ from pathlib import Path
 
 import duckdb
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from pipeline.utils.analysis_base import force_utf8_stdout  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 DB = ROOT / "data" / "warehouse.duckdb"
 # Đích của bản xuất CSV nằm dưới `data/`, tức là vùng đã gitignore. Đây là bản CHỤP để mở bằng Excel,
@@ -103,6 +107,7 @@ def cmd_csv() -> None:
 
 
 def main() -> None:
+    force_utf8_stdout()
     if len(sys.argv) < 2:
         print(__doc__)
         return

@@ -32,7 +32,11 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pipeline.dataset.llm_clients import JUDGES, _client, _throttle          # noqa: E402
-from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE, qualified      # noqa: E402
+from pipeline.utils.analysis_base import (  # noqa: E402
+    ANALYSIS_BASE_WHERE,
+    force_utf8_stdout,
+    qualified,
+)
 from pipeline.utils.config import DATA_DIR                                   # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -100,6 +104,7 @@ def _ask(judge_key: str, job_id: str, user: str, cached_only: bool = False) -> d
 
 
 def main() -> None:
+    force_utf8_stdout()
     ap = argparse.ArgumentParser()
     ap.add_argument("--per-stratum", type=int, default=30)
     ap.add_argument("--seed", type=int, default=42)

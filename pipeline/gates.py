@@ -104,10 +104,12 @@ def check_ingest_delta(run_date: date, allow_large: bool = False) -> dict:
 def stale_sources(run_date: date, max_age_days: int = STALE_SOURCE_DAYS) -> list[dict]:
     """Sources whose postings still count as active but that nobody has scraped lately.
 
-    TopCV is the live example: disabled since 2026-06-16 because DataDome blocks it, yet its
-    99 postings sit in the analysis base flagged active. They are not known to be gone — we
-    stopped looking, which is a different thing and should not be silently rounded to either
-    'live' or 'removed'.
+    TopCV was the case this was written for: blocked by DataDome from 2026-06-16, its 99
+    postings sat in the analysis base flagged active for eight weeks. They were not known to
+    be gone — nobody was looking, which is a different thing and should not be silently
+    rounded to either 'live' or 'removed'. It was retired on 2026-08-09 and those rows marked
+    inactive, so the check now guards the remaining six: a board that starts failing quietly
+    looks exactly the same from here.
     """
     con = duckdb.connect(str(DB_PATH), read_only=True)
     try:
