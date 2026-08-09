@@ -35,21 +35,23 @@ def test_cdc_new_removed_idempotent(tmp_path, monkeypatch):
     monkeypatch.setattr(L, "BRONZE", tmp_path / "bronze")
     db = tmp_path / "wh.duckdb"
 
-    # day 1: itviec {a,b} (full_scan), topdev {x,y} (miss-streak)
-    _put(tmp_path, "itviec", ["a", "b"], "2026-01-01")
+    # VietnamWorks is the only full-scan source (its sweep finishes inside the page cap);
+    # TopDev is coverage-limited, so it needs two consecutive misses before a removal.
+    # day 1: vietnamworks {a,b} (full scan), topdev {x,y} (miss-streak)
+    _put(tmp_path, "vietnamworks", ["a", "b"], "2026-01-01")
     _put(tmp_path, "topdev", ["x", "y"], "2026-01-01")
     L.upsert_run(date(2026, 1, 1))
     assert _val(db, "SELECT count(*) FROM jobs") == 4
     assert _val(db, "SELECT count(*) FILTER(WHERE is_active) FROM jobs") == 4
 
-    # day 2: itviec drops b + adds c; topdev drops y
-    _put(tmp_path, "itviec", ["a", "c"], "2026-01-02")
+    # day 2: vietnamworks drops b + adds c; topdev drops y
+    _put(tmp_path, "vietnamworks", ["a", "c"], "2026-01-02")
     _put(tmp_path, "topdev", ["x"], "2026-01-02")
     L.upsert_run(date(2026, 1, 2))
     # full_scan source: b removed immediately
-    assert _val(db, "SELECT is_active FROM jobs WHERE source='itviec' AND source_job_id='b'") is False
+    assert _val(db, "SELECT is_active FROM jobs WHERE source='vietnamworks' AND source_job_id='b'") is False
     # new id c
-    assert _val(db, "SELECT first_seen_date FROM jobs WHERE source='itviec' AND source_job_id='c'") == date(2026, 1, 2)
+    assert _val(db, "SELECT first_seen_date FROM jobs WHERE source='vietnamworks' AND source_job_id='c'") == date(2026, 1, 2)
     # miss-streak source: y still active after 1 miss
     assert _val(db, "SELECT is_active FROM jobs WHERE source='topdev' AND source_job_id='y'") is True
     assert _val(db, "SELECT miss_streak FROM jobs WHERE source='topdev' AND source_job_id='y'") == 1
@@ -70,3 +72,20 @@ def test_cdc_new_removed_idempotent(tmp_path, monkeypatch):
         "2026-01-01.jsonl.gz", "2026-01-02.jsonl.gz", "2026-01-03.jsonl.gz"]
     day1 = {r["source_job_id"] for r in B.iter_rows(B.snapshot_path("topdev", "2026-01-01"))}
     assert day1 == {"x", "y"}
+
+
+def test_a_truncating_source_is_not_treated_as_a_full_scan():
+    """itviec hits its page cap, so a posting past the last page is not a removal.
+
+    It was flagged full-scan until 2026-08-09, which would have stamped `removed_date` on
+    every posting that slipped past page 10 of the `ai-engineer` category — a fabricated
+    removal, and one nothing would have surfaced.
+    """
+    truncating = {"itviec", "careerviet", "topdev", "glints", "vieclam24h"}
+    assert truncating.isdisjoint({s for s, full in L.FULL_SCAN.items() if full})
+    assert L.FULL_SCAN["vietnamworks"] is True
+
+
+def test_retired_sources_are_gone_from_the_scan_policy():
+    """TopCV was removed; leaving it here would imply the pipeline still reads it."""
+    assert "topcv" not in L.FULL_SCAN

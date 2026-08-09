@@ -11,9 +11,9 @@ cap) and makes ONE call:
 So one provider hitting its limit can never stall the others — load flows to whoever has capacity.
 Fully resumable: any job already cached by ANY judge is reused instantly (no quota spent).
 
-Measured free-tier req/min · daily cap: groq-8b ~15·14.4k · gemini 15·1.5k · groq-70b ~24·1k ·
-cerebras 5·2.4k · mistral ~3 · openrouter-qwen ~2·50. Combined ≈ 60/min; aggregate daily caps far
-exceed the corpus, and groq-8b + gemini alone can carry the whole tail if the others exhaust.
+Measured free-tier req/min · daily cap: groq-8b ~15·14k · cloudflare ~30·1k · groq-70b ~24·950 ·
+cerebras 5·2.3k · mistral ~3·300 · github ~15·250 · openrouter-qwen ~2·45. Combined ≈ 94/min and
+~18.8k/day, so groq-8b alone can carry the tail if every other provider exhausts.
 """
 
 from __future__ import annotations
@@ -41,14 +41,28 @@ OUT_PARQUET = DATA_DIR / "labeling" / "job_family.parquet"
 RULE_MIN_CONF = 0.9
 
 # (judge_key, capacity ≈ req/min, daily cap). Order = preference when equally free.
+#
+# Corrected 2026-08-09 against what the shipped labels were actually produced by. The list
+# had drifted from the run that made data/labeling/job_family.parquet: `gemini` was in it
+# and produced ZERO labels (its free tier was dropped), while `github` (229 labels) and
+# `cloudflare` (131) did real work and were not listed at all. A judge missing here never
+# gets dispatched however valid its key is, so the corpus could not be reproduced by the
+# code that claimed to produce it.
+#
+# Daily caps for github and cloudflare are what the 2026-06 run actually got through
+# before they stopped answering, not published figures — treat them as floors.
 PROVIDERS = [
-    ("groq8b", 15, 14000),   # workhorse: fast + huge daily headroom
-    ("gemini", 15, 1400),    # strong base: free 15 rpm / 1500 rpd
-    ("groq", 24, 950),       # fastest rpm but low daily (1000/day)
-    ("cerebras", 5, 2300),   # strong model, modest rpm, ok daily (2400/day)
-    ("mistral", 3, 300),     # slow free tier → minor contributor
-    ("qwen", 2, 45),         # openrouter free ~50/day → bonus only
+    ("groq8b", 15, 14000),     # workhorse: fast + huge daily headroom
+    ("cerebras", 5, 2300),     # strongest contributor in the shipped corpus (985 labels)
+    ("cloudflare", 30, 1000),  # Workers AI free tier; lineage independent of Groq/Cerebras
+    ("groq", 24, 950),         # fastest rpm but low daily (1000/day)
+    ("mistral", 3, 300),       # slow free tier → minor contributor
+    ("github", 15, 250),       # GitHub Models; needs a PAT with the Models permission
+    ("qwen", 2, 45),           # openrouter free ~50/day → bonus only
 ]
+# Keyed but not dispatched: `gemini` (free tier dropped), `sambanova`, `ninerouter`. Add one
+# here only after a run shows it answering — an untested provider in this list costs a
+# timeout per job before failover moves on.
 EXHAUST_RESET = 90.0   # a 429 whose reset exceeds this ⇒ treat provider as done for THIS run
 MAX_ATTEMPTS = 8       # re-routes per job across providers before giving up → manual_review
 IDLE_TIMEOUT = 300.0   # backstop: if no job is finalized/re-queued for this long while jobs remain,

@@ -29,9 +29,18 @@ BRONZE = bronze.BRONZE_DIR
 MISS_STREAK_REMOVE = 2  # for coverage-limited sources, mark removed after K consecutive misses
 
 # Sources we scan completely each run → a missing id means truly removed (mark immediately).
-# Coverage-limited sources (paginate caps / browser / filtered) use the miss-streak instead.
-FULL_SCAN = {"itviec": True, "vietnamworks": True, "careerviet": False,
-             "topdev": False, "glints": False, "topcv": False}
+# Coverage-limited sources use the miss-streak instead: they need K consecutive misses, so a
+# posting pushed off the last fetched page is not mistaken for one that was taken down.
+#
+# `itviec` moved to False on 2026-08-09. It was flagged as a full scan but is not one: the
+# `ai-engineer` category hit its `max_pages_per_category: 10` ceiling, which means postings
+# exist past the last page we read. Under the full-scan rule every one of those would have
+# been stamped removed the moment it slipped past page 10 — a fabricated removal, and an
+# invisible one. VietnamWorks stays True: measured at 7 pages against a cap of 10, so its
+# sweep really is complete.
+FULL_SCAN = {"vietnamworks": True,
+             "itviec": False, "careerviet": False, "topdev": False,
+             "glints": False, "vieclam24h": False}
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS jobs (

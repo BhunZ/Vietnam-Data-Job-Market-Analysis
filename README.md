@@ -162,6 +162,28 @@ Six Vietnamese job boards, accessed variously through public JSON APIs, server-r
 a proxy where needed. Each board is queried with its own keyword set, which is why the corpus mix reflects
 the crawl design as much as the market.
 
+| Board | How it is read | Description inline? |
+|---|---|---|
+| VietnamWorks | public JSON search API | yes |
+| CareerViet | server-rendered HTML | no — filled by `enrich` |
+| ITviec | server-rendered HTML via proxy | no — filled by `enrich` |
+| TopDev | public JSON API | yes |
+| Vieclam24h | Next.js page state (`__NEXT_DATA__`) | yes |
+| Glints | GraphQL API | partly |
+
+Every keyword list is derived from the labeling taxonomy rather than guessed. Eleven of the nineteen job
+families once had no keyword of their own and were reaching the corpus only as by-catch of a generic
+`data` search — `business analyst`, the largest family, among them.
+
+**On TopCV.** TopCV was a seventh board and is no longer read. Its anti-bot service fingerprints the TLS
+handshake, so the pipeline's HTTP client gets 403 and the proxy gets 500; only a real logged-in browser
+gets through. That path was built and it worked — a browser extension captured the listings and a
+`import-topcv` command loaded them into Bronze — but it needed a human at the keyboard every week, and a
+pipeline that needs a human is not an automated pipeline. Rather than keep a source that quietly breaks
+the schedule, TopCV was dropped and **Vieclam24h added in its place**: comparable volume, no anti-bot, and
+a description on every posting. The 99 TopCV rows already in the warehouse are retained but marked
+inactive, so they stay auditable without entering the analysis population.
+
 Responsible scraping throughout: robots.txt respected, randomized delays, user-agent rotation, an on-disk
 raw cache so nothing is re-fetched, and a credit guard on the paid proxy.
 

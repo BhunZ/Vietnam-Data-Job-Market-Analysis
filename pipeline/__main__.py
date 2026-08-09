@@ -100,12 +100,6 @@ def main(argv: list[str] | None = None) -> int:
     p_runs = sub.add_parser("runs", help="Show recent pipeline step history (pipeline_runs)")
     p_runs.add_argument("--limit", type=int, default=20)
 
-    p_tcv = sub.add_parser("import-topcv",
-                           help="Load browser-captured TopCV listings into a Bronze snapshot "
-                                "(TopCV blocks this pipeline's HTTP client — see "
-                                "pipeline/topcv_browser_listing.py)")
-    p_tcv.add_argument("path", help="JSON file written by the browser capture")
-    p_tcv.add_argument("--run-date", default=None, help="snapshot date (default: today)")
 
     args = parser.parse_args(argv)
     _setup_logging(args.verbose)
@@ -236,11 +230,6 @@ def _run_one(step: str, args, run_date) -> int:
 
 
 def _dispatch(args) -> int:
-    if args.command == "import-topcv":
-        from .topcv_browser_listing import main as import_topcv
-
-        return import_topcv(args.path, args.run_date)
-
     if args.command == "inspect":
         from .inspect import run_inspect
 
