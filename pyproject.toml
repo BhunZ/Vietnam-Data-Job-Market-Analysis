@@ -47,8 +47,17 @@ dev = ["pytest>=8.0", "ruff>=0.4", "black>=24.0", "pre-commit>=3.7"]
 [project.scripts]
 vn-jobs = "pipeline.__main__:main"
 
-[tool.setuptools]
-packages = ["pipeline", "job_family_engine"]
+[tool.setuptools.packages.find]
+# Was an explicit ["pipeline", "job_family_engine"], which silently excluded every
+# subpackage: pipeline.ingest, pipeline.transform, pipeline.utils and pipeline.dataset were
+# all left out of a real install. CI never noticed because it installs with -e, where the
+# source tree is on the path and the declaration does not matter. Discovery keeps this
+# correct as subpackages are added.
+include = ["pipeline*", "job_family_engine*"]
+
+[tool.setuptools.package-data]
+# The taxonomy YAML is read at runtime by the labeling engine, so it has to travel with it.
+job_family_engine = ["taxonomy/*.yml"]
 
 [tool.ruff]
 line-length = 100
