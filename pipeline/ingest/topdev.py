@@ -78,7 +78,8 @@ class TopDevConnector(BaseConnector):
         })
         url = f"{self._api_url()}?{qs}"
         safe = re.sub(r"[^a-z0-9]+", "-", keyword.lower()).strip("-")
-        res = self.client.fetch(url, f"jobs_{safe}_p{page}.json")
+        # `jobs_*` is TopDev's listing endpoint despite the name — volatile like the rest.
+        res = self.client.fetch(url, f"jobs_{safe}_p{page}.json", volatile=True)
         d = json.loads(res.text)
         return d.get("data", []), int(d.get("meta", {}).get("total", 0))
 

@@ -48,7 +48,7 @@ class CareerVietConnector(BaseConnector):
 
     def fetch_listing(self, category: str, page: int = 1) -> list[BronzeJob]:
         url = self._listing_url(category, page)
-        res = self.client.fetch(url, f"listing_{category}_p{page}.html")
+        res = self.client.fetch(url, f"listing_{category}_p{page}.html", volatile=True)
         soup = BeautifulSoup(res.text, "lxml")
         out = []
         for card in soup.select(".job-item"):

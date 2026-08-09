@@ -52,7 +52,7 @@ class ITviecConnector(BaseConnector):
     def _listing_soup(self, category: str, page: int) -> tuple[BeautifulSoup, int | None]:
         url = self._listing_url(category, page)
         cache_name = f"listing_{category}_p{page}.html"
-        res = self.client.fetch(url, cache_name)
+        res = self.client.fetch(url, cache_name, volatile=True)
         soup = BeautifulSoup(res.text, "lxml")
         return soup, self._parse_total(soup)
 

@@ -138,7 +138,7 @@ class GlintsConnector(BaseConnector):
         body = {"operationName": "searchJobs", "variables": variables, "query": _QUERY}
         safe = term.lower().replace(" ", "-")
         res = self.client.fetch(self._gql_url(), f"search_{safe}_p{page}.json",
-                                method="POST", json_body=body)
+                                method="POST", json_body=body, volatile=True)
         d = json.loads(res.text)
         sj = (d.get("data") or {}).get("searchJobs") or {}
         return sj.get("jobsInPage", [])

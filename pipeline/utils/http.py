@@ -108,11 +108,24 @@ class ScrapeClient:
         return self._robots_parser(url).can_fetch(ua, url)
 
     # --- caching ------------------------------------------------------------
-    def _cache_path(self, name: str) -> Path:
-        # Raw cache is a flat, date-less, content-by-URL store (the cache_name encodes
-        # the URL). It is purely for resumability/reproducibility and carries no temporal
-        # meaning — snapshots live in the dated Bronze layer, not here. Date-less means a
-        # run_date rollover never re-fetches and the same response is never duplicated.
+    def _cache_path(self, name: str, volatile: bool = False) -> Path:
+        """Where a response is cached. Two policies, because the pages differ in kind.
+
+        Stable pages (`volatile=False`) — a job's detail page. The content does not
+        change once published, so the cache is flat and keyed by URL alone and a hit is
+        always correct. This is also where the ScraperAPI credits go, so a permanent
+        cache is what keeps re-runs cheap.
+
+        Volatile pages (`volatile=True`) — search and listing pages. Their whole purpose
+        is to tell us which postings exist *today*. Caching them without a date froze the
+        crawler: the second run scored a 100% cache hit and re-reported the same postings
+        as the first, so `first_seen_date` / `last_seen_date` / `miss_streak` /
+        `removed_date` could never move off their initial values. Keying by run date
+        means each run fetches the listings fresh and CDC actually has two observations
+        to compare.
+        """
+        if volatile:
+            return RAW_DIR / self.source / self.run_date / name
         return RAW_DIR / self.source / name
 
     def _read_cache(self, path: Path) -> str | None:
@@ -184,14 +197,20 @@ class ScrapeClient:
         cache_name: str,
         method: str = "GET",
         json_body: dict | None = None,
+        volatile: bool = False,
     ) -> FetchResult:
-        """Fetch ``url``, caching to ``data/raw/<source>/<run_date>/<cache_name>``.
+        """Fetch ``url``, caching to disk.
+
+        Cached to ``data/raw/<source>/<cache_name>`` normally, or to
+        ``data/raw/<source>/<run_date>/<cache_name>`` when ``volatile=True`` — pass that
+        for search and listing pages, whose answer is only true for the day they were
+        fetched. See :meth:`_cache_path`.
 
         Returns cached content with no network call if already on disk. Supports POST
         with a JSON body (for JSON search APIs); non-GET requests always go direct
         (ScraperAPI is used only for GET HTML scraping here).
         """
-        path = self._cache_path(cache_name)
+        path = self._cache_path(cache_name, volatile=volatile)
         cached = self._read_cache(path)
         if cached is not None:
             log.info("cache hit  %s", cache_name)

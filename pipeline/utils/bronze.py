@@ -170,6 +170,29 @@ def available_sources() -> list[str]:
                   if d.is_dir() and latest_path(d.name) is not None)
 
 
+def snapshot_for(source: str, run_date: str) -> Path | None:
+    """The snapshot for exactly this run date, or None if the source was not scraped then.
+
+    Deliberately does *not* fall back to the newest snapshot. A source that was disabled
+    or that failed on a given day produced no observation that day, and quietly loading
+    an older file would tell the warehouse those postings were seen on a date nobody
+    looked at them — inventing evidence, which is worse than having none.
+    """
+    for suffix in (".jsonl.gz", ".jsonl"):
+        p = source_dir(source) / f"{run_date}{suffix}"
+        if p.is_file():
+            return p
+    return None
+
+
+def sources_for(run_date: str) -> list[str]:
+    """Sources that produced a snapshot on this run date."""
+    if not BRONZE_DIR.is_dir():
+        return []
+    return sorted(d.name for d in BRONZE_DIR.iterdir()
+                  if d.is_dir() and snapshot_for(d.name, run_date) is not None)
+
+
 def prune(source: str, keep: int) -> list[Path]:
     """Delete all but the newest `keep` snapshots. Returns what was deleted.
 

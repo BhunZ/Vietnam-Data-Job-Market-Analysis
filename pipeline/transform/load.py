@@ -51,13 +51,22 @@ CREATE TABLE IF NOT EXISTS job_observations (
 """
 
 
-def _available_sources() -> list[str]:
-    return bronze.available_sources()
+def _available_sources(run_date: date | None = None) -> list[str]:
+    """Sources to load. With a run_date, only those actually scraped that day."""
+    if run_date is None:
+        return bronze.available_sources()
+    return bronze.sources_for(run_date.isoformat())
 
 
 def _staging_df(source: str, run_date: date, snapshot: Path | None = None) -> pd.DataFrame:
-    """Stage one Bronze snapshot. Defaults to the newest; pass `snapshot` to replay an older one."""
-    path = snapshot or bronze.latest_path(source)
+    """Stage the Bronze snapshot for `run_date`; pass `snapshot` to replay a specific file.
+
+    Falls back to the newest snapshot only when the source has none for this date *and*
+    no dated snapshots at all — the pre-dating `latest.jsonl` case.
+    """
+    path = snapshot or bronze.snapshot_for(source, run_date.isoformat())
+    if path is None and not bronze.list_snapshots(source):
+        path = bronze.latest_path(source)  # legacy latest.jsonl
     if path is None:
         return pd.DataFrame()
     rows = []
@@ -77,7 +86,7 @@ def _staging_df(source: str, run_date: date, snapshot: Path | None = None) -> pd
 
 def upsert_run(run_date: date | None = None, sources: list[str] | None = None) -> dict:
     run_date = run_date or datetime.now().date()
-    sources = sources or _available_sources()
+    sources = sources or _available_sources(run_date)
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect(str(DB_PATH))
     con.execute(_DDL)
@@ -160,6 +169,9 @@ def run_load(run_date_str: str | None = None) -> None:
         "SELECT count(*) FILTER (WHERE posted_date IS NOT NULL), "
         "count(*) FILTER (WHERE effective_date IS NOT NULL) FROM jobs").fetchone()
     print(f"\n{'='*64}\nLOAD → {DB_PATH.name}  (run_date={rep['run_date']})\n{'='*64}")
+    skipped = [s for s in bronze.available_sources() if s not in rep["per_source"]]
+    if skipped:
+        print(f"Not scraped on this date, so not loaded: {skipped}")
     print(f"{'source':14s} {'seen':>6s} {'new':>6s} {'removed':>8s}")
     for s, r in rep["per_source"].items():
         print(f"{s:14s} {r['seen']:>6d} {r['new']:>6d} {r['removed_today']:>8d}")

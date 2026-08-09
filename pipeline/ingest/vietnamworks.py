@@ -73,7 +73,8 @@ class VietnamWorksConnector(BaseConnector):
         }
         safe_q = re.sub(r"[^a-z0-9]+", "-", query.lower()).strip("-")
         cache_name = f"search_{safe_q}_p{page}.json"
-        res = self.client.fetch(self._api_url(), cache_name, method="POST", json_body=body)
+        res = self.client.fetch(self._api_url(), cache_name, method="POST", json_body=body,
+                                volatile=True)
         data = json.loads(res.text)
         return data.get("data", []), int(data.get("meta", {}).get("nbHits", 0))
 

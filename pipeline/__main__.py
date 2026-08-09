@@ -46,7 +46,8 @@ def main(argv: list[str] | None = None) -> int:
     p_scr.add_argument("--max-live-fetches", type=int, default=60,
                        help="credit guard: hard cap on live ScraperAPI fetches per source")
     p_scr.add_argument("--run-date", default=None,
-                       help="snapshot date (default: reuse latest existing snapshot)")
+                       help="snapshot date YYYY-MM-DD (default: today). Names the Bronze "
+                            "snapshot and the volatile listing-cache folder for this run.")
 
     p_enr = sub.add_parser("enrich", help="Fill description_raw (JD) on an existing Bronze file")
     p_enr.add_argument("--source", required=True)

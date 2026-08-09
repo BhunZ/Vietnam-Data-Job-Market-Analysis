@@ -1,9 +1,13 @@
 """Scaled multi-source scrape + capacity/block report.
 
 Sweeps every *enabled* source at volume (full pagination + dedup), persists raw to
-data/raw/ and a Bronze JSONL per source to data/bronze/, and prints a consolidated
-report: per-site method, block status, pages fetched, distinct postings, JD coverage,
-errors, and ScraperAPI credits consumed.
+data/raw/ and one dated Bronze snapshot per source to data/bronze/, and prints a
+consolidated report: per-site method, block status, pages fetched, distinct postings,
+JD coverage, errors, and ScraperAPI credits consumed.
+
+Listing pages are fetched fresh every run (`volatile=True`, cached under a per-run-date
+folder) because their job is to say which postings exist today. Job detail pages are
+cached permanently — they do not change, and they are where the ScraperAPI credits go.
 
 Run:  python -m pipeline scrape [--jd-limit 25]
 """
