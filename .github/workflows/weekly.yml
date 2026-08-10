@@ -45,9 +45,9 @@ jobs:
       R2_BUCKET: ${{ secrets.R2_BUCKET }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version-file: ".python-version"
           cache: "pip"
@@ -105,7 +105,7 @@ jobs:
         if: always()
         run: python -m pipeline runs --limit 30 > run-history.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: run-history-${{ github.run_number }}

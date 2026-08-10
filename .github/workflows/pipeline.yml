@@ -14,11 +14,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # From .python-version — the same file the Dockerfile reads. One answer to "which
       # interpreter", not one per place that needs to know.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version-file: ".python-version"
           cache: "pip"
@@ -47,7 +47,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build the image
         run: docker build -t vn-data-job-market:ci .
