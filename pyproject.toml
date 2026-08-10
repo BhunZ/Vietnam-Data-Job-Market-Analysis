@@ -23,6 +23,12 @@ dependencies = [
     "pandas>=2.2",
     "duckdb>=1.0",
     "rapidfuzz>=3.6",
+    # Parquet, via pandas. It was listed only under the `dataset` extra, which held as long as
+    # every machine running the pipeline happened to have that extra installed — the weekly job
+    # did not, and `build-text` stopped with "Unable to find a usable engine". Parquet is not an
+    # optional format here: jobs_text, the labeling artifacts and the Gold exports are all
+    # Parquet, so the dependency belongs in the core set.
+    "pyarrow>=15.0",
     # S3-compatible object storage for Bronze, Gold and the warehouse. A core dependency
     # rather than an extra because `pipeline sync` is part of the weekly run — but the code
     # imports it lazily and reports clearly when it is absent, so the pipeline still runs on an
