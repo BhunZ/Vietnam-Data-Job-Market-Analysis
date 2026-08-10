@@ -37,9 +37,64 @@ MAX_NEW_PCT = 0.95
 #: A source not seen for this long is stale: still flagged active, but nobody has looked.
 STALE_SOURCE_DAYS = 21
 
+#: Requests a full run needs, measured across the runs so far. Listing pages are re-fetched
+#: every run because their cache key carries the run date; detail pages are cached forever, so
+#: only genuinely new postings cost anything. A steady week lands well under this; the margin is
+#: for a week where a board publishes unusually heavily.
+EXPECTED_SCRAPE_REQUESTS = 400
+
 
 class QualityGateFailed(RuntimeError):
     """Raised when a gate refuses to let the run continue."""
+
+
+def check_scrape_quota(expected: int = EXPECTED_SCRAPE_REQUESTS) -> dict:
+    """Refuse to start a scrape that cannot finish.
+
+    ScraperAPI does not fail loudly when a key runs out — requests simply stop coming back, and
+    the run ends with a partial crawl that looks exactly like a quiet week. The ingest-delta
+    gate downstream would then see *fewer* postings than usual and wave it through, because it
+    is built to catch a flood of bad ids, not a drought of good ones. Every posting missed that
+    week is also a posting the boards may have taken down by the next run, so the loss is
+    permanent.
+
+    Checking first turns a silent, unrecoverable gap into a red run before anything is spent.
+    Returns a report; raises only when the remaining budget cannot cover one run.
+    """
+    from .utils.config import get_secrets
+
+    keys = get_secrets().keys
+    if not keys:
+        return {"checked": False, "reason": "no ScraperAPI key configured"}
+
+    import requests
+
+    remaining = 0
+    accounts = []
+    for key in keys:
+        try:
+            r = requests.get("https://api.scraperapi.com/account",
+                             params={"api_key": key}, timeout=30)
+            d = r.json()
+            used, limit = int(d.get("requestCount", 0)), int(d.get("requestLimit", 0))
+        except Exception as exc:  # a check that cannot run must not stop the pipeline
+            accounts.append({"used": None, "limit": None, "error": type(exc).__name__})
+            continue
+        remaining += max(limit - used, 0)
+        accounts.append({"used": used, "limit": limit})
+
+    if all(a.get("error") for a in accounts):
+        return {"checked": False, "reason": "could not reach ScraperAPI", "accounts": accounts}
+
+    report = {"checked": True, "remaining": remaining, "expected": expected,
+              "accounts": accounts}
+    if remaining < expected:
+        raise QualityGateFailed(
+            f"ScraperAPI budget is {remaining} requests, a run needs about {expected}. "
+            f"A partial crawl is indistinguishable from a quiet week downstream, and the "
+            f"postings missed now may be gone by the next run. Wait for the quota to reset or "
+            f"add a key.")
+    return report
 
 
 def _previous_snapshot(con, run_date: date) -> date | None:

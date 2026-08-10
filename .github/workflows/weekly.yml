@@ -1,0 +1,109 @@
+name: Weekly ingest
+
+# The pipeline used to run only when someone remembered to run it, which meant the Bronze
+# history had gaps exactly when life got busy — and a gap does not heal. A posting missed this
+# week may be taken down before the next run, and once a board stops serving it no re-scrape
+# recovers it. 473 of the postings already in the warehouse are in that state.
+#
+# Scraping from a runner is fine: every fetch goes through ScraperAPI, so the origin address is
+# their proxy pool rather than this datacenter. That was the objection to automating this, and
+# it was wrong.
+#
+# Labelling is deliberately not here. It spends LLM quota per posting and is the one step worth
+# supervising, so it stays a decision someone makes.
+
+on:
+  schedule:
+    # Mondays 22:00 UTC — Tuesday 05:00 in Vietnam, after the weekend's postings are up.
+    - cron: "0 22 * * 1"
+  workflow_dispatch:
+    inputs:
+      skip_scrape:
+        description: "Rebuild from the Bronze already in R2 instead of fetching anything"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read          # nothing is committed; artifacts go to object storage
+
+concurrency:
+  # Two runs writing the same warehouse would interleave. Queue rather than overlap.
+  group: weekly-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
+      SCRAPER_API_KEY_SECONDARY: ${{ secrets.SCRAPER_API_KEY_SECONDARY }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+          cache: "pip"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.lock
+          python -m pip install --no-deps -e .
+
+      # Before anything is fetched or written. An R2 token defaults to read-only and still
+      # lists a bucket perfectly well, so "the connection works" proves nothing — this writes,
+      # reads back and deletes. Finding out at the upload step means a run's work is stranded
+      # on a runner that is about to be destroyed.
+      - name: The bucket is writable
+        run: python -m pipeline sync check
+
+      # The warehouse is derived state, and the runner starts empty. Without this, `load` would
+      # treat every posting as new and the CDC history would restart from zero each week.
+      - name: Fetch the warehouse and the Bronze history
+        run: |
+          python -m pipeline sync pull --what warehouse --overwrite
+          python -m pipeline sync pull --what bronze
+
+      # Labelling and its refinement are skipped: they spend LLM quota per posting. Everything
+      # else runs, including the gate — which sits between load and the rest precisely so a
+      # board changing its HTML cannot quietly fill the warehouse with plausible rubbish.
+      #
+      # `scrape` checks the ScraperAPI budget first and fails rather than performing a partial
+      # crawl, because a partial crawl is indistinguishable downstream from a quiet week.
+      - name: Run the chain
+        run: |
+          if [ "${{ inputs.skip_scrape }}" == "true" ]; then
+            python -m pipeline all --from load --skip label refine enrich-llm
+          else
+            python -m pipeline all --skip label refine enrich-llm
+          fi
+
+      # Only after the chain succeeded. Pushing a warehouse built by a failed run would
+      # overwrite a good one with a worse one.
+      - name: Publish to object storage
+        run: python -m pipeline sync push
+
+      - name: What the bucket holds now
+        run: python -m pipeline sync status
+
+      # The run history is the record of what happened and is worth reading when a week looks
+      # wrong. Kept as an artifact rather than committed — the warehouse is 27 MB and rewritten
+      # every run, so committing it would add another copy to the repository every week.
+      - name: Keep the run log
+        if: always()
+        run: python -m pipeline runs --limit 30 > run-history.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: run-history-${{ github.run_number }}
+          path: run-history.txt
+          retention-days: 90

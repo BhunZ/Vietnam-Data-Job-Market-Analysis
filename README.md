@@ -296,6 +296,57 @@ python -m pipeline runs          # what ran, when, how long, how many rows, and 
 The embedding tier needs `pip install -e ".[dataset]"` on top — that pulls in torch, so it is not
 in the lockfile or the image. Everything else runs without it.
 
+### Object storage
+
+Bronze snapshots are the only record of what each board displayed on a given day. Once a posting
+is taken down the board stops serving it, so a re-scrape cannot bring it back — **473 of the
+3,951 postings here are already in that state**. Keeping that record on one disk means the
+project has no way back from a lost laptop, which is not a backup problem so much as a
+correctness one: the history is not reproducible from anything else.
+
+So Bronze, the Gold tables and the warehouse are mirrored to S3-compatible object storage
+(Cloudflare R2 — the free tier does not bill egress, which matters when recovery means pulling
+the whole history back down).
+
+```bash
+python -m pipeline sync check    # prove the credentials can write, not merely read
+python -m pipeline sync push     # Bronze snapshots + Gold as Parquet + the warehouse
+python -m pipeline sync pull     # fetch whatever is missing here
+python -m pipeline sync status   # what the bucket holds, without downloading it
+```
+
+Set `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and `R2_BUCKET` in `.env` to
+enable it. **Without them everything still works**; sync is the only thing that stops, and it
+says so rather than pretending to have uploaded. A cloud account is not a condition of running
+this project.
+
+Gold is published as Parquet so it can be read in place, with no download and no warehouse:
+
+```sql
+-- DuckDB, after `CREATE SECRET` for the bucket
+SELECT job_family, count(*) FROM read_parquet('r2://<bucket>/gold/gold_jobs.parquet')
+GROUP BY 1 ORDER BY 2 DESC;
+```
+
+That is the whole reason there is no hosted warehouse here. Storage and compute are separate —
+R2 holds the Parquet, DuckDB is the engine — which is the same shape as Athena over S3, minus
+the bill. With 26 MB, one writer and batch weekly loads, a Redshift or a BigQuery would be a
+larger machine solving none of the problems this project actually has.
+
+### The weekly run
+
+`.github/workflows/weekly.yml` runs the chain on Mondays and publishes to R2, committing
+nothing. Scraping from a runner works because every fetch goes through ScraperAPI, so the origin
+address is their proxy pool rather than a datacenter the boards would block.
+
+`label` and `refine` are deliberately left out of it. They spend LLM quota per posting and are
+the steps worth supervising, so they stay something a person decides to run.
+
+The scrape refuses to start when the remaining ScraperAPI budget cannot cover a full run. A
+half-finished crawl is indistinguishable downstream from a quiet week — the ingest gate is built
+to catch a flood of unmatched ids, not a shortfall of real ones — and the postings missed may be
+gone before the next run.
+
 `all` runs `scrape → load → gate → silver → label → refine → enrich-llm → integrate → gold → validate`.
 Every step is recorded in `pipeline_runs`, all of them under one `run_id`, so a run is one row group
 rather than scattered console output. A failure stops the chain and prints the `--from` that resumes it;

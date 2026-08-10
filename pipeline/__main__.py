@@ -51,6 +51,8 @@ def main(argv: list[str] | None = None) -> int:
                        help="max ITviec JD detail fetches (API sources include JD inline)")
     p_scr.add_argument("--max-live-fetches", type=int, default=60,
                        help="credit guard: hard cap on live ScraperAPI fetches per source")
+    p_scr.add_argument("--skip-quota-check", action="store_true",
+                       help="scrape even if the ScraperAPI budget looks too small for a full run")
     p_scr.add_argument("--run-date", default=None,
                        help="snapshot date YYYY-MM-DD (default: today). Names the Bronze "
                             "snapshot and the volatile listing-cache folder for this run.")
@@ -102,6 +104,20 @@ def main(argv: list[str] | None = None) -> int:
 
     p_runs = sub.add_parser("runs", help="Show recent pipeline step history (pipeline_runs)")
     p_runs.add_argument("--limit", type=int, default=20)
+
+    p_sync = sub.add_parser(
+        "sync", help="Move Bronze / Gold / the warehouse between here and object storage")
+    p_sync.add_argument(
+        "action", choices=["push", "pull", "status", "check"],
+        help="push: send Bronze + Gold + warehouse · pull: fetch what is missing here · "
+             "status: what the bucket holds · check: prove the credentials can write")
+    p_sync.add_argument("--what", default="all",
+                        choices=["all", "bronze", "gold", "warehouse"],
+                        help="limit the action to one kind of artifact (default: all)")
+    p_sync.add_argument("--overwrite", action="store_true",
+                        help="on pull, replace a warehouse that already exists here")
+    p_sync.add_argument("--force", action="store_true",
+                        help="on push, re-upload Bronze snapshots that are already in the bucket")
 
 
     args = parser.parse_args(argv)
@@ -248,7 +264,59 @@ def _run_one(step: str, args, run_date) -> int:
     return 0
 
 
+def _run_sync(args) -> int:
+    """`sync` talks to object storage and never touches the warehouse's contents.
+
+    Kept out of `_dispatch` and out of `ALL_STEPS`: the chain must stay runnable with no cloud
+    account at all, so moving bytes off this machine is always something you ask for.
+    """
+    from .sync import (SyncSkipped, pull_bronze, pull_warehouse, push_bronze, push_gold,
+                       push_warehouse, status)
+    from .utils import objstore
+
+    try:
+        if args.action == "check":
+            objstore.check_writable()
+            print(f"s3://{objstore.bucket()}/ — read, write and delete all confirmed")
+            return 0
+
+        if args.action == "status":
+            for k, v in status().items():
+                print(f"  {k:20s} {v}")
+            return 0
+
+        want = args.what
+        if args.action == "push":
+            if want in ("all", "bronze"):
+                up, skip = push_bronze(force=args.force)
+                print(f"  bronze     {up} uploaded, {skip} already there")
+            if want in ("all", "gold"):
+                print(f"  gold       {push_gold()} tables published as Parquet")
+            if want in ("all", "warehouse"):
+                print(f"  warehouse  {push_warehouse() / 1e6:.1f} MB uploaded")
+            return 0
+
+        # pull
+        if want in ("all", "bronze"):
+            down, skip = pull_bronze()
+            print(f"  bronze     {down} downloaded, {skip} already local")
+        if want in ("all", "warehouse"):
+            got = pull_warehouse(overwrite=args.overwrite)
+            print(f"  warehouse  {'kept the local copy' if got is None else f'{got / 1e6:.1f} MB downloaded'}")
+        return 0
+
+    except SyncSkipped as exc:
+        print(f"sync skipped: {exc}")
+        return 0
+    except objstore.ObjectStoreError as exc:
+        print(f"object store error: {exc}")
+        return 1
+
+
 def _dispatch(args) -> int:
+    if args.command == "sync":
+        return _run_sync(args)
+
     if args.command == "build-text":
         from .dataset.text import run_build_text
         from .utils import runlog as _runlog
@@ -268,7 +336,7 @@ def _dispatch(args) -> int:
         from .scrape import run_scrape
 
         run_scrape(jd_limit=args.jd_limit, max_live_fetches=args.max_live_fetches,
-                   run_date=args.run_date)
+                   run_date=args.run_date, skip_quota_check=args.skip_quota_check)
         return 0
 
     if args.command == "enrich":

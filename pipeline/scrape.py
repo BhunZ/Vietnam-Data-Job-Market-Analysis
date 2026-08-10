@@ -76,7 +76,22 @@ def _enabled_sources() -> list[str]:
 
 
 def run_scrape(jd_limit: int = 25, max_live_fetches: int = 40,
-               run_date: str | None = None) -> None:
+               run_date: str | None = None, skip_quota_check: bool = False) -> None:
+    # Before anything is spent. ScraperAPI stops answering when a key is exhausted rather than
+    # saying so, and the resulting partial crawl looks downstream exactly like a quiet week —
+    # the ingest-delta gate is built to catch a flood of bad ids, not a drought of good ones.
+    # Postings missed this week may be gone from the boards by the next run, so the gap does not
+    # heal. See gates.check_scrape_quota.
+    if not skip_quota_check:
+        from .gates import check_scrape_quota
+
+        report = check_scrape_quota()
+        if report.get("checked"):
+            print(f"ScraperAPI budget: {report['remaining']} requests left, "
+                  f"a run needs about {report['expected']}")
+        else:
+            print(f"ScraperAPI budget not checked: {report.get('reason')}")
+
     run_date = run_date or date.today().isoformat()  # label for this run's snapshot
     sources = _enabled_sources()
     cfg_all = load_sources_config().get("sources", {})
