@@ -1,73 +1,182 @@
 token,count
-Data Engineer,54
-Project Management,49
-Communication,39
-Communication Skills,37
-Sales,37
-Consultant,33
-Analytical Skills,31
-Leadership,30
-Customer Service/Customer Support,29
-Market Research,24
-Data Analyst,22
-Product Management,22
-Digital Marketing,21
-Team Management,21
-Giao Tiếp,21
-Tài Chính,19
-Teamwork,18
-DevOps,16
+Bán hàng,96
+Data Engineer,94
+Consultant,88
+Project Management,83
+Communication Skills,63
+Communication,63
+Customer Service/Customer Support,60
+Business/Sales,60
+Leadership,54
+Sales,51
+DevOps,47
+Product Management,46
+Digital Marketing,44
+Team Management,44
+Analytical Skills,42
+Tài Chính,35
+Market Research,34
+Business Analyst,33
+QA QC,33
+Giao Tiếp,33
+Problem Solving,32
+Automation Test,32
+Teamwork,31
+Product Owner,31
+Nghiên Cứu Thị Trường,31
+TypeScript,29
+Jira,29
+Marketing,29
+communication,29
+Tester,28
+Quản Lý Dự Án,28
+Chăm Sóc Khách Hàng,28
+ReactJS,26
+Microservices,26
+Data Analyst,25
+Phát triển kinh doanh,25
+Business Development,24
+Figma,24
+Risk Management,24
+MLOps,23
+FastAPI,23
+VBA,23
+Financial Analysis,22
+Production Planning,22
+Kỹ năng giao tiếp,22
+Communication skills,22
+Microsoft Office,21
+Customer Service,20
+System Admin,20
+Trade Marketing,20
+Kế Toán,20
+Negotiation,20
+Banking,19
+Spring Boot,19
+Sales Planning,19
+Supply Chain Management,19
+Stakeholder Management,18
+Prompt Engineering,18
+SAP,18
+UI-UX,18
+CRM,18
+Core Banking,18
+Giải Quyết Vấn Đề,18
+Kinh Doanh,18
+Marketing Strategy,18
+Stakeholder management,17
+Phát Triển Sản Phẩm,17
+Natural Language Processing (NLP),16
+English Language,16
+Financial,16
+Data Entry,16
+Accounting,16
+Công Nghệ Thông Tin,16
 Problem-solving,15
-Quản Lý Dự Án,15
-Business Development,14
-TypeScript,14
-Business Analyst,13
-Stakeholder Management,13
-VBA,13
-English Language,12
-Problem Solving,12
-MLOps,12
-ReactJS,12
+Python Programming,15
+Database Systems,14
+Cloud Security,14
+Giao tiếp,14
+Inventory Management,14
+Training,14
+Learning Development,14
+Telesales,13
+Sales Admin,13
+Software Architecture,13
+Fullstack,13
+Ngân Hàng,13
+Quản Trị Rủi Ro,13
+Sales & Business Development,13
+Data Collection,13
+Phát Triển Kinh Doanh,13
+Project Coordination,13
+Product Development,13
+Kế toán viên,12
+IT Business Analyst,12
+Business Planning,12
+Giải quyết vấn đề,12
+English Communication,12
+Chuyển đổi số,12
+Lead Generation,12
+Analytical Thinking,12
+Kiểm Toán,12
+Phân Tích Tài Chính,12
+Tài Chính Ngân Hàng,12
+Project management,12
 Data analysis specialist,11
 Nhân viên kế toán,11
-Kế toán viên,11
-Telesales,11
-Natural Language Processing (NLP),11
-Prompt Engineering,11
-QA QC,11
-Microservices,11
-Product Owner,11
-Jira,11
-Marketing,11
-Trade Marketing,11
+Sales Executive,11
+Kế Toán Tổng Hợp,11
+Internal Audit,11
+Solution Architecture,11
+C/C++,11
+Problem-Solving,11
+MS Office,11
+Quản Trị Nhân Lực,11
+Finance,11
+Negotiation Skills,11
+Learning And Development,11
+business analyst,11
+Tuyển Dụng,11
+Strategic Planning,11
+Logistics,11
 Data validation,10
 Accountant,10
-Sales Executive,10
-Tester,10
-SAP,10
-FastAPI,10
-Risk Management,10
-Financial,10
-Chuyển đổi số,10
-Giải Quyết Vấn Đề,10
-Sales Planning,10
-Kế Toán,10
-Kỹ năng giao tiếp,10
+Social Media,10
+Quality Control,10
+Performance Management,10
+Quality Assurance,10
+Data Integration,10
+System Architecture,10
+BPMN,10
+User story,10
+Design,10
+Japanese,10
+Tiếng Trung,10
+Financial Modeling,10
+Tin Học Văn Phòng,10
+E-Commerce,10
+Lãnh Đạo,10
+Ms Office,10
+Research,10
+Consulting,10
+Ngân hàng,10
+Planning Data Analysis,10
+Tư Vấn Du Học,10
+Market Analysis,10
+analytical skills,10
+Cơ Khí,10
 Kế toán kho vận,9
 Cộng tác viên xử lý dữ liệu,9
 Data Processing Specialist,9
 Kế toán tổng hợp,9
 Đại diện kinh doanh,9
-Customer Service,9
-System Admin,9
-Financial Analysis,9
-Data Entry,9
-MS Office,9
-Analytical Thinking,9
-Marketing Strategy,9
-Accounting,9
-Production Planning,9
-Chăm Sóc Khách Hàng,9
+Chuyên Viên Kinh Doanh,9
+General Accountant,9
+Embedded,9
+NextJS,9
+OOP,9
+Spring,9
+Security,9
+Data-Driven,9
+Kinh Tế,9
+Data Analysis & Processing,9
+Quản Trị Kinh Doanh,9
+Financial Reporting,9
+Strategic Thinking,9
+E-commerce,9
+Lập Báo Cáo,9
+Talent Acquisition,9
+Google Ads,9
+Warehouse Management,9
+Tư Vấn,9
+FMCG,9
+SEO,9
+Mechanical Engineering,9
+Kiểm Soát Nội Bộ,9
+Korean,9
+C&B,9
+Tài chính,9
 Accountant cum Office Admin,8
 Accountant and Administrative Staff,8
 Nhân viên kế toán nhà máy,8
@@ -75,27 +184,32 @@ Chuyên viên kế toán chuyên quản,8
 Nhân viên kế toán vật tư,8
 Data Processing Executive,8
 Data Processing Officer,8
-Social Media,8
 Nhân viên bán hàng,8
 Đại diện bán hàng,8
-Chuyên Viên Kinh Doanh,8
-General Accountant,8
-Microsoft Office,8
-System Architecture,8
-UI-UX,8
-Automation Test,8
-Giải quyết vấn đề,8
-English Communication,8
-Core Banking,8
-Nghiên Cứu Thị Trường,8
-Lead Generation,8
-Negotiation,8
-Training,8
-Python Programming,8
-Learning And Development,8
-business analyst,8
-Supply Chain Management,8
-Công Nghệ Thông Tin,8
+Sales Engineer,8
+AI Engineer,8
+Pattern Recognition,8
+Product Design,8
+Mobile Apps,8
+Windows,8
+Networking,8
+BRD,8
+Playwright,8
+Analytics,8
+Đàm Phán,8
+Performance Marketing,8
+Sales Management,8
+Facebook Ads,8
+Data reporting,8
+Sales Operations,8
+Growth Marketing,8
+Demand Planning,8
+Giao Tiếp Tốt,8
+B2B Sales,8
+Audit,8
+Quản Lý Chất Lượng,8
+Supply Chain Planning,8
+Payment Processing,8
 Nhân Viên Phòng Kế Toán,7
 Credit Accountant,7
 Cán bộ tài chính kế toán,7
@@ -104,97 +218,223 @@ Nhân viên xử lý dữ liệu,7
 Chuyên viên kế toán,7
 Nhân viên phòng kinh doanh,7
 Salesman,7
-Sales Engineer,7
+OCR,7
+Supply Chain,7
+Windows Server,7
 IT Security,7
-Figma,7
+Neural Network,7
+Keras,7
+Data Quality Tools,7
+Microsoft Dynamics 365,7
+HTML,7
+Blockchain,7
+Data Privacy / Compliance,7
+Information Security,7
+SRS,7
+Power Automate,7
+Kotlin,7
 Trực Quan Hóa Dữ Liệu (tableau,7
-Financial Modeling,7
-Ngân Hàng,7
-Problem-Solving,7
-Data Analysis & Processing,7
-Phát Triển Sản Phẩm,7
-Inventory Management,7
-Kinh Doanh,7
-Đàm Phán,7
-Quản Trị Rủi Ro,7
-Consulting,7
-Phát Triển Kinh Doanh,7
+Google Analytics,7
+Presentation Skills,7
+Data Architecture,7
+Quản Lý Sản Xuất,7
+Data Administration,7
+Canva,7
+Kỹ Năng Giao Tiếp,7
+Technical Support,7
+Brand Marketing,7
+Analytical thinking,7
+Excel Skills,7
+E-Learning,7
+Process Improvement,7
+Làm Việc Nhóm,7
+Truyền Thông,7
+English Fluency,7
+Campaign Management,7
+Data-driven mindset,7
+Khách Hàng Cá Nhân,7
+Hoạch Định Chiến Lược,7
+Kỹ năng đàm phán,7
+performance marketing,7
+Communications,7
+Giao Tiếp Tiếng Anh,7
+DevSecOps,7
+Phân Tích Thị Trường,7
+Cybersecurity,7
+Luật,7
+An Toàn Thông Tin,7
+Data Validation,7
+Quản Lý Vận Hành,7
+Bảo Hiểm,7
+PHP,7
+problem-solving,7
+Coaching skills,7
+English communication,7
+Detail-oriented,7
 Head of Office,6
-Kế Toán Tổng Hợp,6
+Electronics,6
 AI/ML,6
+Project Planning,6
 Nhân viên tư vấn,6
 Tư vấn viên,6
 Counsellor,6
-IT Business Analyst,6
-Quality Control,6
-Performance Management,6
-Internal Audit,6
-Database Systems,6
-BPMN,6
-NextJS,6
-Cloud Security,6
-CRM,6
+Computer Science,6
+Purchasing,6
+Planning,6
+AutoCAD,6
+Teaching,6
+Presale,6
+UML,6
+Product strategy,6
+IT Support,6
+Selenium,6
+Unity,6
+Games,6
+Khai Thác Dữ Liệu,6
 Power Bi),6
-Data Architecture,6
-Kinh Tế,6
+Power Query,6
+Data Security,6
+Kiểm toán,6
+Tự Động Hóa,6
 Sales Operation,6
-Quản Trị Kinh Doanh,6
-Strategic Thinking,6
-Brand Marketing,6
-Sales Management,6
-Facebook Ads,6
-Sales & Business Development,6
-E-Learning,6
-English Fluency,6
-Negotiation Skills,6
-Market Analysis,6
-Learning Development,6
+Excel Proficiency,6
+Quản Lý Đội Nhóm,6
+Kiểm Thử Phần Mềm,6
+Logistics Management,6
+Data Warehouse Systems,6
+Brand Management,6
+Financial Data Management,6
+Logical Thinking,6
+Recruitment,6
+Key Account Management,6
+Marketing Planning,6
+Agile Methodologies,6
+Chemical Engineering,6
+SAP-ERP,6
+Automation,6
+Quản Trị Nhân Sự,6
+Đào Tạo,6
+Lập Kế Hoạch,6
+Branding,6
+Data Center Operation,6
+Sales Strategy,6
+Đánh Giá Rủi Ro,6
+Content Marketing,6
+Tư Vấn Khách Hàng,6
+Dịch Vụ Khách Hàng,6
+Marketing Analysis,6
+Interpersonal Skills,6
+Kiểm Soát Chất Lượng,6
+SQLServer,6
+Kế Hoạch Kinh Doanh,6
+Adobe,6
+Performance marketing,6
+Kế toán,6
+Production Coordination,6
+Quản trị Kinh doanh,6
+Budget Management,6
+Microservice,6
+AI tools,6
+Sourcing,6
+Nhân Sự,6
+Banking Operations,6
+Technical Operations,6
 Data specialist,5
 Data Processing Staff,5
 Junior Accountant,5
 Kế toán bán hàng công nợ,5
 Nhân viên thiết kế,5
-AI Engineer,5
-OCR,5
 IT Helpdesk,5
 Kế toán thuế,5
 Chuyên viên tư vấn,5
-Business Planning,5
-Quality Assurance,5
-Banking,5
-Keras,5
-Presale,5
-UML,5
-Microsoft Dynamics 365,5
-Product Design,5
-User story,5
-Product strategy,5
-Information Security,5
-BRD,5
-Giao tiếp,5
-Khai Thác Dữ Liệu,5
-Tiếng Trung,5
-Presentation Skills,5
+Firewall,5
+Process Engineer,5
+RAG,5
+Amazon Web Services (AWS),5
+Administration,5
+Auditing,5
+Time Management,5
+Engineering,5
+Operations Management,5
+C language,5
+CSS,5
+Django,5
+Android,5
+Technical Writing,5
+Design Systems,5
+Chinese,5
+VMware,5
+AWS Lambda,5
+Algorithms,5
+Làm việc nhóm,5
 Financial Planning,5
-Data-Driven,5
+Tư Duy Logic,5
+Customs Clearance,5
+Chiến Lược Kinh Doanh,5
+Auto CAD,5
 Attention To Detail,5
-Quản Trị Nhân Lực,5
-Kỹ Năng Giao Tiếp,5
+Tư Duy Hệ Thống,5
+Tiktok Ads,5
+Social Media Management,5
+Kiểm Toán Nội Bộ,5
 Marketing Campaigns,5
-Performance Marketing,5
-Excel Skills,5
-Data Collection,5
-Key Account Management,5
-Chemical Engineering,5
-FMCG,5
+ERP Systems,5
+Báo Cáo Quản Trị,5
+Continuous Improvement,5
+Chuyển Đổi Số,5
+Quản Lý Kinh Doanh,5
+Education Consulting,5
+Microsoft Power BI,5
+Sales Support,5
+Xây Dựng Mối Quan Hệ,5
+Kế Hoạch Sản Xuất,5
 Advanced Excel,5
-Phân Tích Tài Chính,5
-Sales Strategy,5
-Demand Planning,5
-Project Coordination,5
-Logistics,5
+Kỹ năng bán hàng,5
+Giải Pháp Công Nghệ,5
+Sales Analysis,5
+IT Audit,5
+Logistics Coordination,5
+Human Resources,5
+Quản Lý Rủi Ro,5
+Điều Phối Dự Án,5
+Collaboration,5
+Revenue Management,5
+Phát Triển Thị Trường,5
+Tư Vấn Bán Hàng,5
+Kỹ năng giao tiêp,5
 Influencer Marketing,5
-SQLServer,5
+Import-Export,5
+Chứng khoán,5
+Tìm Kiếm Khách Hàng,5
+HRBP,5
+Quản Lý Tồn Kho,5
+Điện Tử Viễn Thông,5
+Tax Regulations,5
+Xuất Nhập Khẩu,5
+Learning and Development,5
+Leadership Skills,5
+Critical Thinking,5
+Phát Triển Phần Mềm,5
+Quản Lý Đội Ngũ,5
+Tư Vấn Tuyển Sinh,5
+Quản Lý Ngân Sách,5
+Jenkins,5
+SIEM,5
+Life Insurance,5
+Tài Chính Kế Toán,5
+Procurement,5
+market research,5
+Sales data analysis,5
+QUẢN TRỊ RỦI RO,5
+Environmental Engineering,5
+Finance Analysis,5
+Supply Planning,5
+Giao tiếp Tiếng Anh,5
+Google ADS,5
+Tín dụng,5
+AI Agent,5
+Research Methodologies,5
+Administration Skills,5
 Nhân viên thực tập,4
 Internship,4
 Nhân viên thực tập nước ngoài,4
@@ -206,72 +446,150 @@ Executive Recruitment,4
 Chuyên viên tuyển dụng,4
 Nhân Viên Kinh Doanh,4
 Chuyên viên thiết kế,4
+R&D,4
 Financial Analyst,4
 IT support,4
-Electronics,4
+Nhân viên kinh doanh,4
 Data master,4
 Nhân viên chăm sóc khách hàng,4
-Supply Chain,4
 officier,4
 Kỹ sư xây dựng,4
-Sales Admin,4
-Planning,4
 Chuyên viên chăm sóc khách hàng,4
-RAG,4
-Teaching,4
-Data Integration,4
-Software Architecture,4
-Data Quality Tools,4
-Embedded,4
-Spring Boot,4
-Fullstack,4
-Blockchain,4
-Playwright,4
+DBA,4
+LLMs,4
+Cost Control,4
+System Design,4
+IoT,4
+Odoo,4
+Microservices Architecture,4
+Angular,4
+Enterprise Architecture,4
+Ruby on Rails,4
 Data-driven,4
-Power Automate,4
+OpenCV,4
 Python Hoặc R,4
-Power Query,4
-Tin Học Văn Phòng,4
+Ba,4
+Budgeting,4
+Sale,4
+Document Management,4
+Sử Dụng Excel,4
+Quản Trị Cơ Sở Dữ Liệu,4
+Credit Risk Management,4
+Credit Risk Modeling,4
 Information Search Skills,4
-Tư Duy Hệ Thống,4
-Kiểm Thử Phần Mềm,4
-Financial Reporting,4
-Data Warehouse Systems,4
-Lãnh Đạo,4
-ERP Systems,4
-E-commerce,4
-Financial Data Management,4
-Research,4
-Logical Thinking,4
+Hạch Toán,4
+Inventory Control,4
+Bancassurance,4
+Dịch Vụ Ngân Hàng,4
+Seo,4
+Xây Dựng Báo Cáo,4
+Regulatory Compliance,4
+Kinh Tế Xây Dựng,4
+Content Strategy,4
+Compliance Management,4
+Information Technology,4
+Sales Reporting,4
+Advertising,4
 Content Development,4
-Lập Báo Cáo,4
-Talent Acquisition,4
-Google Ads,4
-Data-driven mindset,4
-Tư Vấn,4
-Xây Dựng Mối Quan Hệ,4
-Đào Tạo,4
-performance marketing,4
-Giao Tiếp Tiếng Anh,4
-Data Center Operation,4
-Đánh Giá Rủi Ro,4
-PLC Programming,4
+Hr Data Management,4
+Nhập Xuất Kho,4
+E-commerce Operations,4
+Nghiên Cứu và Phân Tích Dữ Liệu,4
+Phỏng Vấn,4
+Autocad,4
+English Language Proficiency,4
+Supplier Management,4
+Inventory Analysis,4
+Phân Tích Chiến Lược Kinh Doanh,4
+Chiến Lược Đầu Tư,4
+IT Business Analysis,4
+Root Cause Analysis,4
+problem-solving skills,4
+Event Planning,4
+Financial Accounting,4
+Quản Lý Nhân Sự,4
+Microsoft Power Platform,4
+Oracle Certificate,4
+Data Input Skills,4
+Production Management,4
+System Integration,4
+General Accounting,4
 IT Risk Management,4
+SPSS Analysis,4
 Organizational Skills,4
-Collaboration,4
-Audit,4
-Dịch Vụ Khách Hàng,4
-Quản Lý Chất Lượng,4
-Data Validation,4
-Interpersonal Skills,4
+Risk Assessment,4
+product owner,4
+Analytical Mindset,4
+Development,4
+Communication and negotiation skills,4
+KPI Management,4
+Management,4
+Tiếng Anh thành thạo,4
+Tuyển Sinh,4
+giao tiếp tiếng Trung,4
 Quản lý chất lượng,4
 English Proficiency,4
+Customer Care,4
 Candidate Experience,4
 Tech-Savvy,4
+Phân Tích Dữ Liệu Khách Hàng,4
+Kỹ năng lập kế hoạch,4
+Thương Mại Điện Tử,4
+Quản Lý Gian Hàng,4
 Process optimization,4
 Logistics Operations,4
+Logistic Management,4
+Coaching,4
+Cloud Architecture,4
+Data Center Management,4
+Data Analysis Tools,4
+Risk Control,4
+Giao Tiếp Hiệu Quả,4
+Category Management,4
+Platform Management,4
+Kế Toán Thuế,4
+Thuế,4
 Regulatory Reporting,4
+Business Administration,4
+Thúc Đẩy Bán,4
+Quản Lý Danh Mục Khách Hàng,4
+RPA,4
 Advanced SQL,4
+Đàm Phán Hợp Đồng,4
+Quản lý chuỗi cung ứng,4
+Xây Dựng Kế Hoạch,4
+Quản Lý Hồ Sơ,4
+Tư Vấn Tài Chính,4
+Nghiệp Vụ Ngân Hàng,4
+User Retention,4
+Dimensional Modeling,4
+Ingest,4
+Cohort,4
+GitLab CI,4
+Khoa Học Máy Tính,4
+Giao tiếp tốt,4
+Công nghệ thông tin,4
+Cải Tiến Quy Trình,4
+Lean Manufacturing,4
+Business Mindset,4
+Digital Media,4
+Crm Management,4
+Team leadership,4
+Kiến trúc doanh nghiệp,4
+Lãnh đạo,4
+Quan Hệ Khách Hàng,4
+Quản Lý Nhà Cung Cấp,4
+Báo Cáo Tài Chính,4
+Payroll,4
+Flask,4
+Learning & Development,4
+Hr,4
+B2B,4
+Bán Hàng,4
+Hành Chính Nhân Sự,4
+Manufacturing Systems,4
+admin,4
+General Administration,4
 Online,3
 Nhân viên hành chính,3
 Admin Staff,3
@@ -283,7 +601,6 @@ Sales analyst,3
 Nhân viên Marketing,3
 Marketing Executive,3
 IT Staff,3
-Giám sát quy trình sản xuất,3
 Quản lý bếp,3
 Bếp trưởng,3
 Tax Accountant,3
@@ -296,7 +613,6 @@ QA/QC Specialist,3
 Giám sát thi công nội thất,3
 Kế toán tổng hợp kiêm kế toán trưởng,3
 Chuyên viên kinh doanh,3
-Nhân viên kinh doanh,3
 kỹ sư điện tử viễn thông,3
 Kỹ sư viễn thông,3
 Telecommunication Engineer,3
@@ -312,128 +628,270 @@ Supervisor,3
 Staff/ Executive/ Supervisor/ Manager,3
 Software Business Analyst,3
 Hệ thống thông tin quản lý,3
+HR,3
 Trưởng phòng kế toán,3
-Windows Server,3
+Technical Leader,3
 Kỹ sư bảo trì,3
 Nhân viên mua hàng  Staff,3
 Nhân viên dịch vụ khách hàng,3
 Associates  Accountant,3
-AutoCAD,3
 Customer relation,3
-Process Engineer,3
+Architect,3
 QA,3
-Pattern Recognition,3
-Amazon Web Services (AWS),3
-Neural Network,3
-Time Management,3
-Operations Management,3
-System Design,3
-Microservices Architecture,3
-Solution Architecture,3
-HTML,3
-Japanese,3
+Coordinator,3
+"Extract, Transform, Load (ETL)",3
+Salesforce CRM,3
+ETL Tools,3
+Compensation & Benefits,3
+Cloud Platform System,3
+Robot Framework,3
+Google Docs,3
+ASP.NET,3
+.Net Core,3
+Robotic Process Automation (RPA),3
+XML,3
+Kanban,3
 PQA,3
-Stakeholder management,3
-Data Privacy / Compliance,3
-Enterprise Architecture,3
-SRS,3
-Selenium,3
+"Governance, Risk & Compliance",3
+IT Governance,3
+JUnit,3
+Matlab,3
+JSON,3
+IT Communication/Translation,3
 Strategy planning,3
+Microsoft Azure SQL Database,3
+Appium,3
+React Native,3
 Statistical Modeling,3
 Cloud Computing (aws,3
 Gcp),3
 Firebase,3
-Ba,3
 Viết Test Case,3
-Google Analytics,3
-Data Security,3
-Document Management,3
-Tư Duy Logic,3
+CFA,3
+Xác Suất Thống Kê,3
+Xây Dựng Mô Hình,3
+IFRS,3
+Business Management,3
+Strategy Planning,3
+Korean Proficiency,3
+Tactical Sales Planning,3
+Leadership Ability,3
+People Management,3
 Warehouse Operation,3
 ISO 9001,3
 Admin,3
-Data Administration,3
+Manufacturing,3
+Phân Tích Hệ Thống,3
+Sales Development,3
 Contract Administration,3
 Phân Tích Chiến Lược,3
-Credit Risk Modeling,3
-Excel Proficiency,3
+ODS,3
 Azure Data Services,3
-Auto CAD,3
 Etab,3
 Documentation,3
-Bancassurance,3
+Excel Nâng Cao,3
+Merchandising,3
+Data Analys,3
 SEO Tools,3
-E-Commerce,3
-Social Media Management,3
-Logistics Management,3
-Regulatory Compliance,3
-Compliance Management,3
+Data Tracking,3
+Consumer Insights,3
+Risk Model Monitoring,3
+Giao Tiếp Chủ Động,3
+Đào Tạo Nhân Sự,3
 MariaDB,3
 Data Accuracy,3
+Quản Lý Hiệu Suất,3
 Learning Management System,3
 Phần mềm kế toán,3
-Làm Việc Nhóm,3
+Digital,3
+Quảng Cáo,3
 Lambda,3
-Chuyển Đổi Số,3
-Campaign Management,3
+Bioinformatics,3
+CNTT,3
 Sourcing Management,3
-Kiểm Toán,3
-Data reporting,3
-Agile Methodologies,3
+Quản Lý Kho,3
+Quản Lý Dữ Liệu,3
+Effective Communication,3
+Digital Banking,3
 Fraud Detection,3
-SAP-ERP,3
-Nghiên Cứu và Phân Tích Dữ Liệu,3
+MS SQL,3
+API Integration,3
 System Security,3
-communication,3
-Automation,3
-Warehouse Management,3
+International Education Systems,3
+Oracle SQL,3
+IT Operations,3
+Hỗ Trợ Kinh Doanh,3
 Trade Promotions,3
+Vendor Management,3
 Lập Kế Hoạch Sản Xuất,3
+Quản Lý Sản Phẩm,3
+IT Consulting,3
 Thiết Kế Giải Pháp,3
-Growth Marketing,3
+Bom Management,3
+MISA,3
 Digital Marketing Tools,3
-problem-solving skills,3
-Microsoft Power Platform,3
-Oracle Certificate,3
-Data Input Skills,3
-System Integration,3
+Meta ads,3
+Shopify,3
+Kế Hoạch Bán Hàng,3
+Tổng hợp dữ liệu,3
+BI TABLEAU,3
+Kỹ Thuật,3
+Điện,3
+Sales Administration,3
+Modern Trade Planning,3
 Kỹ Năng Quan Sát,3
-Planning Data Analysis,3
-Sales Analysis,3
+PLC Programming,3
+Production Schedule,3
 Incentive Systems,3
+Data Masking,3
 Financial Risk Management,3
-Phân Tích Thị Trường,3
-Risk Assessment,3
-Strategic Planning,3
-Logistics Coordination,3
-product owner,3
-Development,3
-Giao Tiếp Tốt,3
-Tư Vấn Du Học,3
-Điều Phối Dự Án,3
-B2B Sales,3
+Office Software,3
+Sales B2B,3
+Quality Management,3
+Agile Scrum,3
+Account,3
+Product Manager,3
+Mô Hình Rủi Ro,3
+Tiếng Anh giao tiếp,3
 Data Privacy,3
+Pricing Strategy,3
 P&L Management,3
-Cybersecurity,3
-Tư Vấn Khách Hàng,3
-Phát Triển Thị Trường,3
-Kỹ năng giao tiêp,3
+Tư duy logic,3
+Incident Management,3
+Chemical Sales,3
+Campaign Planning,3
+Ansible,3
+Creative Thinking,3
+Cơ Điện,3
 Khai Báo Hải Quan,3
 SPC,3
-An Toàn Thông Tin,3
 Livestream,3
 Bảo Mật Dữ Liệu,3
+Digital Transformation,3
+Fleet Management,3
+SaaS,3
+Marketing Development,3
+Manage ERP Software,3
+Software Development,3
+Kiểm Tra Chất Lượng,3
+Microsoft Office proficiency,3
 Cross-Functional Team Collaboration,3
-Kỹ năng lập kế hoạch,3
+Employee Engagement,3
+Investment Portfolio,3
+Internal Control,3
 Financial Analysis Tools,3
-Điện Tử Viễn Thông,3
-Xuất Nhập Khẩu,3
-Logistic Management,3
-Coaching,3
-Learning and Development,3
+Xây Dựng,3
+Kiểm Soát Tuân Thủ,3
+Data-Driven Mindset,3
+Luật Lao Động,3
+Quản Lý Hợp Đồng,3
+Project magement,3
+Performance Analysis,3
+Thử Nghiệm Hệ Thống,3
+Phân Tích Lỗi,3
+Instructional Design,3
+SPI,3
+Industrial Management,3
+Hạ Tầng Hệ Thống,3
+Lập Trình,3
+Bóc Tách Khối Lượng,3
+Sql Proficiency,3
+Organizational skills,3
+Technical Sales,3
 Student Support,3
-Data Tools,3
+Tiếng Nhật,3
+UI/UX,3
+Lập Kế Hoạch Bán Hàng,3
+Ai Engineering,3
+Lãnh đạo đội nhóm,3
+Cơ Sở Dữ Liệu SQL Server,3
+Postman,3
+TAX,3
+Xử Lý Tình Huống,3
+Tư Vấn Giáo Dục,3
+Transportation Operations,3
+Business Strategy,3
+Quản Trị Hệ Thống CNTT,3
+Affiliate Marketing,3
+eCommerce,3
+Mô Hình Tài Chính,3
+Phân Tích Định Lượng,3
+Biotechnology,3
+Food Technology,3
+Kiểm Soát Chi Phí,3
+Compliance Control,3
+Production Control,3
+Nhập Dữ Liệu,3
+Quản Lý Hóa Đơn,3
+Data Policy,3
+Business Support,3
+Material Planning,3
+Netezza,3
 Financial Reconciliation,3
+Price Control,3
+Forecast Demand Planning,3
+Nghiệp Vụ Kế Toán,3
+Securities,3
+NestJS,3
+Flutter,3
+Rust,3
+Pentest,3
+Bridge Engineer,3
+Online Marketing,3
+Đối Soát Dữ Liệu,3
+Năng lượng tái tạo,3
+Tư Duy Chiến Lược,3
+Quản lý ngân sách,3
+Quan Hệ Lao Động,3
+Trợ Lý,3
+Industrial Engineering,3
+Kinh Doanh B2B,3
+Quản trị chuỗi cung ứng,3
+Ai/Ml,3
+Business Intelligence Tools,3
+English fluency,3
+Phát Triển Hệ Thống,3
+Team Collaboration,3
+Data Automation,3
+Partner Management,3
+Kỹ Năng Giao Tiêp,3
+Employer Branding,3
+Chiến Lược Marketing,3
+Điều Tra Gian Lận,3
+Phát Triển Giải Pháp,3
+learning design,3
+Tư Vấn Sản Phẩm,3
+giao tiếp hiệu quả,3
+M&A Consulting,3
+Solution Architect,3
+Portfolio Management,3
+Erp Systems,3
+Mua Hàng,3
+Hành Chính,3
+Financial Operations,3
+Crm,3
+Bán Hàng Thực Phẩm,3
+IT Solution Consulting,3
+Tài chính ngân hàng,3
+Total Rewards,3
+Customer Experience Management,3
+Quản Lý Đơn Hàng,3
+Negotiation skills,3
+Sap,3
+Social Media Monitoring,3
+Administrative Support,3
+Adobe Photoshop,3
+Adobe Illustrator,3
+Bank,3
+Mechanical,3
+Biology,3
+Chemistry,3
+Process Manufacturing,3
+Quảng Bá Thương Hiệu,3
+Kỹ Năng Quản Lý Đội Nhóm,3
+T24,3
+Vietnamese Labor Law,3
+Bảo Trì Cơ Khí,3
 IT,2
 data engineer,2
 Nhân viên công nghệ thông tin,2
@@ -467,10 +925,6 @@ Warehouseman,2
 Chuyên viên Marketing,2
 Marketer,2
 IT Officer,2
-Production process supervisor,2
-Production process manager,2
-Process supervisor,2
-Production Shift Supervisor,2
 Chef,2
 đầu bếp,2
 Bếp trưởng bếp chính bếp ăn công nghiệp,2
@@ -478,6 +932,7 @@ Kế toán trưởng,2
 QA Specialist,2
 QC Specialist,2
 Chuyên viên kiểm phẩm,2
+Receptionist,2
 box1,2
 Kế toán tổng hợp kiêm kế toán thuế,2
 Nhân viên kế toán tổng hợp,2
@@ -486,7 +941,6 @@ Giám sát kinh doanh,2
 QA/QC,2
 data scientist,2
 Information Technology Manager,2
-Project Planning,2
 Senior Consultant,2
 Senior,2
 Data,2
@@ -497,7 +951,6 @@ Kỹ thuật viên,2
 Nhân viên kỹ thuật,2
 Nhân viên phòng kỹ thuật,2
 Kỹ sư CNTT,2
-Computer Science,2
 Kỹ sư MEP,2
 Kỹ sư bán hàng,2
 Nhân viên quản lý chất lượng,2
@@ -511,6 +964,7 @@ purchasing staff,2
 Phân Tích Hệ Thống Kinh Doanh,2
 Chuyên viên phân tích hệ thống,2
 IT Manager,2
+Market research,2
 Director,2
 quản trị Cơ Sở Dữ Liệu,2
 Database Administrator,2
@@ -526,24 +980,22 @@ Quản lý chuỗi cửa hàng bán lẻ,2
 Quản lý chuỗi cửa hàng,2
 Chief accountant,2
 Accounting Manager,2
-Technical Leader,2
 Kỹ sư sản xuất,2
 kiểm soát nội bộ,2
 Kiểm toán nội bộ,2
 Deputy Head of Office,2
 Giáo viên,2
 Teacher,2
-Firewall,2
 IaC,2
 Warehouse supervisor,2
 Administrator,2
 Nhân viên kinh doanh bất động sản,2
 Real estate salesperson,2
 bất động sản,2
+Giám sát quy trình sản xuất,2
 Panel Recruiter,2
 Chuyên viên dịch vụ khách hàng,2
 Kế toán thanh toán,2
-Purchasing,2
 Nhân viên phòng thí nghiệm,2
 Nhân viên phòng lab,2
 Lab supervisor,2
@@ -563,47 +1015,29 @@ Structural Drafter,2
 Consultant Executive,2
 Kỹ sư giải pháp phần mềm,2
 Database Developer,2
-DBA,2
-Coordinator,2
+Quan hệ khách hàng doanh nghiệp,2
+Pivot Table,2
 AI Systems,2
+Chatbots,2
 System Analysis,2
-"Extract, Transform, Load (ETL)",2
-LLMs,2
-ETL Tools,2
-Compensation & Benefits,2
+Google Data Studio,2
+Big Data Architecture,2
 ai agent,2
-Cloud Platform System,2
-Administration,2
-Auditing,2
-Engineering,2
+vba,2
+Testing,2
 Automatic Speech Recognition (ASR),2
 Vector Database,2
-Cost Control,2
-.Net Core,2
-IoT,2
-Odoo,2
-C language,2
-CSS,2
-Robotic Process Automation (RPA),2
-Android,2
-Angular,2
 Technology Roadmapping,2
-Technical Writing,2
-XML,2
-Kanban,2
-Mobile Apps,2
-Design,2
-Chinese,2
-IT Support,2
-OOP,2
-Ruby on Rails,2
+Unit test,2
+Event-Driven Architecture,2
+Ruby,2
 Wordpress,2
-Matlab,2
-JSON,2
-Microsoft Azure SQL Database,2
+HTML5,2
+Wireframing,2
+GraphQL,2
 Salesforce,2
-Security,2
-Analytics,2
+Data Lineage,2
+HRM / HCM,2
 Truy Vấn Dữ Liệu,2
 SQL nâng cao,2
 appsflyer,2
@@ -611,231 +1045,503 @@ Thống Kê Cơ Bản,2
 Data Pipeline Development,2
 Tableu,2
 Early Warning Systems,2
-CFA,2
-Xác Suất Thống Kê,2
-Xây Dựng Mô Hình,2
 Kinh nghiệm vị trí DATA ANALYST,2
 Basel III,2
-Budgeting,2
 Forecasting,2
+CPA,2
+Security Engineer,2
 audit,2
-Sale,2
-Kiểm toán,2
-C/C++,2
-Strategy Planning,2
-Quản Lý Sản Xuất,2
+Product,2
 Hr Management,2
-Korean Proficiency,2
-Tactical Sales Planning,2
-Leadership Ability,2
-People Management,2
-Tự Động Hóa,2
 Shipment Tracking,2
 Anodizing,2
-Sử Dụng Excel,2
-Quản Trị Cơ Sở Dữ Liệu,2
-Customs Clearance,2
+Cơ Kỹ Thuật,2
+Data Strategy,2
 Competitor Analysis,2
+Competitor Intelligence,2
+Failure Analysis,2
 Nhập Liệu,2
-Phân Tích Hệ Thống,2
-Sales Development,2
-Chiến Lược Kinh Doanh,2
+Risks Analysis,2
+Chuỗi Cung Ứng,2
 Report Analysis,2
+Product Marketing,2
 HVAC,2
 REVIT,2
 Thiết Kế Kết Cấu,2
-Inventory Control,2
-Merchandising,2
-Dịch Vụ Ngân Hàng,2
-Data Analys,2
+Lưu Trữ Chứng Từ,2
+Cải Tiến Chất Lượng,2
 Word,2
-Tiktok Ads,2
-Quản Lý Đội Nhóm,2
-Data Tracking,2
-Seo,2
+Hr Analytics,2
+Marketing Online,2
+Sáng Tạo,2
 Cloud AWS,2
 Quantitative Analysis,2
 Quản Trị Hệ Thống ERP,2
 Phát Triển Ứng Dụng Powerapps,2
-Xây Dựng Báo Cáo,2
-Risk Model Monitoring,2
-Kiểm Toán Nội Bộ,2
+Transportation Planning,2
+Model Performance Analysis,2
+Kỹ Năng Làm Việc Nhóm,2
+Marketing Giáo Dục,2
 Machine Vision,2
 Ai Technologies,2
-Technical Support,2
-Ms Office,2
 data driven,2
-Giao Tiếp Chủ Động,2
-Đào Tạo Nhân Sự,2
-Brand Management,2
+Python Development,2
 Content Creation,2
 Technical Drawing,2
-Finance,2
 Lms Management,2
-Information Technology,2
+Training Development,2
+Technical Training,2
 SAP Consulting,2
 Manufacturing Operations,2
-Báo Cáo Quản Trị,2
-Digital,2
+Power BI & Data Analytics,2
+Business Intelligence (BI),2
+Change Management,2
+Ecommerce Solution,2
+Ecommerce Technology,2
+Finance Planning,2
+Giám Sát Thi Công,2
+Kỹ Thuật Xây Dựng,2
+Process Design,2
 Automation Software,2
-Sales Reporting,2
-Quảng Cáo,2
-Truyền Thông,2
 International Benchmarking,2
 Finite Element Analysis,2
-Continuous Improvement,2
 Lưu Trữ Object Storage,2
-Bioinformatics,2
-CNTT,2
-Hr Data Management,2
+Thiết Kế Hệ Thống,2
+An Ninh Mạng,2
 Payroll Processing,2
-Nhập Xuất Kho,2
-Quản Lý Dữ Liệu,2
-Effective Communication,2
-Digital Banking,2
+Budget Estimation,2
 Business Process Design,2
 Card Operations,2
+Labratory Management,2
 Quality System,2
-E-commerce Operations,2
-API Integration,2
-Education Consulting,2
-English Language Proficiency,2
-Oracle SQL,2
-IT Operations,2
+ABAP,2
+ERP Migration,2
+Information Extraction,2
+Data Upload Tools,2
+Tài Chính - Ngân Hàng,2
+AI Product,2
+Retail Industry,2
+Kỹ Thuật Điện,2
+Supplier Quality Management,2
+Quality Tools,2
+ISO Standards,2
+Agile Methodology,2
+Commercial Negotiation,2
 IT Project Management,2
-Supplier Management,2
-Sales Support,2
+Macro,2
+Reporting Skills,2
+Forwarding,2
 PowerPoint,2
 Kiểm Tra Hiệu Năng,2
+Quản lý khách hàng,2
+HRIS,2
 Điều Phối Giao Hàng,2
-Phân Tích Chiến Lược Kinh Doanh,2
-Chiến Lược Đầu Tư,2
-Hoạch Định Chiến Lược,2
-Ngân hàng,2
-IT Business Analysis,2
-Kỹ năng bán hàng,2
-Kỹ năng đàm phán,2
-Lập Kế Hoạch,2
-Root Cause Analysis,2
-MISA,2
+E-Learning Development,2
+Kế Hoạch Ngân Sách,2
+SQL programming,2
+Chứng Khoán,2
+IT Solutions,2
+Xây Dựng Chiến Lược,2
 Data-Driven Marketing,2
-Branding,2
+B2B Marketing,2
+AI Technology,2
+Strategic Marketing,2
 Communication English,2
 Contract Management,2
-Meta ads,2
-SEO,2
-Financial Accounting,2
 Tax Compliance,2
-Shopify,2
-DevSecOps,2
-Quản Lý Nhân Sự,2
-BI TABLEAU,2
+English Communicate,2
+Chấm Công,2
+Computer Skills,2
+Electrical Systems,2
+Năng Động,2
+Oracle BI,2
 LangChain,2
 Workflow Automation,2
 Automation Engineering,2
+Control System,2
 Data Calculation,2
 Communication And Problem-Solving Skills,2
 Freight Forwarder,2
-Tài Chính Ngân Hàng,2
-Data Masking,2
-Office Software,2
+Quản Lý,2
+Retail Banking,2
+Digital Advertising,2
 统计,2
-SPSS Analysis,2
+Cost Management,2
+Kế Hoạch Chi Phí,2
 An Ninh Bảo Mật,2
 Phần Mềm Bán Hàng,2
 Tư Vấn Dịch Vụ,2
-IT Audit,2
+Sáng Tạo Nội Dung,2
+Exploratory Data Analysis,2
 Giao Tiếp Tiếng Trung,2
+SQL Skills,2
 Python Frameworks,2
 Operation Support,2
 Task Management,2
-Quality Management,2
-Process Improvement,2
-Analytical Mindset,2
-Product Development,2
-Account,2
-Mô Hình Rủi Ro,2
+Marketing Management,2
+E-Learning Tools,2
+Đào Tạo Nội Bộ,2
+Phân Tích Kinh Tế,2
+Valuation,2
+Bussiness Analyst,2
+Customer Segmentation,2
+Insurance,2
+Compliance Auditing,2
+Phân Tích Chất Lượng,2
+Quản Trị Tiến Độ,2
 Customer Support,2
-Tư duy logic,2
+Design Management,2
+Analysis Tool,2
+Consumer Insight,2
+Operation,2
 Warehouse Operations Management,2
 Đảm Bảo Chất Lượng,2
+Siem,2
+Giao Tiếp  Và Thuyết Phục,2
+Hồ Sơ Du Học,2
+Demand Forecasting,2
 HVAC Design,2
+Planning & Analysis,2
+Cosmetics Distribution,2
+Pricing Management,2
 Monitoring,2
 Order Management,2
 Report Preparation,2
+Technical Documentation,2
 Japanese N3,2
+Education,2
+Thủ Tục Hải Quan,2
+Kỹ Năng Đào Tạo,2
+Haccp,2
+Quality Inspection,2
+Footwear,2
 MT Channel,2
+Giao Nhận Vận Tải,2
+Ie Tools,2
+Erp/Mes Systems,2
+User Acquisition,2
 Tiếng Nhật N2,2
+Bảo Mật Thông Tin,2
+Endpoint Security,2
 Planning Skills,2
+Retail Marketing,2
 Strong English Communication,2
-Import-Export,2
+Social Media Marketing,2
 Interpersonal skills,2
 MIS,2
-Digital Transformation,2
-Fleet Management,2
-SaaS,2
-Marketing Development,2
+Hubspot CRM,2
+Brand Communication,2
 Claude AI,2
+Training & coaching,2
+Vận Tải,2
 Agile Product Development,2
 Financial Auditing,2
-Chứng khoán,2
-Software Development,2
 Kế Toán Giá Thành,2
-Kiểm Tra Chất Lượng,2
+Stakeholders Engagement,2
 Solution Oriented,2
-Tìm Kiếm Khách Hàng,2
+Transaction Management,2
+Honesty,2
+Phần Mềm Kế Toán,2
 S3,2
 Oracle CRM,2
-Customer Care,2
 Livestream Coordination,2
-Internal Control,2
 Network Security,2
-HRBP,2
 Policy Development,2
-Xây Dựng,2
+Tối Ưu Nội Dung Seo,2
+Production Planning And Scheduling,2
 Merchandising Coordination,2
 Retail Operations,2
-Performance Analysis,2
-Thử Nghiệm Hệ Thống,2
-Phân Tích Lỗi,2
-SPI,2
+Xây Dựng Quy Trình,2
+Organizational Structure,2
+HR Strategy,2
+Cloud Infrastructure,2
+Supplier Selection,2
+Khách Hàng Doanh Nghiệp,2
+Core,2
+Application Support,2
+Planning Schemes Knowledge,2
+Ba Tools,2
+Database Administration,2
+Repair Maintenance,2
 SAP proficiency,2
-Cloud Architecture,2
+Infrastructure Architecture,2
+Virtualization,2
 Procurement Analytics,2
+Cloud Solutions,2
+Quản Lý Giao Hàng,2
+ReactJs,2
 Process Development,2
 Product Planning,2
-Lập Trình,2
-Risk Control,2
-Sql Proficiency,2
-Leadership Skills,2
-Giao Tiếp Hiệu Quả,2
-Organizational skills,2
+Đọc Hiểu Bản Vẽ Kỹ Thuật,2
+Risk Analysis,2
+Cost Optimization,2
+Mis Reporting,2
+Customer-Oriented,2
+Tiếp Thị Kinh Doanh,2
+manufacturing,2
+Freight Forwarding,2
+Tiếng Nhật N3,2
+Automotive,2
+Design Training Program,2
+General Communication English,2
+Statistical Learning,2
 Partnership Development,2
+System Development,2
+Academic Development,2
+Quản Lý Kinh Doanh B2B,2
+Microsoft PowerPoint,2
 Microsoft Word,2
-Tiếng Nhật,2
+SAP Application,2
+Content Writing,2
 Sales Channel Development,2
+Cloud Platform,2
 Thiết Kế Tổ Chức,2
-Platform Management,2
-Cơ Sở Dữ Liệu SQL Server,2
-Quản Lý Vận Hành,2
-Kiểm Soát Chất Lượng,2
+Quản Lý Mua Hàng,2
+Customer Experiences,2
+VNACCS,2
+Business Model Analysis,2
+Tax Accounting,2
+Công Nghệ Phần Mềm,2
+Quality Auditing,2
+Payroll Management,2
 Statistical Forecasting,2
-Business Strategy,2
-Business Administration,2
-Kế Hoạch Kinh Doanh,2
+Langgraph Agents,2
+Llm Patterns,2
+Quản Lý Thời Gian,2
 "Autocad 2D,3D",2
+Electrical Engineering,2
+Dự Báo Thị Trường,2
 Due Diligence,2
-Phân Tích Định Lượng,2
+Theo Dõi Tồn Kho,2
 MSCA,2
-Compliance Control,2
+Customer Service Management,2
+L&D Strategy Development,2
+Competency Framework Implementation,2
+Proactive Learning,2
+Mobile Banking,2
+Report Writing,2
+Vận Hành Đơn Hàng,2
 Pharmaceutical Regulations,2
+Data Entry Accuracy,2
 Accounting finance,2
-RPA,2
+Phân Tích Dữ Liệu Quản Trị,2
+Data Visualization Tools,2
 nhân viên chứng từ,2
-Nhập Dữ Liệu,2
-Quản lý chuỗi cung ứng,2
-Netezza,2
+Quản Lý Công Nợ,2
+Hạch Toán Chi Phí,2
+ISO 27001,2
+KAIZEN,2
+FPGA,2
+Quản Lý Quy Trình,2
+ERP Implementation,2
+Etf Trading,2
+Customer Satisfaction,2
 Reporting Tools,2
+People Leadership,2
+Telecommunications,2
+Báo Cáo Thống Kê,2
+Lập Kế Hoạch Kinh Doanh,2
+Quản Trị Nguồn Vốn,2
+Securities Core System,2
+Project Analyst,2
+Software Testing,2
+Troubleshooting,2
+Management Reporting,2
+AUTOSAR,2
+Cloud-native Architecture,2
+Japanese IT Communication,2
+Splunk,2
+Incident Response,2
+iOS,2
+Swift,2
+Redux,2
+IBM DB2,2
+Laravel,2
+Application Security,2
+Industrial Automation,2
+Financial Systems,2
+Viễn Thông,2
+Dữ Liệu,2
+Chính Sách Bán Hàng,2
+Bán Hàng Dự Án,2
+BI Dashboard,2
+AI Integration,2
+It Operations,2
+Network,2
+Process Analysis,2
+Bảo Hiểm Xã Hội,2
+Shopee ads,2
+Lãnh Đạo Đội Ngũ,2
+Quản Trị Chuỗi Cung Ứng,2
+Chiến lược Công nghệ,2
+Kỹ Năng Đàm Phán,2
+Solidworks,2
+Large Language Models,2
+Adaptability,2
+Research Skills,2
+People Development,2
+Agency Management,2
+Quản Trị Dự Án,2
+Compensation Management,2
+Data Management System,2
+SAP Functional,2
+Procurement Strategy Planning,2
+Project Portfolio Management,2
+Investment,2
+Tư Vấn Giải Pháp,2
+Soạn Thảo Hợp Đồng,2
+Data Analysis And Process Improvement,2
+Quality Management Systems,2
+HR & Admin,2
+Quản Lý Kpi,2
+Đàm phán,2
+planning,2
+IE,2
+content development,2
+Sales Forecasting,2
+5S,2
+Digital Performance,2
+Phát Triển Thương Hiệu,2
+Lending Operations,2
+Phân Tích Dữ Liệu Và Kiểm Soát Chi Phí,2
+kinh tế,2
+Data-driven decision making,2
+Manufacturing Production Planning,2
+Information Systems,2
+Product Analyst,2
+Product Analytics,2
+Problem-Solving Mindset,2
+Nghiệp Vụ Xe Cơ Giới,2
+Presentation skills,2
+Quản Lý Kỹ Thuật,2
+Kỹ Thuật Công Nghiệp,2
+Kỹ Thuật Sản Xuất,2
+Visual Merchandising,2
+System Thinking,2
+Corporate Planning,2
+Bất Động Sản,2
+Admin Support,2
+Red Hat Linux,2
+Vmware Virtualization,2
+Business Process Management,2
+Quản Lý Nhãn Hàng,2
+Thiết Kế Đồ Họa,2
+Conveyor Systems,2
+Thẩm Định Tín Dụng,2
+Ecommerce Operations,2
+Quản Trị Hệ Thống Bán Hàng,2
+Roadmap Planning,2
+CAD Drawings,2
+Sản xuất,2
+Cost Controlling,2
+Financial Products Knowledge,2
+Giám Sát Hiện Trường,2
+Tư vấn khách hàng,2
+quản lý đội ngũ,2
+Interviewing,2
+Collection Performance Analysis,2
+Data Reporting,2
+Technical Supervision,2
+Quản lý thời gian,2
+Quản Lý Bán Hàng,2
+Content Creative,2
+Warehouse,2
+ERP Business Analysis,2
+Banking Product,2
+Quản Lý Thương Hiệu,2
+Marketing Analytics,2
+Active Mindset,2
+Sample Development,2
+Good Interpersonal Skills,2
+Quản Lý Thiết Bị,2
+Tiếng Anh Giao Tiếp,2
+Underwriting,2
+Finance Analyst,2
+Loan Origination System,2
+Compliance,2
+Credit Analysis,2
+Giáo Dục Đào Tạo,2
+Quản Lý Dự Án Công Nghệ,2
+Ngân Hàng Số,2
+Powerpoint,2
+Data Solutions,2
+Strategic Sourcing,2
+Kyc/Aml Compliance,2
+Accounting Software,2
+Production Operations Management,2
+Đàm Phán Và Thuyết Phục,2
+Relationship Management,2
+Metadata Management,2
+Kinh doanh quốc tế,2
+data entry,2
+Database System,2
+Bất Động Sản cho thuê,2
+Event Coordination,2
+UIUX,2
+Event Organizing,2
+Data Entry Skills,2
+Purchase Management,2
+Customer Journey Mapping,2
+Phát Triển Khách Hàng,2
+Hỗ Trợ Tư Vấn Du Học,2
+Marketing Automation Tools,2
+Datawarehouse,2
+Lab testing,2
+Omnichannel Strategy,2
+Employee Relations,2
+Internal Communications,2
+Financial Statements,2
+Trello,2
+flask,2
+Telemarketing,2
+Event Management,2
+Budget Planning,2
+cơ khí chế tạo máy,2
+Chemical,2
+Kỹ Năng Làm Việc Độc Lập,2
+Performance Monitoring,2
+Revit,2
+Manufacturing knowledge,2
+Quản Lý Bán Hàng Khu Vực,2
+Quản Lý Khách Hàng Ưu Tiên,2
+Legal Consulting,2
+Quản Lý Khu Vực Xuất Hàng,2
+Quản Lý Vận Hành Kho,2
+Quy Trình Đóng Gói,2
+Kỹ năng quản lý đội nhóm,2
+Rubber Processing,2
+Production,2
+Manufacturing Engineering,2
+Nhân sự tổng hợp,2
+Cấp Thoát Nước,2
+Food Engineering,2
+Preventive Maintenance & Equipment Troubleshooting,2
+Manufacturing Operator,2
+Quảng Bá Sản Phẩm,2
+kỹ năng lãnh đạo,2
+Market Intelligent,2
+Cash Handling,2
+Nông nghiệp,2
+Sales Engineering,2
+Kinh Nghiệm Direct Sales,2
+Tín Dụng Cá Nhân,2
+Phần mềm nhúng,2
+Textile Industry,2
+Iso 9001,2
+Chiến Lược Tuyển Dụng,2
+Mechanical Maintenance,2
+Terminal Operations,2
+Firmware Design,2
+Sửa Chữa,2
+Truyền Thông Thương Hiệu,2
+Bán Lẻ,2
+Báo Giá,2
+Điện Công Nghiệp,2
+Environmental Monitoring,2
+Sales Consultant,2
+Manufacturing Support,2
+Office Basic Skills,2
+Manufacturing Quality Control,2
 kỹ sư phần mềm,1
 AI-Integration,1
 HR Data Analyst cum Total Rewards Operational,1
@@ -918,7 +1624,6 @@ Mercedes-Benz,1
 mercedes,1
 Nhân viên thiết kế triển khai bản vẽ Shop Drawing đi làm ngay,1
 ML Engineer,1
-R&D,1
 Data Scientist,1
 Chuyên viên Phân tích dữ liệu Data Analyst,1
 Chuyên viên Quản lý Kho và Mô hình dữ liệu,1
@@ -950,8 +1655,6 @@ Key Account Executive,1
 Account Assistant,1
 group account manager,1
 Network and Infrastructure,1
-Production Supervisor,1
-Trưởng ca sản xuất,1
 Bếp trưởng Nấu món Hàn,1
 KẾ TOÁN THUẾ - TỔNG HỢP,1
 MEP Planning Engineer,1
@@ -971,7 +1674,6 @@ Reception,1
 Lễ tân nhà hàng,1
 Lễ tân khách sạn,1
 Lễ tân quầy sảnh,1
-Receptionist,1
 Nhân viên thư ký lễ tân,1
 kiêm trợ lý văn phòng,1
 tổng đài,1
@@ -1111,7 +1813,6 @@ CTO,1
 Chief Technology Officer,1
 IT Director,1
 Market reseach Analyst,1
-Market research,1
 B2B marketing,1
 CHUYÊN VIÊN PHÂN TÍCH DỮ LIỆU,1
 Data Engineer - Dự án CNTT,1
@@ -1123,7 +1824,6 @@ Nhân viên Xử lý dữ liệu dự án DC,1
 Thực Tập Sinh Bán Hàng - Hà Nội,1
 Mass Recruitment Supervisor,1
 Nhân sự,1
-HR,1
 Human resource,1
 Chuyên viên cơ khí,1
 Mechanical Engineer,1
@@ -1252,6 +1952,10 @@ Trợ lý phó tổng giám đốc sản xuất cung ứng,1
 Trợ lý phó giám đốc,1
 Trưởng ca sản xuất Dây chuyền Sơn,1
 Production supervisor,1
+Production process supervisor,1
+Production process manager,1
+Process supervisor,1
+Production Shift Supervisor,1
 Nhân Viên Kỹ Thuật Bảo Trì – Vận Hành Thiết Bị Sản Xuất,1
 Nhân viên bảo trì,1
 Chuyên viên bảo trì,1
@@ -1397,7 +2101,6 @@ Kế toán công nợ và chi phí,1
 accountant,1
 Kiến Trúc Sư Concept,1
 Architectural Drafter,1
-Architect,1
 họa viên kiến trúc,1
 Civil Engineer,1
 CADDDESIGNER,1
@@ -1532,7 +2235,6 @@ OCA,1
 Financial Analysis Expert,1
 thẩm định,1
 Chuyên viên tín dụng khách hàng doanh nghiệp lớn,1
-Quan hệ khách hàng doanh nghiệp,1
 Quản lý dự án CNTT,1
 Triển khai phần mềm,1
 QC Lead Tổ trưởng/Trưởng nhóm Kiểm soát Chất lượng,1
@@ -1546,23 +2248,16 @@ Azure Data Lake Storage (adls),1
 Ai- Robotics,1
 Robotics,1
 Stem,1
-Pivot Table,1
 Ml,1
 Ai-agent,1
 Dataset,1
-Chatbots,1
 Requirements Analysis,1
-Salesforce CRM,1
 firebase,1
-Google Data Studio,1
 Chuyên Viên Nhân Sự,1
 Nhân Viên Hành Chính Nhân Sự,1
 Community Building,1
 Internet of Things (IoT),1
-Big Data Architecture,1
 Làm Việc Độc Lập,1
-vba,1
-Testing,1
 Data Annotation,1
 "Scikit-learn, Tensorflow, Keras, Pytorch",1
 "Nltk, Gpt-3, Gpt-4, Chatgpt, Claude, Mistral, Llama, Spacy, Stanford Corenlp, Word2vec, Alpaca , Fasttext, Bert, Vectordb, Bert, Llm/prompt, Langgraph",1
@@ -1572,9 +2267,7 @@ Big Data Products,1
 Research and Development (R&D),1
 Managerial Finance,1
 ML,1
-Robot Framework,1
 Real-Time Operating System (RTOS),1
-Google Docs,1
 Llm Api,1
 Kĩ Năng Làm Việc Nhóm ,1
  Tích Hợp Dữ Liệu Qua Api,1
@@ -1586,46 +2279,19 @@ Tts,1
 Product Thinking,1
 LaTeX,1
 Predictive models,1
-ASP.NET,1
-Django,1
 PromiseKit,1
 BLE,1
 ARM Cortex,1
 Firmware,1
 Hardware Design,1
-Design Systems,1
-Unit test,1
 Lean Project Management,1
-"Governance, Risk & Compliance",1
-IT Governance,1
-Event-Driven Architecture,1
-Windows,1
 Twisted,1
-VMware,1
-Networking,1
 Crystal,1
-Ruby,1
 User journey,1
-JUnit,1
-Spring,1
 Web3.js,1
-Unity,1
-Games,1
-IT Communication/Translation,1
-HTML5,1
-AWS Lambda,1
-Wireframing,1
 Mockups,1
-Kotlin,1
-GraphQL,1
 Sharepoint,1
-OpenCV,1
-Data Lineage,1
-Appium,1
-Algorithms,1
-HRM / HCM,1
 Product Metrics,1
-React Native,1
 Hiểu bản chất kinh doanh eCommerce,1
 Thành thạo SQL trên Columnar Database,1
 Thiết kế Data Warehouse (Dimensional Modeling),1
@@ -1705,7 +2371,6 @@ Kinh Nghiệm Với Các Thư Viện Machine Learning (scikit Learn,1
 Pytorch),1
 Thu Thập Dữ Liệu,1
 Ưu tiên người ở gần công ty hoặc Hà Nội có xe đưa đón CBCNV,1
-Làm việc nhóm,1
 kỹ năng thuyết trình,1
 Phân tích sản phẩm,1
 Python/R,1
@@ -1720,7 +2385,6 @@ Qlik Sense),1
 Power Bi Tableau,1
 Big Data Technologies (e.g.,1
 Spark),1
-IFRS,1
 business modeling,1
 Basel II,1
 Design Thinking,1
@@ -1739,47 +2403,33 @@ Kinh Nghiệm Trong Ngành Tài Chính,1
 Tableau Power Bi,1
 Xử Lý Cơ Sở Dữ Liệu (postgresql),1
 −Sử dụng thành thạo Excel,1
-CPA,1
 MBA,1
 communication proficiency,1
 Business Intelligence (bi),1
 Agile & Scrum,1
-Security Engineer,1
-Product,1
 Manual Test,1
-Business Management,1
 Cơ Điện Tử,1
 Thống Kê Dữ Liệu,1
-Cơ Kỹ Thuật,1
 Tư Duy Cải Tiến,1
 Postgre,1
 SQL Database,1
 Sử Dụng Công Cụ Ai,1
 Customs Brokerage,1
-Data Strategy,1
 CMS Platforms,1
 Integration Management,1
 Automotive Technology,1
-Competitor Intelligence,1
 Lean Manufacturing Tools,1
 Customer Quality,1
-Failure Analysis,1
 Data Labeling,1
 GMP Management,1
-Manufacturing,1
 Analytical Data,1
-Risks Analysis,1
-Chuỗi Cung Ứng,1
 Thương Mại,1
 HRIS Systems,1
-Credit Risk Management,1
 MATLAB,1
 Master Data Management,1
 Strategy Mapping,1
 Data Query Management Tools,1
-ODS,1
 Digital Solution,1
-Product Marketing,1
 Market Demand Analysis,1
 Thanh Quyết Toán,1
 Quản Lý Hậu Cần,1
@@ -1790,65 +2440,43 @@ Ai Technology Knowledge,1
 Technical Software Understanding,1
 Product Analysis Skills,1
 Theo Dõi Công Nợ,1
-Hạch Toán,1
-Lưu Trữ Chứng Từ,1
-Sap Implementation,1
-Sap Configuration,1
-Sap Troubleshooting,1
-Sap Testing,1
-Excel Nâng Cao,1
 Pricing Framework,1
 Price Architecture,1
 7 QC Tools,1
 Chất Lượng Linh Kiện,1
-Cải Tiến Chất Lượng,1
-Canva,1
 Power Point,1
 Data Checking,1
 Export Documents,1
 German Language,1
 Customer Services,1
 Finance knowledge,1
-Hr Analytics,1
 Meta Ads,1
 Tư Vấn Chiến Lược Marketing,1
-Marketing Online,1
-Sáng Tạo,1
 API Design,1
-Consumer Insights,1
 Order Processing,1
 Order Fulfillment,1
 Order Management System,1
-Transportation Planning,1
 Accounting Principles,1
 Project Accounting,1
 Quản Lý Kế Hoạch,1
 Sử Dụng Power Bi,1
 FRMS,1
-Model Performance Analysis,1
 Infrastructure Design,1
 Integration Platform,1
 IT Infrastructure,1
-Kỹ Năng Làm Việc Nhóm,1
 Kỹ Năng Xử Lý Vấn Đề,1
 Kỹ Năng Tiếng Anh Cơ Bản,1
 Kỹ Năng Thuyết Phục,1
-Kinh Tế Xây Dựng,1
 Quản Lý Tuyển Sinh,1
-Marketing Giáo Dục,1
 Giao tiếp xuất sắc,1
-Content Strategy,1
 Image Processing,1
 HRM System,1
 Create Marketing Content,1
-Analytical thinking,1
 Statistical Software,1
 OOP (Object Oriented Programming),1
-Python Development,1
 Active Learning,1
 Application Engineering,1
 Phân Tích Hiệu Quả Tài Chính,1
-Quản Lý Hiệu Suất,1
 CRM System,1
 Retail Sales,1
 Field Force,1
@@ -1856,53 +2484,31 @@ Team management skills,1
 Consulting & Business Analysis,1
 After Effects,1
 Thiết Kế,1
-Training Development,1
 Digital Learning Content Development,1
 Training Facilitation,1
-Technical Training,1
-Business Process Management (BPM),1
-Process Mapping,1
-Operational Excellence,1
-SOP Development,1
-Lean Six Sigma,1
+Business Process Analysis,1
+KPI Dashboard & Reporting,1
 Trung Thực,1
-Change Management,1
 Quản Lý Chi Phí,1
-Ecommerce Solution,1
-Ecommerce Technology,1
 Corporate Tax Planning,1
 Sap Turbo,1
-Finance Planning,1
-Giám Sát Thi Công,1
-Kỹ Thuật Xây Dựng,1
 Pháp Lý Dự Án,1
-Process Design,1
 Automation Tool,1
 My SQL,1
 Postgres SQL,1
-Advertising,1
-Thiết Kế Hệ Thống,1
-An Ninh Mạng,1
 Database management,1
-SQL & Advanced Data Analysis,1
-Power BI & Data Analytics,1
-VBA Automation,1
 Data Visualization & Analysis (Power BI; SQL – basic; Python – basic),1
+Performance Analysis & Reporting,1
 Customer Relation,1
 Quản Lý Lịch Trình,1
 Điều Phối Lịch Họp,1
 Phát Triển Quan Hệ,1
 Labor Compliance,1
 Application Security Assessment,1
-Recruitment,1
-Quản Lý Kho,1
 Giám Sát Nhân Sự,1
 Vận Hành Kho,1
 Cloud Solution,1
-Budget Estimation,1
-Sales Operations,1
 Ecommerce Platforms,1
-Marketing Planning,1
 Legal Counsel & Compliance,1
 DPO,1
 Legal advice,1
@@ -1913,48 +2519,22 @@ Digital Engagement Strategies,1
 Salesforce Development,1
 Mis Structuring,1
 Garment Dyeing,1
-Labratory Management,1
 Collaboration Skills,1
-ABAP,1
-ERP Migration,1
-Information Extraction,1
-Data Upload Tools,1
-Quản Lý Kinh Doanh,1
-Tài Chính - Ngân Hàng,1
-AI Product,1
 AI Transformation,1
 Business,1
 Database Design,1
-MS SQL,1
-Retail Industry,1
-Khách Hàng Cá Nhân,1
 Quản Lý Thúc Đẩy Kinh Doanh,1
 Hành Chính Tuyển Dụng,1
-Phỏng Vấn,1
 Sàng Lọc Hồ Sơ,1
 Tuyển Dụng Nhân Sự,1
-Autocad,1
-Kỹ Thuật Điện,1
 Máy Móc Thiết Bị,1
 Phối Hợp Công Việc,1
 System Administration,1
 System Engineer,1
-International Education Systems,1
-Supplier Quality Management,1
-Quality Tools,1
-ISO Standards,1
 5WHY Analysis,1
-Agile Methodology,1
 C Programming Language,1
 Chatbot AI,1
-Commercial Negotiation,1
 Supplier Sourcing,1
-Microsoft Power BI,1
-Inventory Analysis,1
-Macro,1
-Reporting Skills,1
-Forwarding,1
-Hỗ Trợ Kinh Doanh,1
 Thương lượng,1
 Compact Modeling,1
 Device Physics,1
@@ -1963,30 +2543,24 @@ Statistical Variability,1
 Strategic Influence,1
 Word Proficiency,1
 data warehousing techniques,1
-Quản lý khách hàng,1
 Kỹ năng lãnh đạo,1
 HR Reports,1
 HR Strategic Planning,1
-HRIS,1
 Làm Báo Giá Hợp Đồng,1
 Xử Lý Đơn Hàng,1
 Compiler Design,1
 EDA,1
 Consumer Behavior,1
-Vendor Management,1
 Security Infrastructure,1
 Secure Code Review,1
 Access Control Management,1
 Strategic Agility,1
-E-Learning Development,1
 Huấn Luyện Nội Bộ,1
-Quản Trị Nhân Sự,1
 Xây Dựng Chương Trình Đào Tạo,1
 Phát triển Con người,1
 Training Planning,1
 Sale Training,1
 Xây Dựng Hệ Thống Bán Hàng,1
-Kế Hoạch Sản Xuất,1
 Asset Management,1
 Quản Trị Mạng,1
 IT Application Development,1
@@ -1995,22 +2569,12 @@ Business Systems Analysis & Optimization,1
 Dự Báo Doanh Số,1
 Tư Vấn Đầu Tư,1
 Triển Khai ERP,1
-Kế Hoạch Ngân Sách,1
-SQL programming,1
 Lập Kế Hoạch Sản Phẩm,1
-Chứng Khoán,1
-Quản Lý Sản Phẩm,1
 Quản Trị Doanh Thu,1
-IT Consulting,1
-IT Solutions,1
 Root Cause Problem Solving,1
-Giải Pháp Công Nghệ,1
-Bom Management,1
 Technical Drawing Reading,1
 Điện tử,1
 Định Mức Nguyên Liệu,1
-Xây Dựng Chiến Lược,1
-B2B Marketing,1
 AI/ML Models,1
 KOL/KOC & Affiliate,1
 GMV,1
@@ -2019,15 +2583,11 @@ Agentic AI,1
 Agentic Ai Frameworks,1
 GitHub Copilot,1
 Ai Code Assistant,1
-AI Technology,1
 Route-To-Market Management,1
-Communications,1
 Database MySQL,1
 CSDL Oracle,1
 Quản Trị Hệ Thống,1
 Design Training,1
-Event Planning,1
-Strategic Marketing,1
 Consolidation Skills,1
 Phát Triển Kênh Phân Phối,1
 Lãnh Đạo Đội Ngũ Sales,1
@@ -2036,19 +2596,12 @@ Commumication,1
 Modern Trade Channel,1
 Tài Chính Doanh Nghiệp,1
 Tư Duy Linh Hoạt,1
-English Communicate,1
 Excel VBA,1
 Fabric Knowledge,1
-Kế Hoạch Bán Hàng,1
 FMCG sales,1
-Chấm Công,1
-Tuyển Dụng,1
-Tổng hợp dữ liệu,1
 HSK4,1
 Banking Regulation,1
-Computer Skills,1
 Economics Education,1
-Electrical Systems,1
 Cooling System,1
 Fire Prevention,1
 Quản Lý Hệ Thống Hạ Tầng,1
@@ -2060,25 +2613,16 @@ BI Publisher,1
 Marketplace,1
 phân tích data,1
 Thẩm Định,1
-Kỹ Thuật,1
 Môi Trường,1
-Năng Động,1
-Điện,1
-Sales Administration,1
 Sales Coordination,1
-Oracle BI,1
 Statistical Reporting,1
 Data Processing Libraries,1
 Basic English,1
-Production Management,1
-Modern Trade Planning,1
 Rpa,1
 Ai-Enabled Workflows,1
 Chịu Áp Lực Cao,1
 Kỹ Năng Máy Tính,1
 Hiểu Biết Sản Xuất,1
-Control System,1
-Production Schedule,1
 Stock Reconciliation,1
 E-commerce Platform Management,1
 Carrier Management,1
@@ -2086,172 +2630,103 @@ Hệ Thống Tài Liệu,1
 Lưu Trữ Thông Tin,1
 Nghiên Cứu Khoa Học,1
 Quản Lý Thư Viện,1
-Quản Lý,1
-General Accounting,1
 Accounting Tax,1
 Credit,1
 Credit Quality Control,1
-Retail Banking,1
-Digital Advertising,1
 Google Tag Management,1
 Ads Tool,1
 Hỗ Trợ Xử Lý Media,1
-Cost Management,1
-Kế Hoạch Chi Phí,1
 Quản Trị Sản Xuất,1
 Nội Thất,1
 Chốt Hợp Đồng,1
-Sales B2B,1
 Logistics Controlling,1
 User Support,1
 International Payment,1
 Quảng Cáo Facebook,1
 Quay Video,1
-Sáng Tạo Nội Dung,1
-Exploratory Data Analysis,1
 Kỹ Năng Excel,1
 Phần Mềm Kế Toán Misa,1
 Chuẩn Mực Kế Toán Việt Nam,1
 Financial Report,1
 Sap Migo,1
-SQL Skills,1
 Pivot table,1
 Accounting Software Proficiency,1
 Kế Toán Hành Chính,1
-Content Marketing,1
 E-Commerce Growth Management,1
 Content,1
-Marketing Management,1
 Growth Hacking,1
-E-Learning Tools,1
-Human Resources,1
 Culture Development,1
 Phát Triển Nhân Tài,1
-Đào Tạo Nội Bộ,1
-Phân Tích Kinh Tế,1
-Quản Lý Rủi Ro,1
 Quản Lý Rủi Ro Thị Trường,1
 Valuation Modeling,1
-Valuation,1
 Transaction Advisory,1
 Hạ Tầng Kỹ Thuật,1
 Database Oracle,1
 Web Application Testing,1
 Business Process,1
-Agile Scrum,1
-Bussiness Analyst,1
 Business Valuation,1
-Customer Segmentation,1
 Performance Management System,1
 Retail Distribution,1
 BA,1
-Product Manager,1
-Insurance,1
 SAS,1
 Presentation Report,1
-Tiếng Anh giao tiếp,1
-Communication and negotiation skills,1
-Compliance Auditing,1
-KPI Management,1
-Phân Tích Chất Lượng,1
-Quản Trị Tiến Độ,1
 Inventory Accounting,1
 Accounting Softwares,1
 Amis,1
 Payment System,1
 Construction Management,1
-Design Management,1
 Technical Standard,1
-Bán hàng,1
 B2C Sales,1
 Gen AI,1
 Claude Code (AI Tool),1
 SOX Compliance,1
-Analysis Tool,1
-Pricing Strategy,1
-Revenue Management,1
-Consumer Insight,1
-Operation,1
-Management,1
 Statistical Quality Control,1
 Process Quality Improvement,1
 Toán Ứng Dụng,1
 Quản Lý Hệ Thống,1
 Wms / Erp Systems,1
 Công Nghệ Thực Phẩm,1
-Siem,1
 XDR,1
 Kỹ năng đàm phán kinh doanh,1
-Giao Tiếp  Và Thuyết Phục,1
 Bán Hàng B2C,1
 Thành Thạo Máy Tính,1
 Đam Mê Kiếm Tiền,1
-Hồ Sơ Du Học,1
-Incident Management,1
 Finance & Accounting,1
 Kế Toán Tài Chính,1
 Merchandise Planning,1
 Trend Analysis,1
-Demand Forecasting,1
 Advertising Design,1
 Advertising Management,1
-Chemical Sales,1
-Planning & Analysis,1
-Cosmetics Distribution,1
-Pricing Management,1
-Tiếng Anh thành thạo,1
 Thành Thạo Vi Tính Văn Phòng,1
 Giám Sát Quy Trình Sản Xuất,1
-Campaign Planning,1
-Ansible,1
 Garment,1
 Reinforcement Learning,1
-Creative Thinking,1
 Ai Expertise,1
-Cơ Điện,1
 Kỹ Thuật Toà Nhà,1
 Triển Khai Hạ Tầng,1
-Tư Vấn Bán Hàng,1
 Synthesis Of Materials,1
-Technical Documentation,1
 Quản Lý HSE,1
 Quản Lý Nhóm,1
 Tiếng Trung Giao Tiếp,1
-Education,1
 Giáo Dục,1
-Tuyển Sinh,1
 Cải Tiến Quy Trình Sản Xuất,1
 Giáo Dục Nhân Viên,1
-giao tiếp tiếng Trung,1
-Thủ Tục Hải Quan,1
-Marketing Analysis,1
 Ai/Ml Engineering,1
 Ai/Ml Frameworks,1
-Kỹ Năng Đào Tạo,1
-Haccp,1
 Iso 22000,1
-Quality Inspection,1
 Data Summary and Analysis,1
-Footwear,1
 Oral English,1
-Giao Nhận Vận Tải,1
 Thẩm Định Vấn Đề,1
 Gaming Analytics,1
 SQL proficiency,1
 Bi Tools Experience,1
 Business Recommendations,1
 Behavioral Segmentation,1
-Ie Tools,1
-Erp/Mes Systems,1
 Mobile Game Marketing,1
-User Acquisition,1
 Quản Lý Chiến Dịch,1
-Bảo Mật Thông Tin,1
 Quản Lý Hạ Tầng Cntt,1
-Luật,1
 Kiểm thử ứng dụng,1
 Vận Hành Hệ Thống,1
-Endpoint Security,1
 Application Development,1
 Sap S/4Hana Implementation,1
 Positive Attitude,1
@@ -2264,7 +2739,6 @@ Quản Lý Hệ Thống Phân Phối,1
 Tư Duy Phân Tích,1
 Analyst,1
 Dự báo,1
-Retail Marketing,1
 Wordpress Maintenance,1
 Api Data Integration,1
 Tích Hợp Dữ Liệu,1
@@ -2273,7 +2747,6 @@ Quản Lý Điều Hành,1
 Định Giá Tài Sản,1
 E-Commerce Management,1
 Fta Co Experience,1
-Social Media Marketing,1
 Bảo mật thông tin,1
 Bảo Mật Hệ Thống,1
 Công Nghệ Bảo Mật,1
@@ -2288,16 +2761,12 @@ Customer Service Training,1
 Service Quality Control,1
 Container & Export Logistics Expertise,1
 Logistics Control,1
-Hubspot CRM,1
 AI Chatbots,1
-Brand Communication,1
 IMC Planning,1
 ETL Tool,1
 CodeBase,1
 Khả Năng Làm Việc Với Dữ Liệu,1
-Training & coaching,1
 Learning Management System (LMS),1
-Vận Tải,1
 Technology Integration,1
 Vietnamese fluency,1
 Logistics operations,1
@@ -2306,13 +2775,10 @@ IT Software,1
 Thị Trường Chứng Khoán,1
 Commercial Analysis,1
 D365 Fno,1
-Manage ERP Software,1
 System Support,1
 Qualitative Market Research,1
 Hệ thống ISO,1
-Stakeholders Engagement,1
 Details Orientation,1
-Microsoft Office proficiency,1
 PLSQL,1
 Data Flow Management,1
 Prototype,1
@@ -2324,17 +2790,14 @@ Vận Hành Thiết Bị Smt,1
 Xử Lý Dữ Liệu Gerber,1
 Lập Chương Trình Máy Smt,1
 MISA Accounting Software,1
-Transaction Management,1
 IT Hardware,1
 System Maintenance,1
 IT System,1
 Quan Hệ Nhà Đầu Tư,1
 Thẩm Định Rủi Ro,1
-Honesty,1
 L&D Operations,1
 Virtual Learning Management,1
 Luật Kế Toán,1
-Phần Mềm Kế Toán,1
 Luật Thuế,1
 Quyết Toán Công Trình,1
 Management Accounting,1
@@ -2353,29 +2816,21 @@ Agricultural Research,1
 CRM Software Management,1
 ADK,1
 Self-learning,1
-Employee Engagement,1
 Hris/Ats Systems,1
 Sales Fmcg,1
-Phân Tích Dữ Liệu Khách Hàng,1
 Quản Trị Phần Mềm,1
-Investment Portfolio,1
 Operational Analysis,1
-Thương Mại Điện Tử,1
 Tối Ưu Hóa Chiến Dịch,1
 Financial services experience,1
 F&B Operations,1
 LangGraph,1
 Claude Code,1
-Quản Lý Gian Hàng,1
-Quản Lý Tồn Kho,1
-Tối Ưu Nội Dung Seo,1
 Operations Leadership,1
 UX,1
 Capital Management,1
 Financial Strategy,1
 4M Management,1
 Factory Operations Management,1
-Production Planning And Scheduling,1
 Shipment And Delivery Planning,1
 Data-Driven Approach,1
 Process Workflow,1
@@ -2387,9 +2842,7 @@ Ms Office Proficiency,1
 Crm Software Proficiency,1
 Telesales Management,1
 Thuyết Trình,1
-Kiểm Soát Tuân Thủ,1
 API Development,1
-Data-Driven Mindset,1
 Shopify Liquid,1
 Shopify Operations,1
 Html/Css,1
@@ -2401,26 +2854,12 @@ CCNP,1
 Data Interpretation,1
 Workforce Analytics,1
 Workday System,1
-Luật Lao Động,1
-Quản Lý Hợp Đồng,1
-Xây Dựng Quy Trình,1
 Ai Camera,1
-Organizational Structure,1
 HR Manager,1
-HR Strategy,1
-Cloud Infrastructure,1
 Ai/Ml Deployment,1
 Procurement Operation,1
-Supplier Selection,1
-Khách Hàng Doanh Nghiệp,1
 Điều Hành Vận Tải,1
-Core,1
-Project magement,1
-Application Support,1
-Planning Schemes Knowledge,1
-Ba Tools,1
 Tax Consulting,1
-Tax Regulations,1
 Advising Clients,1
 Sửa Chữa Bảo Trì Thiết Bị,1
 Tối Ưu Hóa Thiết Kế,1
@@ -2430,46 +2869,29 @@ Debugging Tools,1
 Fraud Risks Management,1
 Cash Flow Forecasting,1
 Vietnamese Law,1
-Database Administration,1
 Talent Development,1
-Instructional Design,1
 AWS cloud platform,1
-Repair Maintenance,1
 Supply Chain Optimization,1
 Plan Development,1
-Industrial Management,1
-Data Center Management,1
-Hạ Tầng Hệ Thống,1
-Infrastructure Architecture,1
-Virtualization,1
 Creativity,1
 Điện tử viễn thông,1
 Tactical Sourcing,1
 HRBP Management,1
-Cloud Solutions,1
 Khai Thác Hàng Hóa,1
 Kiểm Kê Kho Hàng,1
-Quản Lý Giao Hàng,1
-ReactJs,1
 Statistical Data Analysis,1
 Technical Engineering,1
 Trend Update,1
 Project Evaluation,1
 QS engineer,1
-Bóc Tách Khối Lượng,1
 AutoCAD Tool,1
-Đọc Hiểu Bản Vẽ Kỹ Thuật,1
 Lập Hồ Sơ Chất Lượng,1
 Kỹ Năng Lập Kế Hoạch,1
 Quản Lý Điểm Bán,1
 Credit and credit risk expertise,1
 SBV regulations knowledge,1
-Risk Analysis,1
-Data Analysis Tools,1
-Cost Optimization,1
 Ocean Freight Management,1
 Python Knowledge,1
-Mis Reporting,1
 Automated Manufacturing,1
 Azure AI Cloud,1
 Partnership Management,1
@@ -2480,22 +2902,18 @@ Quản lý gian hàng,1
 Campaign Strategy,1
 E commerce,1
 Persuasion,1
-Customer-Oriented,1
-Tiếp Thị Kinh Doanh,1
 Xây Dựng Nội Dung,1
 Pressure Handling,1
 Quản Lý Hàng Tồn Kho,1
 Vận Hành Thiết Bị,1
 Quản Lý Dây Chuyền Sản Xuất,1
 AOI,1
-manufacturing,1
 Tiktok Operations,1
 Content Compliance,1
 English proficiency,1
 Channel Relationship Management,1
 Wealth Management Products,1
 Quản Trị Hạ Tầng CNTT,1
-Freight Forwarding,1
 Shipping Business,1
 Operating Logistics Management,1
 Documentation Control,1
@@ -2505,8 +2923,6 @@ Gsdcost Software,1
 IT Optimization,1
 Biên Phiên Dịch Tiếng Hoa,1
 Tiếng Trung Hsk5,1
-Category Management,1
-Tiếng Nhật N3,1
 FMCG Marketing,1
 Promotion Planning,1
 Modern Trade Sales,1
@@ -2517,7 +2933,6 @@ Kinh Nghiệm Chuỗi Nhượng Quyền,1
 Electrical Troubleshooting,1
 Thiết Kế Hệ Thống SCADA,1
 PCB,1
-Technical Sales,1
 Nonprofit Consulting,1
 Digital Learning,1
 Advanced English Skills,1
@@ -2527,39 +2942,26 @@ Phát triển nhân lực,1
 L&D & Đào tạo,1
 Training đào tạo,1
 Learning management,1
-Automotive,1
 Sales Training,1
-Design Training Program,1
-General Communication English,1
-Statistical Learning,1
 Career Development Coaching,1
 Learning New Knowledge,1
-System Development,1
 Vb.Net,1
 Consumer Finance,1
 Academic Support,1
-Academic Development,1
 Student Coaching,1
-Quản Lý Kinh Doanh B2B,1
 Kinh Doanh Thiết Bị Công Nghiệp,1
 Xây Lắp Thiết Bị Công Nghiệp,1
 CIB,1
 Fdi,1
 FDI Business Development,1
 Topik 5,1
-Critical Thinking,1
-Microsoft PowerPoint,1
-SAP Application,1
 SAP Utilization,1
 SAP Analytics Cloud,1
 Sap Module Development,1
 SAP Client Based,1
 Kinh Doanh Quốc Tế,1
-Content Writing,1
 Customer Communication,1
-UI/UX,1
 Chiến Lược Bán Lẻ,1
-Lập Kế Hoạch Bán Hàng,1
 Quản Lý Telesales,1
 Thiết Kế Phần Mềm,1
 URD,1
@@ -2569,54 +2971,37 @@ Mobile Advertising Expertise,1
 Ad Network Management,1
 Llm Apis,1
 Typescript,1
-Ai Engineering,1
 Phân Tích Báo Cáo,1
-Cloud Platform,1
 Government Relation,1
 Public Affairs,1
 Quản Lý KPI,1
-Quản Lý Mua Hàng,1
 Đàm Phán Xuất Sắc,1
 Lập Kế hoạch Ngân sách,1
-Lãnh đạo đội nhóm,1
-Customer Experiences,1
 CX Management,1
 Logistic,1
-VNACCS,1
-Business Model Analysis,1
-Postman,1
 Digital ADS,1
 Multi-Channel Advertising,1
 Customer Behavior,1
-Tax Accounting,1
-TAX,1
 Xero Accounting,1
-Kế Toán Thuế,1
-Thuế,1
 AI Development,1
 Ecommerce Experience,1
 Kỹ Thuật Môi Trường,1
 Xử Lý Nước Thải,1
 Media Planning,1
 E-Commerce Analytics,1
+Full funnel digital media,1
 Sử Dụng Phần Mềm Quản Lý,1
 Xây dựng KPIs,1
 Credit Policy,1
 Risk Compliance,1
 Giải Pháp Bảo Mật,1
 Nhận Diện Rủi Ro,1
-Công Nghệ Phần Mềm,1
-Phát Triển Phần Mềm,1
 Rpa Development,1
 Chính Trực,1
-Quản Lý Đội Ngũ,1
-Xử Lý Tình Huống,1
 Luật Đầu Tư,1
 Quản Lý Thiết Kế,1
 Thủ Tục Đầu Tư Dự Án,1
-Quality Auditing,1
 Supplier Assessment,1
-Payroll Management,1
 Quản Lý Kỹ Thuật Dự Án,1
 ISO,1
 Tối Ưu Chi Phí,1
@@ -2624,17 +3009,12 @@ Inventory Optimization,1
 Project Operations,1
 TOEIC 700,1
 ETC,1
-Tư Vấn Giáo Dục,1
-Tư Vấn Tuyển Sinh,1
 Quản trị chất lượng dịch vụ,1
 Lập Tài Liệu Brd,1
 Sử Dụng Excel/Power Bi,1
 Tư duy cải tiến,1
-Transportation Operations,1
 Báo Cáo Số Liệu Kinh Doanh,1
 Phân Tích Hành Vi Khách Hàng,1
-Langgraph Agents,1
-Llm Patterns,1
 Document Processing,1
 Async Programming,1
 Garment Technical Design,1
@@ -2643,7 +3023,6 @@ Line Balancing,1
 Kinh Nghiệm F&B,1
 Kỹ Năng Vi Tính Văn Phòng,1
 Costing,1
-Quản Lý Thời Gian,1
 Xác Định Chất Lượng,1
 Trade Promotion,1
 Kỹ Năng Phân Tích Báo Cáo Tài Chính- Tình Hình Doanh Nghiệp,1
@@ -2651,15 +3030,10 @@ Phần mềm văn phòng,1
 ISO 31000,1
 Tư Vấn Rủi Ro,1
 Mandarin Chinese,1
-Electrical Engineering,1
-Mechanical Engineering,1
-Dự Báo Thị Trường,1
 Incentive Management,1
 Lập Trình C++,1
-Quản Trị Hệ Thống CNTT,1
 Fraud Investigation,1
 Fraud Analysis,1
-Affiliate Marketing,1
 Quản Trị Hàng Hóa,1
 Truyền thông & Marketing,1
 Investment Research,1
@@ -2667,15 +3041,11 @@ Theo Dõi Sản Xuất,1
 Đánh Giá Nhân Sự,1
 Brand Strategy,1
 Fmcg Marketing,1
-Theo Dõi Tồn Kho,1
 Platform Ads Operations,1
-eCommerce,1
 Database Software,1
 Customs Compliance,1
-Mô Hình Tài Chính,1
 CCNA,1
 CCNA Security,1
-Customer Service Management,1
 Đầu Tư Tài Chính,1
 Sap Proficiency,1
 Big Data Familiarity,1
@@ -2691,57 +3061,35 @@ Tư Vấn Đào Tạo,1
 Digital Technology,1
 Dynamic Thinking,1
 Training Program Design,1
-L&D Strategy Development,1
-Competency Framework Implementation,1
 Layout Design,1
 Creative Design,1
 Packaging Designer,1
 Packaging Prepress,1
-Biotechnology,1
-Food Technology,1
-Proactive Learning,1
 Recipe Development,1
 Strategic Financial Planning,1
-Bảo Hiểm,1
-Kiểm Soát Chi Phí,1
-Thúc Đẩy Bán,1
-Mobile Banking,1
 Thanh Toán Điện Tử,1
 Quy trình phát triển phần mềm,1
 Client Service Management,1
-Report Writing,1
 Cẩn Thận,1
 Kế Toán Nội Bộ,1
-Vận Hành Đơn Hàng,1
 GMP Compliance,1
 Data Quality Assurance,1
-Quản Lý Danh Mục Khách Hàng,1
 Customer Loyalty Management,1
 Crm Campaign Execution,1
 Sas Rtdm,1
 Governance,1
-Data Entry Accuracy,1
-Kiểm Soát Nội Bộ,1
-Phân Tích Dữ Liệu Quản Trị,1
 Enterprise Risk Management,1
-Tuân thủ & pháp lý,1
-Data Visualization Tools,1
+Chuyên ngành luật,1
 UiPath,1
 IT Testing,1
 ETL Processes,1
 Debugging,1
 Database Technologies,1
-Production Control,1
 Logictics,1
 ERP FAST,1
 Advanced Sql Skills,1
 Dax,1
-Quản Lý Công Nợ,1
-Hạch Toán Chi Phí,1
-Quản Lý Hóa Đơn,1
 Quản Lý Các Nguồn Lực,1
-ISO 27001,1
-KAIZEN,1
 SOP Management,1
 Software Sales,1
 Kinh doanh giải pháp phần mềm,1
@@ -2754,11 +3102,8 @@ Marketing Trực Tiếp,1
 AI Engineering,1
 Market Data,1
 Mlops Tools,1
-Data Policy,1
 Ai Application,1
-Đàm Phán Hợp Đồng,1
 Supply Chain Coordination,1
-FPGA,1
 Optical Communication,1
 Optics,1
 Vhdl Knowledge,1
@@ -2769,11 +3114,7 @@ Ai Development,1
 Ai Governance,1
 Accounting & Auditing,1
 Finance Management,1
-Business Support,1
 Họp Giao Ban,1
-Quản Lý Quy Trình,1
-ERP Implementation,1
-Material Planning,1
 Merchandiser,1
 Sales bất động sản,1
 Kinh Doanh Bất Động Sản,1
@@ -2782,45 +3123,1457 @@ System Consulting,1
 Ai/Ml Concepts,1
 OpenAPI,1
 Commercial Planning,1
-Xây Dựng Kế Hoạch,1
 Procurement Strategy,1
 Supplier Evaluation,1
 ESS Tools,1
-Price Control,1
-Forecast Demand Planning,1
-Quản Lý Ngân Sách,1
-Etf Trading,1
 Luật Đấu Thầu,1
-Quản Lý Hồ Sơ,1
 Soạn Thảo Hồ Sơ,1
 Theo Dõi Hợp Đồng,1
-Customer Satisfaction,1
 Customer Scoring System,1
 Risk Measurement,1
 Translate,1
 Data Transformation,1
-People Leadership,1
 Team Development,1
 SAP Business Intelligence,1
 Pháp Lý Doanh Nghiệp,1
 Merchandise Management,1
-Telecommunications,1
 Analytic Insight,1
 Call Center,1
 Trainer,1
-Báo Cáo Thống Kê,1
 Network Management,1
 Utility Maintenance,1
-Lập Kế Hoạch Kinh Doanh,1
-Tư Vấn Tài Chính,1
-Nghiệp Vụ Kế Toán,1
 Kế toán & Báo cáo Tài chính,1
 Lập Ngân Sách,1
-Quản Trị Nguồn Vốn,1
-Nghiệp Vụ Ngân Hàng,1
 Commercial Contract,1
 Customer Journey Design,1
 Service Delivery,1
-Securities Core System,1
-Securities,1
-Project Analyst,1
+Hugging Face,1
+Logic Analyzer,1
+French Language,1
+Test Plan,1
+Stress Testing,1
+Defect Management,1
+Endurance Testing,1
+Spike Testing,1
+Load Testing,1
+Automation Testing,1
+Volume Testing,1
+Performance Testing,1
+Image Segmentation,1
+Deep Learning Frameworks,1
+Performance Tuning,1
+Power Query (m),1
+DAX,1
+Data Analytics/bi,1
+Machine Learning Engineer,1
+Marketing Communications,1
+Image Editing,1
+TikTok,1
+Ai Agent,1
+Instrument Datasheet,1
+Instrument Index,1
+Cable Schedule,1
+Power System Safety,1
+Aveva E3D,1
+Equipment Layout,1
+Autodesk Navisworks,1
+Radio Communication System,1
+Cctv System,1
+Spi/intools,1
+Aveva Instrumentation,1
+Pa/ga System,1
+I/o List,1
+Loop Diagram,1
+Fire & Gas (f&g,1
+Control Valve,1
+Lan System,1
+SMT,1
+Embedded C,1
+CANalyer,1
+CANoe,1
+VueJS,1
+Decorator pattern,1
+SOLID Principles,1
+OutSystems,1
+ServiceNow,1
+kotlinx.coroutines,1
+Metabase,1
+CloudFormation,1
+Burp Suite,1
+OWASP,1
+AWS Glue,1
+ITIL Foundation,1
+Bootloader,1
+REST Assured,1
+Sass,1
+Dart,1
+Middleware,1
+Amazon RDS,1
+EDR,1
+AWS CloudFormation,1
+SOAR,1
+Hugging Face Transformers,1
+Vulnerability Assessment,1
+Helm,1
+Hardware Troubleshooting,1
+Bash Shell,1
+GitHub Actions,1
+Back-End,1
+Data Reporting Analyst,1
+Product Operation,1
+Supporting End Users,1
+Quản Lý Đánh Giá Kpi,1
+Sas,1
+Canvas Administration,1
+Ai Tools Evaluation,1
+Quản Trị Giá,1
+Financial Data Input,1
+Vat Compliance,1
+PC Literacy,1
+Accounting support,1
+SEO website,1
+Qc 7 Tools,1
+Insurance Consulting,1
+Giáo dục,1
+Analytics Skills,1
+Bi Tool Skills,1
+Data Management Tools,1
+Bảo Hiểm Phi Nhân Thọ,1
+dự án,1
+Vật Liệu Xây Dựng,1
+Thiết kế,1
+Thị Trường Lao Động,1
+Tìm Kiếm Ứng Viên,1
+Digital Marketing Strategy,1
+SEO Optimization,1
+Quản Lý Team,1
+Coordination Abilities,1
+Design Development,1
+Technical Leadership,1
+Thiết Kế Hệ Thống Cơ Điện,1
+Information security,1
+Devops,1
+SQL Server Management,1
+Chính trực,1
+AI & Automation,1
+Quản Trị Nguồn Nhân Lực,1
+Branding Marketing,1
+Phần mềm Kế toán,1
+Network Monitoring,1
+Lập kế hoạch,1
+Software Programming,1
+Architecture Programming,1
+Nosql Databases,1
+Sql Databases,1
+pricing,1
+Retail Strategy,1
+Kobo Toolbox,1
+Emergency Response Plans,1
+Luật Quản Lý Thuế,1
+Cross-Functional Coordination,1
+System Management,1
+Tính Lương,1
+Quản Lý Doanh Thu,1
+Social Media Trends,1
+Manufacturing Processes,1
+Kinh Nghiệm Mua Hàng,1
+Quản Trị Tồn Kho,1
+Phát triển sản phẩm số,1
+Quản Lý Đối Tác Công Nghệ,1
+Creative Problem Solving,1
+Call center,1
+Quản Lý Đối Tác Tài Chính,1
+Thiết Kế Chống Nước,1
+Thiết Kế Cơ Khí,1
+CNC,1
+CAD/CAE,1
+Trading Platforms,1
+Process Optimization,1
+Trách Nhiệm,1
+Training Coordination,1
+E-commerce Marketing,1
+Chiến Lược Sản Phẩm,1
+Hoạch Định Kinh Doanh,1
+Sử Dụng Phần Mềm Wms/Erp,1
+Giao tiếp tiếng trung,1
+Chống Rửa Tiền,1
+Báo Cáo Tổng Hợp,1
+Benefits Administration,1
+Tablaeu,1
+Information System,1
+Cloud-Native Architecture,1
+.Net 8+,1
+Api Development,1
+Training coordination,1
+Organizational Development,1
+Technical Learning,1
+Jewelry Industry,1
+AMS,1
+Monolithic,1
+Kinh Doanh Hàng Không,1
+PMC,1
+pc,1
+MC,1
+Investment Banking,1
+Corporate M&A,1
+Corporate Bonds,1
+Corporate Finance & Capital Raising,1
+IPO,1
+Wireframe,1
+Quản lý lịch trình,1
+Phân tích số liệu kinh doanh,1
+Assistant CEO,1
+Trợ lý Ban Giám Đốc,1
+Adobe Suite,1
+MS SQL Server,1
+Shipping Management,1
+Data Lookup,1
+SAP & ERP,1
+Quản Trị Hệ Thống Thông Tin,1
+Hệ Thống Core Thẻ,1
+FastApi,1
+Triton Inference Server,1
+Tuân Thủ Bảo Vệ Dữ Liệu,1
+Luật Thương Mại,1
+Luật Thuế Doanh Nghiệp,1
+Pháp Luật Thương Mại,1
+Distributor Management,1
+Negotiation Strategy,1
+Footwear Quality Assurance,1
+Hành Chính và Văn Phòng,1
+Document Administration,1
+C&B & Chế độ đãi ngộ,1
+Chế Độ & Phúc Lợi,1
+Commercial Reporting,1
+Data Mart,1
+Financial Services,1
+SLA,1
+Thành thạo Excel,1
+Master Production Scheduling,1
+Sap Systems,1
+data-driven decision making,1
+Collaboration & Communication,1
+Production Scheduling,1
+Lean Methodologies,1
+Sales B2B & B2C,1
+Modeling,1
+Sales Compensation Planning,1
+Quản lý,1
+Gmp,1
+Quản Trị Danh Mục,1
+Quản Trị Vận Hành,1
+Quảng cáo,1
+Building Material,1
+Distribution Management System,1
+Market Sensitivity,1
+Kpi Sản Xuất,1
+Natural Processing Language,1
+Hạ Tầng Công Nghệ,1
+Gamification Development,1
+FMCG & B2B Sales and Trade Marketing,1
+POSM,1
+Shopper Marketing,1
+Sales Admin Manager,1
+Phát triển Đội ngũ,1
+Credit Product Development,1
+Cross-functional communication,1
+Kiến Thức Testing Nền Tảng,1
+Kiểm thử thủ công,1
+Cơ Sở Dữ Liệu & Api,1
+Quy Trình & Công Cụ,1
+Tư duy logic tốt,1
+HDL Designer,1
+Amazon Marketplace,1
+Brand Building,1
+QS,1
+Bóc Tách Khối Lượng Công Trình,1
+Làm Hồ Sơ Thanh Quyết Toán,1
+Nghiệm Thu Thanh Quyết Toán,1
+Aoi Equipment Operation,1
+Spi Equipment Operation,1
+AOI Machines,1
+Shopper Marketing Strategies,1
+BI Reporting,1
+Food Science,1
+Lean Six Sigma,1
+MS Azure,1
+Oracle Cloud,1
+Thiết Kế API,1
+AI application,1
+System Operations,1
+Logistics Knowledge,1
+SCM system,1
+Mô Hình Dự Báo,1
+Complaint Management,1
+Process Mapping,1
+System Control,1
+Mrp Logic,1
+Customer Development,1
+Crm Implementation,1
+Overseas Channel Development,1
+Distributor management,1
+Training Skills,1
+Monitoring and Evaluation,1
+Workshop Development,1
+Leadership Facilitation,1
+Classroom Training Delivery,1
+Programme Design,1
+Capability Management,1
+Thiết kế chương trình,1
+Đào Tạo Và Phát Triển,1
+Presentation,1
+Research skills,1
+Engagement,1
+Human Resource,1
+L&D,1
+Kinh Doanh Rượu Vang,1
+Hàng Tiêu Dùng,1
+PMO,1
+Cash Flow Management,1
+Corporate Budgeting,1
+Economics,1
+Organizational Management,1
+Node JS,1
+PHP Development,1
+API RESTful,1
+Digital Operations,1
+F&B,1
+Chính Sách Và Thủ Tục,1
+Construction Purchasing,1
+Operations Administration,1
+Documentation Process,1
+Building Management,1
+Thanh Toán Công Nợ,1
+Lead Management,1
+Phỏng Vấn Tuyển Dụng,1
+Lập Kế Hoạch Tuyển Dụng,1
+Kinh Doanh Phát Triển Dự Án,1
+Thi Công Nội Thất,1
+Tìm Kiếm Dự Án,1
+Tư Vấn Thiết Kế,1
+DRP planning,1
+SRE,1
+Database Operations,1
+Client Service,1
+Phân tích rủi ro,1
+Freight Tracking,1
+Logistics Operation,1
+E-commerce management,1
+E-Commerce Operations,1
+Máy Móc Kỹ Thuật,1
+Máy Móc Sản Xuất,1
+Máy Móc Tự Động,1
+Kinh Doanh Thiết Bị Cơ Khí,1
+Client Partnership,1
+Project scheduling,1
+IMC Campaign Management,1
+Quản Lý Chiến Lược,1
+Grafana,1
+Prometheus,1
+Loki,1
+Telemetry Configuration,1
+Viết Báo Cáo,1
+Data Audit,1
+Kỹ Thuật Tự Động Hóa,1
+Hồ Sơ Đấu Thầu,1
+Theo Dõi Chi Phí,1
+Kỹ sư kỹ thuật,1
+Bảo Trì Hệ Thống,1
+Tư Duy Tăng Trưởng,1
+Xây dựng chính sách,1
+Hệ Thống Crm,1
+Quản Trị Quan Hệ Khách Hàng,1
+Six Sigma,1
+Quản Lý Hệ Thống Phần Mềm,1
+Lập Trình Cơ Bản,1
+Cơ Sở Dữ Liệu Sql,1
+Quản Lý Sự Cố Cntt,1
+PLANOGRAM,1
+Footwear Management,1
+Cơ Sở Dữ Liệu Non-Sql,1
+Java programming,1
+Risk Analytics,1
+Database Programming,1
+Analytic Skills,1
+Bi Tools,1
+Predictive Analytics,1
+Lean Management,1
+Workflow Design,1
+Hiểu Biết Về Marketing,1
+Kiểm Soát Dữ Liệu Giao Dịch,1
+Kiểm Soát Hoạt Động Bán Hàng,1
+Quy Trình Bán Hàng Bđs,1
+Tư Duy Kiểm Soát,1
+Data Cleaning,1
+Lsm,1
+Data Engineering Tools,1
+Dimensional Data Modelling,1
+Huấn luyện đội ngũ,1
+Fluency in English,1
+Fluency In Chinese,1
+SAP ABAP,1
+Kiểm Thử,1
+Data Reconciliation,1
+Attention to Detail,1
+Digital Banking Experience,1
+Paid Media,1
+Phân Tích Dữ Liệu Tài Chính,1
+Tư duy phân tích,1
+Tín Dụng,1
+Tư Vấn Tín Dụng,1
+Kiểm Soát Công Nợ,1
+Financial Valuation,1
+Excel Vba,1
+Chuẩn hóa dữ liệu,1
+Statistics Analysis,1
+Document,1
+Kế Hoạch Dự Án,1
+Playwright Python,1
+Phần Mềm Adobe,1
+Sản Xuất Video,1
+Tư Duy Thẩm Mỹ,1
+English/Vietnamese Communication,1
+Legal & Law,1
+Research & Strategic Thinking,1
+Japanese Communication,1
+Design Equipment,1
+Thẩm Định Hợp Đồng,1
+Tư Vấn Pháp Lý,1
+Định Chế Tài Chính,1
+Chiến Lược Tăng Trưởng,1
+Kiểm Soát Mua Sắm,1
+Wireframes,1
+Market Sizing,1
+Financial Modelling,1
+Business Model Design,1
+Quản Trị Tài Chính Phân Tích,1
+Financial Due Diligence,1
+Advisory,1
+Records Management,1
+Chemical Analysis,1
+Laboratory Testing,1
+Effective Teamwork,1
+Resilience,1
+Autodesk Inventor,1
+Ilogic Automation,1
+Quản Lý Gia Sản,1
+Executive Assistant,1
+Translation & Interpretation,1
+Market Reporting,1
+Báo Cáo Chất Lượng,1
+Tiếng Anh Tốt,1
+CLV,1
+Crm Platforms,1
+IT Management,1
+Cấu trúc dữ liệu,1
+Client Acquisition,1
+Data Lakehouse Architecture,1
+SQL Databases,1
+Data Pipeline Management,1
+Định Giá Xây Dựng,1
+Scale up,1
+Okr,1
+Competitor Analytics,1
+Risk Controls,1
+Risk Planning,1
+Risk Control Analysis,1
+Product Lifecycle,1
+Quản Trị Hiệu Suất,1
+Organization Development,1
+Analytical Capabilities,1
+Fraud Detection Systems,1
+Fraud Prevention,1
+Quản Lý Điều Hành Sản Xuất,1
+Quản Trị Chiến Lược,1
+Customer Care Mindset,1
+Bookkeeping,1
+Brand Development,1
+Content creation,1
+Marketing Event,1
+Gsd Motion Study,1
+Costing Smv Calculation,1
+Gsd,1
+Dealer Management,1
+Supply Management,1
+Purchasing Expertise,1
+Relationship Building,1
+It,1
+Phần Mềm,1
+Full Stack Development,1
+Digital Product Knowledge,1
+Fintech,1
+Campaign Optimization,1
+Superset,1
+Social Marketing,1
+Lập Kế Hoạch Marketing,1
+Quản Lý Nội Dung,1
+Telecommunications Technology,1
+Mobile System Architecture,1
+Radio Interface Knowledge,1
+An Toàn Lao Động,1
+Phòng Cháy Chữa Cháy,1
+Sap Pp Expertise,1
+Sap S/4Hana,1
+Manufacturing Planning,1
+Capacity Planning,1
+Fluent English,1
+Brand Positioning,1
+Multi-channel Marketing,1
+Japanese Proficiency N2,1
+Collection Project,1
+Data Collection System,1
+Debt Collection,1
+Python programming,1
+Booking KOL,1
+Xây dựng nội dung,1
+Xây Dựng Hệ Thống,1
+Report Writing And Problem Solving Skills,1
+Performance Tracking,1
+Good communication,1
+Api Integration,1
+Meta Ads Manager,1
+Kinh Nghiệm Fmcg,1
+Mlops Practices,1
+Chính Sách Nhân Sự,1
+Data Center Infrastructure,1
+Telecom Power Systems,1
+Solution Design,1
+Content Performance Metrics,1
+Hands-On Approach,1
+Điều Phối Hàng Hoá,1
+Data Consolidation,1
+Team Supervision,1
+SFE,1
+Quản Lý Mes,1
+Quản Lý Erp,1
+Tối Ưu Hóa Lộ Trình,1
+English language skills,1
+C# (.NET),1
+Conversational AI,1
+Financial modelling & analysis,1
+Market Research & Business Intelligence,1
+Investment Structuring & Due Diligence,1
+Presentation & Reporting Skills,1
+Training & Delevoping HR,1
+English Comunication,1
+Human Resource Management,1
+Educational Programming,1
+LMS Platforms,1
+Commercial Policy Design,1
+BPMN Process Analysis,1
+SAP CO,1
+SAP FI,1
+Sustainability Management,1
+Scrum Master,1
+Business Transformation,1
+Finance Transformation,1
+consulting,1
+Project Analysis,1
+Root cause analysis,1
+Agentic Ai,1
+Real-Time Systems,1
+Data Platform Administration,1
+Api Deployment On Aws,1
+Ci/Cd Practices,1
+Laboratory equipment maintenance,1
+Technical Research Support,1
+Hpc/Gpu Administration,1
+Bilingual in English and Vietnamese,1
+Scorecard Management,1
+Nghiên Cứu Sản Phẩm,1
+Pod,1
+Google Shopping,1
+CSV,1
+International Business,1
+Quyết Toán Thuế,1
+Hạch Toán Kế Toán,1
+Phần mềm kế toán MISA,1
+Vendor Sourcing,1
+Quản Lý Ứng Dụng,1
+Core Banking Development,1
+Tour Sales,1
+Tư Vấn Du Lịch,1
+Tư Vấn Visa,1
+Digital Marketing & Ads,1
+GA4 / GTM,1
+Đề Xuất Giải Pháp,1
+Adaptive Planning,1
+Evaluation Method,1
+Lãnh đạo và quản lý đội ngũ,1
+Hoạch định và tổ chức công việc,1
+Giải Quyết Vấn Đề Và Xử Lý Khủng Hoảng,1
+Đàm phán và xây dựng quan hệ đối tác,1
+Ads Marketing,1
+Quản Lý Trải Nghiệm Khách Hàng,1
+Thiết Kế Khảo Sát,1
+Digital Marketing & Performance,1
+Database Development,1
+Optimizing Performance,1
+Quản Lý Kênh Truyền Thông,1
+Quản Lý Cung Ứng,1
+Chứng Từ Thanh Toán,1
+Plm Management,1
+Footwear Material	,1
+Order coordination,1
+Complex Data Solutions,1
+Business English,1
+AI Services,1
+B2B Sale,1
+Quản Trị Doanh Nghiệp,1
+Triển Khai Phần Mềm,1
+Good Communication In English,1
+Trade Marketing Executive,1
+Pricing And Rebates Associate,1
+Strong Excel skills,1
+detail-oriented,1
+Chat GPT,1
+Compensation & Benefit,1
+Human Resources Management,1
+Giao Tiếp Chuyên Nghiệp,1
+Excel Macro VBA,1
+Product Management Principles,1
+Ai/Ml Product Delivery,1
+Phát Triển Truyền Thông,1
+Ecommerce Websites,1
+Ham Học Hỏi,1
+Kỹ Năng Bán Hàng,1
+E-Commerce Strategy,1
+S&Op,1
+Microsoft Office Proficiency,1
+Support and Assistance,1
+Interpersonal Communication,1
+Sql Basics,1
+S&Op Experience,1
+Sales trainer,1
+Sales training development,1
+Training Expertise,1
+Training Strategy,1
+Relationship Maintaining,1
+Training Design,1
+Entrepreneurial Mindset,1
+Strong communication,1
+Learning Agility,1
+Operational Oversight,1
+Ta Management,1
+Enterprise Learning System,1
+Facilitation Skills,1
+Quản Lý Dự Án Số Hóa,1
+Phân tích kỹ thuật,1
+Capital And Debt Markets,1
+Corporate Finance,1
+M&A,1
+SEC Financial Reporting,1
+Tư vấn doanh nghiệp,1
+Pega Platform Analysis,1
+Business Architecture Applications,1
+Sql And Xml Basics,1
+B2B Saas,1
+"CRM, ERP",1
+KẾ TOÁN KIỂM TOÁN,1
+Strategy Consulting,1
+Researching,1
+KẾ HOẠCH,1
+Phát Triển Phần Mềm Agile,1
+System Analyst,1
+busines analysis,1
+Proficient In N8N,1
+ClaudeAI,1
+Vận Hành,1
+Employee Relation,1
+Luật Kinh Doanh Bđs,1
+Process engineering,1
+Phiên Dịch,1
+Phiên Dịch Sản Xuất,1
+Biên Dịch Tài Liệu,1
+Hopsworks,1
+Quản Trị Tuân Thủ,1
+Đánh Giá Hiệu Suất,1
+SEO cơ bản,1
+Xuất Bản Đa Kênh,1
+Kỹ năng trình bày nội dung,1
+Website Content,1
+Website Data Management,1
+Cập Nhật Thông Tin,1
+Inbound,1
+Travel,1
+Risk Management Framework,1
+UAT,1
+Phân Tích Tài Liệu,1
+Industry Analysis,1
+Credit Application,1
+Work Independently,1
+Phân Phối Đa Kênh,1
+Online + Offline Activation,1
+Phối hợp giữa các bộ phận,1
+Quản Trị Khách Hàng,1
+Kỹ Năng Thương Thảo Đàm Phán,1
+Quản Lý Chương Trình Loyalty,1
+Phân Tích Quy Trình,1
+IQC,1
+Microsoft Offices,1
+Ai Application Development,1
+Backend Services,1
+Sourcing Strategy,1
+CRM Systems,1
+IELTS 7.0,1
+Điều Phối Học Thuật,1
+AI Vision,1
+User Growth Marketing,1
+Đăng Ký Thuốc,1
+Làm Hồ Sơ Đăng Ký Thuốc,1
+Quản lý công việc,1
+Quality Management System,1
+Oop,1
+Android Sdk,1
+Data Structures,1
+International Trade,1
+Quản lý nguyên vật liệu,1
+Hệ Thống Kpi,1
+HR Operations Management,1
+SAP HCM,1
+Bilingual Communication,1
+Quản Trị Hạ Tầng Ảo Hóa,1
+Web Service,1
+Giám Sát Hoạt Động,1
+Thermal Management Components,1
+Data Center Cooling,1
+Customer Network,1
+Fluent In Chinese,1
+B2B Sales Experience,1
+Thiết Bị Y Tế,1
+Commercial Operations,1
+Territory Management,1
+Task Coordination,1
+Data Breach Management,1
+Quotation Preparation,1
+Management & Problem-Solving,1
+Quản Lý Crm,1
+Livestream Bán Hàng,1
+Tối Ưu Hóa Sản Phẩm,1
+Cost Negotiation,1
+Data & System Mindset,1
+Hỗ Trợ Khách Hàng,1
+It Supervision,1
+Chế Độ Tài Chính,1
+Tối Ưu Hóa Lợi Nhuận,1
+Data Extraction,1
+Card Product,1
+Tax Management,1
+Total Rewards Policy Development,1
+Quản Trị Hệ Thống His,1
+Tích Hợp Hệ Thống,1
+Hệ Thống Bệnh Viện,1
+Qad Erp Support,1
+SQL knowledge,1
+Digital Marketing Performance,1
+Ecommerce Optimization,1
+Operating Discipline,1
+Production Awareness,1
+Bank Reconciliation,1
+API Services,1
+Japanese N2,1
+BPO & Call Center Operations,1
+Facilitation,1
+Coaching & Adult Learning Methodology,1
+Training Program,1
+Hospitality Knowledge,1
+Resource Development,1
+Hospitality Management,1
+LMS,1
+Báo Cáo Tài Chính Hợp Nhất,1
+kế toán bất động sản,1
+Quản lý đội - nhóm,1
+Phân Tích Doanh Nghiệp,1
+Lập mô hình định giá,1
+Cơ Hội Đầu Tư,1
+chiến lược,1
+Chiến Lược Thông Tin,1
+Strategy & Planning,1
+Marketing Research,1
+ERP Dynamic,1
+ERP SAP System,1
+Inventory Planning,1
+Electrical,1
+Circuit Analysis,1
+Circuit Board,1
+Phân Tích Cae,1
+Tạo Lưới Mesh,1
+Sử Dụng Simcenter,1
+Mô Hình 3D,1
+Analytical,1
+Leadership Skill,1
+Chốt Sales,1
+Lập Kế Hoạch Hiệu Quả,1
+Tài Chính Bất Động Sản,1
+Facebook ADS,1
+Product Growth,1
+Material Management,1
+Application Debugging,1
+Java Programming,1
+Spring Framework,1
+Sql And Relational Databases,1
+Fmcg,1
+Purview,1
+CRO,1
+Ui/Ux,1
+Google Analytics 4,1
+Facebook Business Manager,1
+Địa Chất,1
+Phần Mềm Địa Chất,1
+Chủ động,1
+Management Information System,1
+ERP Program,1
+Oracle EBS,1
+Erp Implementation,1
+Quản lý dự án ERP,1
+LED,1
+Technology Assessment,1
+Stakeholder Engagement,1
+Lãnh Đạo Đội Nhóm,1
+Quản Lý Tổ Chức,1
+Advertising Optimization,1
+Client Communication,1
+AI Analytics Tools,1
+Merchandise,1
+Production Operations,1
+logistic,1
+D2C Experience,1
+Fulfillment,1
+Marketing manager,1
+Hr Operations,1
+Agency Sales Enablement,1
+Excel Data Handling,1
+Mechanical knowledge,1
+ERP Operation,1
+Giải Pháp Doanh Số,1
+Tài Chính Chứng Khoán,1
+Access SQL,1
+Statistics Tools,1
+Quality Control Principles,1
+Tax Declaration,1
+Vas,1
+WMS Implementations,1
+Financial Skills,1
+Kế Toán Nhập Liệu,1
+Detailed Attention,1
+Kỹ Năng Kiểm Tra Kiểm Soát Chi Phí,1
+Insights Research,1
+Hậu Mãi Khách Hàng,1
+E-commerce Operation,1
+Mis,1
+Quản Lý Sự Kiện,1
+Sản xuất nội dung truyền thông,1
+Career Development Programs,1
+Thiết Kế Trải Nghiệm Người Dùng,1
+Giao diện người dùng,1
+Phân tích dữ liệu hành vi,1
+"Kho bãi, vận tải vận chuyển",1
+Phân Loại Hàng Hóa,1
+Lãnh đạo và quản lý,1
+Kỹ năng quản lý dự án,1
+Tư Duy Data-Driven,1
+Quản Lý Social Media,1
+sáng tạo nội dung,1
+Cập nhật xu hướng,1
+Viết nội dung,1
+Marketing Data Analysis,1
+Creative content writing,1
+Dealer Marketing,1
+Business Acumen,1
+E-commerce Strategy,1
+Client Relationship,1
+Health Check,1
+Dynamics 365,1
+Quản trị rủi ro tín dụng,1
+Soạn Thảo Urd/Srs/User Stories,1
+Tư duy phục vụ khách hàng,1
+IT System Administration,1
+Application Solution,1
+It Application Support,1
+IT Phần Mềm,1
+CBAP,1
+CCBA,1
+Valuation Modelling,1
+M&A Modeling,1
+ERP/SAP system,1
+Pháp Luật,1
+Quản Trị Dữ Liệu Ngân Hàng,1
+Kiểm Định Trường Học,1
+Giáo Dục Tiểu Học,1
+Biên Phiên Dịch Tiếng Anh,1
+Quản Lý Thu Hồi Nợ,1
+Sử Dụng Figma,1
+Trải Nghiệm Khách Hàng,1
+Sử Dụng Miro,1
+English Language Skills,1
+Accrual Accounting,1
+Excel Expertise,1
+Kỹ năng thuyết trình,1
+ASO,1
+Monetization,1
+Administration Process,1
+Customer Account Management,1
+Cải Tiến Công Đoạn,1
+Dây Chuyền Sản Xuất,1
+Công Nghệ Cơ Khí,1
+IOT,1
+Product Selection,1
+Governance & Compliance,1
+Risk & Compliance,1
+Tổ Chức Sự Kiện,1
+Tư Vấn Sinh Viên,1
+Hỗ Trợ Thủ Tục Thị Thực,1
+Sql For Data Extraction,1
+Giải Pháp Tích Hợp,1
+Vận Hành Hệ Thống Mạng,1
+Web Server,1
+Marketing Campaign,1
+Hiểu Về Bom,1
+Kinh Nghiệm Sap,1
+BPMN Modeling,1
+Brd Development,1
+Uat Experience,1
+SCM,1
+Pu Foam Production,1
+Technical Service,1
+Innovation Management,1
+Lập Tài Liệu Srs/Brd,1
+Jira và Confluence,1
+Thuyết Phục,1
+kế toán trưởng,1
+Technical Drawing Comparison,1
+Quy trình sản xuất,1
+ERP Management,1
+Financial Products,1
+Office 365 Mastery,1
+Lập Hồ Sơ Nghiệm Thu,1
+Lưu Trữ Hồ Sơ,1
+Infrastructure Consulting,1
+Power Systems,1
+Pre-Sales Engineering,1
+Technical Consulting,1
+Hris Management,1
+Accounting Knowledge,1
+Finance Knowledge,1
+Giải Quyết Xung Đột,1
+Quản Lý Tài Chính,1
+Kỹ Năng Tổ Chức,1
+Cost Accounting,1
+Aquaculture,1
+Quản lý kênh GT,1
+TƯ DUY CHIẾN LƯỢC,1
+Geographic Data,1
+Purchasing Management,1
+Microsoft Office Suite,1
+Theo Dõi Tiến Độ,1
+Nlp & Gen Ai,1
+Edge Computing,1
+Linux/Ubuntu,1
+Communication Planning,1
+Marketing Automation,1
+Retail Buying,1
+Lập Kế Hoạch Cung Ứng,1
+Brand Activation,1
+Visual Control,1
+Digital Revenue,1
+B2C Conversion,1
+Go-To-Market Strategy,1
+Financial Risk Analysis,1
+Budgetary Control,1
+Fmcg Market Dynamics,1
+AI applications,1
+Horeca Sales,1
+Kênh Horeca,1
+Network & Security,1
+Presales,1
+Cyber security,1
+Presales Technical,1
+Organizational Design,1
+SAP HANA,1
+SAP Basis,1
+Analysis & Reporting Skills,1
+Communication  Effective Skill,1
+Trách Nhiệm Cao,1
+Quản Trị Hệ Thống Erp,1
+Đào Tạo Người Dùng,1
+Linh hoạt,1
+Amazon Aurora,1
+WPF,1
+Hyper-V,1
+Functional specifications,1
+Web API,1
+Integration test,1
+JQuery,1
+J2EE,1
+pytest,1
+Objective C,1
+Monolithic Architecture,1
+Competitive Analysis,1
+Prototyping,1
+PCI DSS,1
+Risk Assessment / BCP,1
+Microsoft,1
+Game,1
+Project Coordinator,1
+Assistant,1
+Manager,1
+Account Manager,1
+Microsoft Dynamics,1
+Server,1
+Social Media PR,1
+영양 관리,1
+메뉴 개발,1
+식품 품질 관리,1
+고객 관리,1
+문제 해결 능력,1
+Chế Tạo Máy,1
+Technical Sales Support,1
+Home Care,1
+Linh Hoạt Và Năng Động,1
+Chủ Động- Trách Nhiệm,1
+Khả Năng Đa Nhiệm- Chịu Được Áp Lực Cao,1
+Quản Lý Xung Đột Và Đạo Đức Nghề Nghiệp Cao,1
+Quản Lý Giao Dịch,1
+Môi Giới Chứng Khoán,1
+Đầu Tư Trái Phiếu,1
+Site Management,1
+PR,1
+Site Supervision,1
+MEP Construction,1
+Piping Installation,1
+Kinh Doanh Khu Vực,1
+Sơn Nước Nội Thất,1
+Accounting & Finance,1
+Quản Trị Tài Chính,1
+Bất động sản,1
+Quản Lý Đầu Tư,1
+Client Business Analysis,1
+Hvac Engineering,1
+Chiller System,1
+HVAC Solutions,1
+Xây Dựng Thương Hiệu,1
+Quảng Bá Hình Ảnh,1
+GT Chanel,1
+FMCG sales experience,1
+Giám Sát Kênh Phân Phối,1
+DMS System,1
+Luật Tài Chính,1
+Accounts Payable,1
+Tax,1
+Giám Sát Xây Dựng,1
+Quản Lý Chất Lượng Xây Dựng,1
+Giám Sát,1
+Điện Nhẹ,1
+Chỉ huy trưởng các dự án thi công cơ điện,1
+Chỉ Huy Phó,1
+Mechanical Electronics,1
+Plumbing,1
+Quản Lý Máy Chấm Công,1
+Hành chính văn phòng,1
+HCNS,1
+Kiểm soát tài chính,1
+Production Technician,1
+Engineering Technician,1
+Manufacturing HR,1
+Workforce Planning,1
+Compliance Checking,1
+Public Speaking,1
+Thiết Kế Cơ Điện,1
+Điều Hòa Không Khí,1
+Creative Marketing,1
+Non-life Insurance,1
+Insurance Underwriting,1
+Phân Tích Nghiệp Vụ Bảo Hiểm,1
+Đàm Phán Thương Lượng,1
+Phân tích thị trường,1
+Service Sales,1
+Maintenance Concepts,1
+Customer Engagement,1
+Market Intelligence,1
+QA (Quality Assurance),1
+Customer Insight,1
+Social Research,1
+Kinh nghiệm chứng khoán,1
+Quản lý khách hàng VIP,1
+Sửa Chữa Điện,1
+Electrical Maintenance,1
+PLC,1
+Chứng Khoán Phái Sinh,1
+Môi Giới,1
+Installation Supervision,1
+Tư duy chủ động,1
+Hành Chính Thư Ký,1
+Nghiệp Vụ Thư Ký,1
+GPON,1
+Nhân sự - HR,1
+Kế Toán Thuế Công Nợ,1
+Hàng Hải,1
+Biên Phiên Dịch,1
+Stakeholder Mangement,1
+Product Ownership,1
+Truyền Thông Quảng Cáo,1
+SEO Content Creation,1
+Chinese Speaking,1
+Leasing Industrial Properties,1
+Payment,1
+Kê Khai Thuế,1
+Quyết Toán PIT,1
+SME Banking,1
+Tín Dụng Doanh Nghiệp,1
+Kế Toán Chi Phí,1
+Công Nợ,1
+Kế toán công nợ,1
+Payable accountant,1
+Giám Sát Bán Hàng,1
+Báo Giá Hợp Đồng,1
+Đánh Giá Chất Lượng,1
+Lập Bản Vẽ Thi Công,1
+Recruitment Planning,1
+Sàng Lọc Ứng Viên,1
+Security Operations Center,1
+Network Systems,1
+Sửa Chữa Máy Móc,1
+Cơ Khí Sửa Chữa Máy,1
+Cơ Khí Điện Công Nghiệp,1
+AutoCab,1
+Kỹ Năng Thương Lượng,1
+Kinh doanh & Chăm sóc khách hàng,1
+Chief Accountant Certificate,1
+Kỹ Năng Soạn Thảo Văn Bản,1
+Kỹ Năng Trình Bày,1
+Tư Vấn Pháp Luật,1
+Kiến Thức Pháp Luật Việt Nam,1
+Quản Lý Cửa Hàng,1
+Am Hiểu Thời Trang,1
+Health And Safety Control,1
+Staff Development,1
+Quản lý kho Nguyên vật liệu,1
+Quản lý kho thành phẩm,1
+Kiểm Soát Hàng Tồn Kho,1
+quản lý nhân sự kho,1
+Thành thạo Tiếng Trung,1
+Thu hồi nợ,1
+Collection Strategy,1
+Hệ Thống Thuế,1
+Teller Operations,1
+Giao Dịch Ngân Hàng,1
+Technical Manager,1
+Material Knowledge,1
+Metallurgical,1
+Bảo Vệ Thực Vật,1
+Kinh Doanh Nông Nghiệp,1
+Quản Lý Kênh Bán Hàng,1
+EFL,1
+Project sales,1
+Construction Chemicals,1
+Construction Material,1
+Waterproofing,1
+Recruitment Strategies,1
+Interviewing skills,1
+Hospitality Labor Market,1
+Oil and Gas Industry,1
+Technical Design,1
+Polymer,1
+Mua Hàng Nước Ngoài,1
+Đàm Phán Thương Mại,1
+Phát Triển Khách Hàng Quốc Tế,1
+Kiểm Nghiệm Môi Trường,1
+Laboratory Operations,1
+Laboratory Techniques,1
+Wastewater Treatment,1
+Raw Materials,1
+Web Design,1
+Visual Product Editing,1
+Lập Kế Hoạch Ngân Sách,1
+Kế toán - Kiểm toán,1
+Tài chính - Ngân hàng,1
+Phân Tích Thông Tin,1
+Ô Tô,1
+Giám Sát Điều Hành,1
+Quản Lý Xe,1
+Hệ Thống Quản Lý,1
+sản phẩm công nghệ,1
+Xây dựng quy trình kiểm thử,1
+Cải Tiến Sáng Tạo,1
+Giám Sát Tuân Thủ,1
+Bán Hàng Phân Phối,1
+Chăm Sóc Khách Hàng B2B,1
+Làm Việc Thị Trường,1
+Thị Trường F&B,1
+Technical Equipment,1
+Industrial Machinery,1
+Vận Hành Kinh Doanh,1
+Đào Tạo Nghiệp Vụ,1
+Thiết Bị An Ninh Giám Sát,1
+Chính Sách Thuế,1
+Kế Toán Trưởng,1
+Recruitment Tools,1
+Interview Evaluation,1
+Chứng Từ Xuất Nhập Khẩu,1
+purchase,1
+Purchansing,1
+Chấm công,1
+Điện Tử Công Nghiệp,1
+Kỹ Thuật CNC,1
+Inland Trucking,1
+Trucking Management,1
+Cross Border Trucking,1
+Sale Thị Trường,1
+SAP systems,1
+Quan Hệ Công Chúng,1
+Truyền Thông Báo Chí,1
+Robot,1
+Robot Operation,1
+Analytical Skill,1
+Tâm Lý Học,1
+HSE System,1
+QHSE System Management,1
+Kỹ Thuật Chuyền May,1
+May Mặc,1
+Maintenance & Engineering,1
+Automation Maintenance,1
+Marine Terminal Operations,1
+Maintenance Strategy,1
+Lập Báo Cáo Tài Chính,1
+Kế toán tài chính,1
+Digital transformation,1
+Api & Integration,1
+Customer Focus,1
+Quản Lý Truyền Thông,1
+Cash Management,1
+Banking Operation,1
+Tax Knowledge,1
+Textile Garment,1
+Vendor Development,1
+Garment Industry Experience,1
+Operational Compliance,1
+Trucking Safety,1
+QMS System,1
+Qc,1
+Photoshop,1
+CorelDRAW,1
+illustrator,1
+Good English Reading,1
+System Implementation,1
+Hrm Systems,1
+Kinh Doanh Thị Trường,1
+Thiết Bị Công Nghiệp,1
+Đàm phán và bán hàng,1
+Bảo Dưỡng Máy Móc,1
+Architecture,1
+Architecture & Design,1
+Residential Development,1
+HSE standards,1
+Safety Regulations,1
+Inventory,1
+S&Op Process Management,1
+Customs Regulations Knowledge,1
+Import-Export Management,1
+Customer Sales Service,1
+Vệ Sinh Công Nghiệp,1
+Kinh Doanh Dịch Vụ,1
+CAD Software Proficiency,1
+Interior Construction Knowledge,1
+Detail-Level Drawing Production,1
+Real Estate,1
+Residential Projects,1
+Pháp Lý Ngân Hàng,1
+Tư Duy Phản Biện,1
+Ra Quyết Định,1
+Facilities Management,1
+Educational Administration,1
+Workshop Design,1
+Community Marketing,1
+Spare Parts & Inventory Management,1
+Lập Kế Hoạch Mục Tiêu,1
+R&D Management,1
+Food Processing Technology,1
+Coffee Knowledge,1
+Quản Lý Đội Ngũ Kinh Doanh,1
+Canva Design,1
+Administrative Assistant,1
+Office Skills,1
+Administrative Duties,1
+Admintration,1
+Guest Relations,1
+Public Relation,1
+Front Desk Operations,1
+Feedback Management,1
+Pcb Design,1
+Thiết Kế Phần Cứng,1
+Sửa Mạch Nguồn,1
+Medical Device,1
+Product Portfolio Development,1
+Quản Trị Công Nghệ,1
+Microsoft 365,1
+Power Apps,1
+客户关系管理,1
+销售经验,1
+沟通能力,1
+数据分析,1
+客户服务意识,1
+Service Delivery Management,1
+Quản Lý Vật Tư,1
+Cargo Handling,1
+Tổ chức  thực hiện vận chuyển Logistics,1
+HSSE,1
+Kế hoạch & Báo cáo,1
+Chiến Lược Thương Hiệu,1
+Trải nghiệm khách hàng,1
+Ui/Ux Design,1
+User Research,1
+Generative Ai Design Tools,1
+Tổng Hợp Phân Tích,1
+Tiếng  Anh Giao Tiếp,1
+Civil Engineering,1
+QS (Quantity Surveying),1
+Triển Khai Bản Vẽ Thép,1
+Cơ Điện - M&E,1
+Triển khai thi công,1
+Financial Solution,1
+Pipeline Management,1
+Phát Triển Mạng Lưới,1
+Quản Lý Đối Tác,1
+Xúc Tiến Thương Mại,1
+Direct Sales,1
+Quản Lý Hệ Thống Bán Lẻ,1
+Kinh Doanh Bán Lẻ,1
+Chemical engineering,1
+Công Nghệ Hóa Học,1
+Manufactory Management,1
+Mechanic,1
+Accounting Standards,1
+Quản Lý Kế Hoạch Tài Chính,1
+Misa Accounting Software,1
+Công Trình Xử Lý Nước Thải,1
+Triển Khai Bản Vẽ,1
+Payable Accounting,1
+VAT Refund,1
+Invoice Processing,1
+Dịch Vụ Chứng Khoán,1
+Giao Dịch Chứng Khoán,1
+Phân tích chứng khoán,1
+Quản Lý Tài Khoản,1
+Rubber Compounding,1
+Lao Động Phổ Thông,1
+Kết Cấu Thép,1
+Coating,1
+Coating Inspector,1
+Nghiệm Thu Chất Lượng,1
+Du Học,1
+Visa,1
+Định Cư Di Trú,1
+Nhựa Gia Dụng,1
+Household,1
+Packaging Industry,1
+Plastics Molding,1
+Sales In Plastics Industry,1
+B2C,1
+sale,1
+Đầu Tư,1
+Quản Lý Soc,1
+Edr/Xdr,1
+AI/LLM,1
+MRO,1
+Indirect Purchasing,1
+Sourcing Analysis,1
+Cross selling,1
+Finance Accounting,1
+Tiêu Chuẩn Kỹ Thuật,1
+Xây dựng quy trình tiêu chuẩn vận hành,1
+Hệ thống tiêu chuẩn chất lượng,1
+Tiêu chuẩn công nghiệp,1
+Kỹ Sư Phát Triển Sản Phẩm,1
+Quản lý vòng đời sản phẩm,1
+Nghiên Cứu Phát Triển Sản Phẩm,1
+Customer Acquisition,1
+Sales strategies,1
+Lập Trình PLC,1
+Lập trình HMI,1
+Kinh Doanh Thiết Bị Y Tế,1
+Account Management,1
+CRM Software,1
+Transportation,1
+Quản Lý Đội Xe,1
+Hse Regulations,1
+Occupational Safety,1
+Xay dựng quan hệ khách hàng,1
+Mua Hàng Vật Tư Kỹ Thuật,1
+Tiếng Trung Thành Thạo,1
+Plc,1
+Sử Dụng Auto Card,1
+Solidwork,1
+Solidworks 3D,1
+Personal Income Tax,1
+Social Insurance Administration,1
+Credit Control,1
+Huy Động Vốn,1
+Huy Động Dòng Tiền,1
+Giao Dịch Nguồn Vốn,1
+Quản Lý Huy Động Vốn,1
+Kỹ Thuật Cơ Khí,1
+Quản Lý Bảo Trì,1
+Tổ Chức Công Việc,1
+Giám Sát Bảo Trì,1
+Electrical Design,1
+Electrical Supervision,1
+Legal,1
+Law Firms,1
+Kỹ sư lắp đặt,1
+Bảo Trì Thiết Bị,1
+Vi Tính Văn Phòng,1
+Consultant Service,1
+CNC Programming,1
+Staff Management,1
+Quản Lý Hành Chính,1
+Quản lý tài sản,1
+Pharmacy,1
+OTC,1
+Tư Vấn Kinh Doanh,1
+Giới Thiệu Sản Phẩm,1
+Shipping Documents,1
+Managing Purchase Orders,1
+Checking Contract,1
+Follow Up Schedule,1
+Research Marketing,1
+Analysis Report,1
+Mergers & Acquisitions,1
+Fdi Investment Law,1
+Corporate Restructuring,1
+Investment Licensing,1
+In-House Legal Experience,1
+Process Management,1
+Product Launching,1
+HMI,1
+Hydraulic Systems,1
+Heavy Machinery Maintenance,1
+Customer Orientation,1
+Kỹ Thuật Viên Bảo Trì,1
+Quản Lý Nhà Máy,1
+Chemical Processing,1
+Laboratory Management,1
+SPC knowledge,1
+6 Sigma,1
+Production Process,1
+Contract Negotiation,1
+Wastewater Treatment Design,1
+Environmental engineering,1
+Environmental Systems Engineering,1
+Environmental Management System,1
+Education & Training,1
+Project Sales,1
+Construction Materials,1
+Audit Process,1
+ISO Management,1
+Đàm phán và thuyết phục,1
+Tiếng Anh Thành Thạo,1
+Đọc Hiểu Bản Vẽ,1
+Real Estate Projects,1
+Giám Sát Sản Xuất,1
+Iso,1
+Kỹ Sư Cơ Khí,1
+Study Abroad,1
+Cost Analysis,1
+Trade Sales,1
+Mua Sắm Trực Tuyến,1
+Đấu Thầu,1
