@@ -268,14 +268,33 @@ from pipeline.utils.analysis_base import ANALYSIS_BASE_WHERE
 
 Only needed to re-crawl or re-label; requires API keys in `.env`.
 
+With Docker, nothing else has to be installed and the Python version is not yours to get right:
+
 ```bash
-python -m pip install -e ".[dataset]"
+cp .env.example .env
+docker compose run --rm pipeline all
+```
+
+`docker compose run --rm tests` runs the suite with no `.env` and no data mounted — the
+repository on its own. That is deliberate: this project used to pass its tests on one laptop and
+fail everywhere else, because two things it needed lived outside the repository rather than in
+it. `data/` is a bind mount, so a run's warehouse lands in the working tree; `.env` is read at
+run time and never enters an image layer.
+
+Without Docker:
+
+```bash
+python -m pip install -r requirements.lock   # exact versions, same as the image and CI
+python -m pip install --no-deps -e .
 cp .env.example .env
 
 python -m pipeline all           # the whole chain, in order, behind a quality gate
 python -m pipeline all --dry-run # print the steps without running them
 python -m pipeline runs          # what ran, when, how long, how many rows, and whether it failed
 ```
+
+The embedding tier needs `pip install -e ".[dataset]"` on top — that pulls in torch, so it is not
+in the lockfile or the image. Everything else runs without it.
 
 `all` runs `scrape → load → gate → silver → label → refine → enrich-llm → integrate → gold → validate`.
 Every step is recorded in `pipeline_runs`, all of them under one `run_id`, so a run is one row group

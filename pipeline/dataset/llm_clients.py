@@ -90,9 +90,18 @@ _MIN_INTERVAL = {"cerebras": 13.0, "mistral": 16.0, "groq8b": 5.0, "groq": 3.5, 
 # A judge missing here is silently UNTHROTTLED (`_throttle` returns on interval<=0) and, worse, its
 # 429s fall back to a 2s reset, which is below EXHAUST_RESET, so the engine never marks it exhausted
 # and re-probes a dead provider on every remaining job. `github` was missing exactly this way.
-assert set(JUDGES) == set(_MIN_INTERVAL), (
-    f"every judge needs a rate interval; missing={set(JUDGES) - set(_MIN_INTERVAL)}, "
-    f"stale={set(_MIN_INTERVAL) - set(JUDGES)}")
+#
+# Only the missing direction is a fault. This used to demand the two sets be equal, which made
+# importing this module depend on which API keys happened to be in the environment: a judge is
+# only built when its key is present, so a checkout without a .env — CI, a container, anyone
+# else's machine — had fewer judges than this table has rows and the assert fired at import.
+# Nothing could even be collected, and the failure named a rate limit rather than a missing key.
+# An interval for a provider that is not configured is an unused row, not a bug.
+_unthrottled = set(JUDGES) - set(_MIN_INTERVAL)
+assert not _unthrottled, (
+    f"every configured judge needs a rate interval; missing={sorted(_unthrottled)}. "
+    f"Add one to _MIN_INTERVAL — a judge without an interval is never throttled and never "
+    f"marked exhausted.")
 _TIMEOUT = {"ninerouter": 90}   # per-judge client timeout override (seconds); default 15
 _gate = {k: threading.Lock() for k in JUDGES}
 _last_start = {k: 0.0 for k in JUDGES}

@@ -1,5 +1,10 @@
 name: pipeline-ci
 
+# This workflow was red on every push for weeks and nobody was told. Two causes, both of the
+# same kind: the suite needed things that came from the author's laptop rather than from the
+# repository — a .env that decided which LLM judges existed, and a working directory that made
+# `analysis` importable. A green run here now means the repository alone is enough.
+
 on:
   push:
     branches: [main, master]
@@ -10,15 +15,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # From .python-version — the same file the Dockerfile reads. One answer to "which
+      # interpreter", not one per place that needs to know.
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version-file: ".python-version"
+          cache: "pip"
+
+      # Exact versions, same as the image. `pip install -e .` alone resolves whatever is newest
+      # that day, which is how a suite can pass in the morning and fail in the afternoon with no
+      # commit in between.
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e .
-          python -m pip install pytest ruff
+          python -m pip install -r requirements.lock
+          python -m pip install --no-deps -e .
+
       - name: Lint (informational)
         run: ruff check pipeline tests || true
+
+      # No .env exists on a runner, and that is the point: this is the environment the suite
+      # used to fail in.
       - name: Tests
         run: pytest -q
+
+  # Building the image is itself a test. The first build failed 31 tests because ref/ — the
+  # reference dictionaries normalize.py reads at run time — was declared nowhere and had only
+  # ever been found by sitting in the working tree. Running the suite inside the image is what
+  # makes "works on my machine" structurally impossible rather than merely discouraged.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t vn-data-job-market:ci .
+
+      - name: Run the suite inside the image
+        run: docker run --rm --entrypoint python vn-data-job-market:ci -m pytest -q
+
+      - name: The CLI resolves its eleven steps with no data mounted
+        run: docker run --rm vn-data-job-market:ci all --dry-run
+
+      # A secret in a layer is not removed by deleting the file later — the layer keeps it and
+      # travels with the image.
+      - name: No secret reached a layer
+        run: |
+          if docker run --rm --entrypoint sh vn-data-job-market:ci \
+               -c "ls -a /app | grep -qiE '^\.env|\.pem$|\.key$'"; then
+            echo "::error::a credential file is inside the image"
+            exit 1
+          fi
+          echo "clean"

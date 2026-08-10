@@ -1,0 +1,39 @@
+# Two things this file is for.
+#
+# One: running the pipeline without installing anything but Docker. `docker compose run --rm
+# pipeline all` reproduces a full run on any machine, which was not true of this project before
+# — it ran on the author's laptop and nowhere else.
+#
+# Two: keeping data and secrets outside the image. `data/` is a bind mount, so the warehouse a
+# run produces lands in the working tree and survives the container. `.env` is read at run time
+# and never copied in.
+
+services:
+  pipeline:
+    build: .
+    image: vn-data-job-market:local
+    env_file:
+      - .env
+    volumes:
+      # The warehouse, Bronze snapshots and Parquet outputs live here. Read-write on purpose:
+      # a run that cannot write its own output is not a run.
+      - ./data:/app/data
+      # Sources are read at start-up, so editing config/sources.yml does not need a rebuild.
+      - ./config:/app/config:ro
+      # Same for the reference dictionaries — skills, seniority, company types. They are baked
+      # into the image so it works standalone; mounting them lets a rule be edited and tried
+      # without waiting for a build.
+      - ./ref:/app/ref:ro
+    # `docker compose run --rm pipeline <command>` — for example:
+    #   all --dry-run      show the eleven steps without executing them
+    #   all --from silver  resume after the ingest steps
+    #   runs               the run history table
+    command: ["--help"]
+
+  # Same image, no secrets, no data mount: the suite must pass on the repository alone.
+  # This is the condition that used to fail — `pytest` needed a .env to even collect.
+  tests:
+    build: .
+    image: vn-data-job-market:local
+    entrypoint: ["python", "-m", "pytest", "-q"]
+    command: []

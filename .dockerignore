@@ -1,0 +1,32 @@
+# Secrets must never enter an image layer. A layer is not deleted by a later RUN rm — it stays
+# in the history and travels with the image.
+.env
+.env.*
+*.pem
+*.key
+
+# Data is mounted as a volume at run time, not baked in. data/warehouse.duckdb alone is 26 MB
+# and is rewritten by every run.
+data/
+!data/.gitkeep
+
+# Build and local noise
+.git/
+.github/
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+htmlcov/
+.coverage
+logs/
+notebooks/
+analysis/figures/
+docs/
+*.md
+!README.md

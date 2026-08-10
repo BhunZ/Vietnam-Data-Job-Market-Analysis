@@ -29,8 +29,22 @@ def _vote(judge: str, fam: str, conf: float = 0.8) -> dict:
 def test_every_judge_has_a_rate_interval():
     """A judge missing from _MIN_INTERVAL is silently UNTHROTTLED, and its 429s fall back to a 2s reset
     (below EXHAUST_RESET) so the engine never marks it exhausted and re-probes it on every job.
-    `github` shipped in this state."""
-    assert set(JUDGES) == set(_MIN_INTERVAL)
+    `github` shipped in this state.
+
+    Only that direction is checked. Which judges exist depends on which API keys are in the
+    environment, so demanding the two sets be equal made this test — and the import of
+    `llm_clients` itself — pass on a machine with a .env and fail everywhere else. It did:
+    CI was red on every push for weeks over `cloudflare` and `ninerouter`, whose keys the
+    runner does not have. An interval for a provider nobody configured is an unused row.
+    """
+    assert not set(JUDGES) - set(_MIN_INTERVAL)
+
+
+def test_the_rate_table_does_not_depend_on_local_credentials():
+    """The regression guard for the failure above: rate limits are a property of the provider,
+    not of whether this machine happens to hold a key for it."""
+    for judge in ("cloudflare", "ninerouter", "github", "groq"):
+        assert judge in _MIN_INTERVAL, f"{judge} lost its rate interval"
 
 
 def test_dynamically_registered_judges_have_throttle_gates():

@@ -53,7 +53,12 @@ vn-jobs = "pipeline.__main__:main"
 # all left out of a real install. CI never noticed because it installs with -e, where the
 # source tree is on the path and the declaration does not matter. Discovery keeps this
 # correct as subpackages are added.
-include = ["pipeline*", "job_family_engine*"]
+#
+# `analysis` belongs here too. It was left out, and because a plain `pytest` run from the repo
+# root finds it through the working directory, nothing local ever noticed — while CI, which
+# installs the package and imports from site-packages, failed at collection with
+# `ModuleNotFoundError: No module named 'analysis'` on every push for weeks.
+include = ["pipeline*", "job_family_engine*", "analysis*"]
 
 [tool.setuptools.package-data]
 # The taxonomy YAML is read at runtime by the labeling engine, so it has to travel with it.
