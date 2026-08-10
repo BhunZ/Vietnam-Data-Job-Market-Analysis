@@ -67,10 +67,14 @@ jobs:
 
       # The warehouse is derived state, and the runner starts empty. Without this, `load` would
       # treat every posting as new and the CDC history would restart from zero each week.
-      - name: Fetch the warehouse and the Bronze history
+      # Labels come down too. They are the output of roughly three thousand LLM calls, are
+      # gitignored for that reason, and `integrate` reads them — so a runner without them stops
+      # at that step, which is exactly what the first run of this job did.
+      - name: Fetch the warehouse, the Bronze history and the labels
         run: |
           python -m pipeline sync pull --what warehouse --overwrite
           python -m pipeline sync pull --what bronze
+          python -m pipeline sync pull --what labels
 
       # Labelling and its refinement are skipped: they spend LLM quota per posting. Everything
       # else runs, including the gate — which sits between load and the rest precisely so a

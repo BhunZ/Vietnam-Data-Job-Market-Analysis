@@ -42,6 +42,20 @@ GOLD_TABLES = [
     "gold_location", "gold_seniority", "gold_skill_cooccurrence", "gold_domain_share",
 ]
 
+#: Labelling output, relative to `data/`. Deliberately gitignored: `job_family.parquet` alone is
+#: the result of roughly three thousand LLM calls against free-tier quota, and re-running it is
+#: neither free nor deterministic. So it is not in the repository and it is not reproducible on
+#: demand — which is exactly the kind of artifact object storage is for.
+#:
+#: The weekly job skips `label` to avoid spending quota, but `integrate` reads this. Without it
+#: in the bucket the runner has no labels at all and the chain stops there, which is how this
+#: list came to exist.
+LABEL_ARTIFACTS = [
+    "labeling/job_family.parquet",
+    "labeling/seniority_llm.parquet",
+    "labeling/company_industry_llm.parquet",
+]
+
 
 class SyncSkipped(RuntimeError):
     """Raised when a sync was asked for but no store is configured."""
@@ -114,6 +128,44 @@ def push_gold() -> int:
     return published
 
 
+def push_labels() -> int:
+    """Upload the labelling output. Returns how many files were sent.
+
+    Overwrites rather than skipping: unlike a Bronze snapshot, these are rebuilt in place each
+    time `label` runs and the newest version is the one that matters.
+    """
+    _require_store()
+    sent = 0
+    for rel in LABEL_ARTIFACTS:
+        local = DATA_DIR / rel
+        if not local.exists():
+            logger.info("no %s to upload — skipping", rel)
+            continue
+        objstore.put_file(local, f"labels/{Path(rel).name}")
+        sent += 1
+    logger.info("labels push: %d files", sent)
+    return sent
+
+
+def pull_labels() -> int:
+    """Download the labelling output. Returns how many files arrived.
+
+    Always overwrites: a runner that skips `label` needs the bucket's copy, and a stale local
+    file would silently produce Gold tables built on last month's labels.
+    """
+    _require_store()
+    got = 0
+    for rel in LABEL_ARTIFACTS:
+        key = f"labels/{Path(rel).name}"
+        if not objstore.exists(key):
+            logger.info("%s is not in the bucket — skipping", key)
+            continue
+        objstore.get_file(key, DATA_DIR / rel)
+        got += 1
+    logger.info("labels pull: %d files", got)
+    return got
+
+
 def push_warehouse() -> int:
     """Upload the DuckDB file itself. Returns bytes sent."""
     _require_store()
@@ -177,5 +229,6 @@ def status() -> dict:
         "bronze_snapshots": len(bronze_keys),
         "bronze_sources": sources,
         "gold_tables": sorted(k.split("/")[-1] for k in keys if k.startswith("gold/")),
+        "label_artifacts": sorted(k.split("/")[-1] for k in keys if k.startswith("labels/")),
         "warehouse": objstore.exists(objstore.WAREHOUSE_KEY),
     }

@@ -112,7 +112,7 @@ def main(argv: list[str] | None = None) -> int:
         help="push: send Bronze + Gold + warehouse · pull: fetch what is missing here · "
              "status: what the bucket holds · check: prove the credentials can write")
     p_sync.add_argument("--what", default="all",
-                        choices=["all", "bronze", "gold", "warehouse"],
+                        choices=["all", "bronze", "gold", "labels", "warehouse"],
                         help="limit the action to one kind of artifact (default: all)")
     p_sync.add_argument("--overwrite", action="store_true",
                         help="on pull, replace a warehouse that already exists here")
@@ -270,8 +270,8 @@ def _run_sync(args) -> int:
     Kept out of `_dispatch` and out of `ALL_STEPS`: the chain must stay runnable with no cloud
     account at all, so moving bytes off this machine is always something you ask for.
     """
-    from .sync import (SyncSkipped, pull_bronze, pull_warehouse, push_bronze, push_gold,
-                       push_warehouse, status)
+    from .sync import (SyncSkipped, pull_bronze, pull_labels, pull_warehouse, push_bronze,
+                       push_gold, push_labels, push_warehouse, status)
     from .utils import objstore
 
     try:
@@ -292,6 +292,8 @@ def _run_sync(args) -> int:
                 print(f"  bronze     {up} uploaded, {skip} already there")
             if want in ("all", "gold"):
                 print(f"  gold       {push_gold()} tables published as Parquet")
+            if want in ("all", "labels"):
+                print(f"  labels     {push_labels()} files uploaded")
             if want in ("all", "warehouse"):
                 print(f"  warehouse  {push_warehouse() / 1e6:.1f} MB uploaded")
             return 0
@@ -300,6 +302,8 @@ def _run_sync(args) -> int:
         if want in ("all", "bronze"):
             down, skip = pull_bronze()
             print(f"  bronze     {down} downloaded, {skip} already local")
+        if want in ("all", "labels"):
+            print(f"  labels     {pull_labels()} files downloaded")
         if want in ("all", "warehouse"):
             got = pull_warehouse(overwrite=args.overwrite)
             print(f"  warehouse  {'kept the local copy' if got is None else f'{got / 1e6:.1f} MB downloaded'}")
