@@ -1,5 +1,15 @@
 # Vietnam Data Job Market Analysis
 
+<p>
+  <img src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12" />
+  <img src="https://img.shields.io/badge/DuckDB-columnar-FFF000?logo=duckdb&logoColor=black" alt="DuckDB" />
+  <img src="https://img.shields.io/badge/Parquet-columnar-50ABF1?logo=apacheparquet&logoColor=white" alt="Parquet" />
+  <img src="https://img.shields.io/badge/Docker-containerised-2496ED?logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/storage-S3%20compatible-F38020?logo=cloudflare&logoColor=white" alt="S3-compatible object storage" />
+  <img src="https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white" alt="GitHub Actions" />
+  <img src="https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white" alt="pytest" />
+</p>
+
 > Crawls Vietnamese **data / IT job postings**, gives every posting a reliable **job-family label**, then
 > mines the labelled corpus for insight: which roles hire most, which skills go together, and how demand
 > differs by city, industry and seniority.
@@ -371,7 +381,56 @@ the silent-failure path was hit for real.
 
 ---
 
-## 8. Design decisions
+## 8. Challenges
+
+Four problems shaped this pipeline. None of them raises an error — each one lets the run finish and
+reports a number that is quietly wrong.
+
+### A broken scraper does not fail
+
+When a board changes its HTML, the code still runs perfectly and returns **zero rows**. Zero rows
+looks exactly like a quiet week, so nothing distinguishes a dead parser from a slow market.
+
+Four gates run before anything downstream is allowed to proceed: posting volume compared to the
+previous run and **scaled to the gap since it**, because a fortnight's gap should bring more, not the
+same; a single source falling silent while the others behave normally, which is the specific shape of
+a broken parser rather than a slow market; cross-checks between aggregate tables that must agree; and
+a budget check that refuses to begin a crawl it cannot finish, since a half-finished crawl is
+indistinguishable from a genuine collapse in postings.
+
+### No board reports a removal
+
+A posting that is taken down simply stops appearing. There is no event, no flag, no endpoint.
+
+The only available signal is **absence over time**, which is why Bronze keeps an immutable dated
+snapshot per source rather than a current-state table. Each posting carries a first-seen date, a
+last-seen date and a count of consecutive runs in which it did not appear. One missing run means
+nothing — a page can fail. Several consecutive absences is a signal. It remains **inference, not
+verification**, and the README says so wherever the number appears.
+
+### Two modules filtered differently and described different corpora
+
+Both were correct in isolation. Each defined "the analysis population" slightly differently, so two
+sections of the same report silently described two different sets of postings, and every percentage
+disagreed with every other by a margin small enough to look like rounding.
+
+There is now **one definition, imported everywhere**. A filter written twice is a filter that will
+diverge.
+
+### A cheap classifier that guesses is worse than no classifier
+
+The labelling engine runs in tiers, cheapest first. The failure mode is a cheap tier that
+short-circuits on a guess — it denies the expensive tier the chance to read the description at all,
+and the wrong label then propagates into every aggregate carrying full confidence.
+
+So a cheap tier must be **narrow, not merely cheap**: it may only answer when the title is
+unambiguous, and must abstain otherwise. Where an LLM is used, two judges must agree — a model's own
+confidence is not evidence — and the evidence bar is applied uniformly rather than only to labels
+already under suspicion.
+
+---
+
+## 9. Design decisions
 
 - **Label first, analyse second.** No standard role label exists, so labelling gates every insight — hence
   a dedicated reusable engine rather than ad-hoc title rules.
